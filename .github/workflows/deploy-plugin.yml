@@ -1,4 +1,4 @@
-name: Deploy Plugin
+name: Build Plugin ZIP
 
 on:
   push:
@@ -6,18 +6,17 @@ on:
       - main
 
 jobs:
-  ftp-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Create ZIP
+        run: zip -r goodbyehair-booking.zip . -x "*.git*"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          protocol: sftp
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /wp-content/plugins/goodbyehair-booking/
+          name: plugin-zip
+          path: goodbyehair-booking.zip
