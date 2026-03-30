@@ -65,5 +65,3 @@ class GBH_Booking {
 }
 
 new GBH_Booking();
-
-
