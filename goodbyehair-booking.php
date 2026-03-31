@@ -45,7 +45,7 @@ class GBH_Booking {
 
         ob_start();
 
-        echo '<h2>Kies je behandeling TST</h2>';
+        echo '<h2>Kies je behandeling TeeST</h2>';
 
         foreach ($treatments as $category => $items) {
 
