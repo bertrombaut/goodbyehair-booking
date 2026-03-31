@@ -1,4 +1,4 @@
-name: Deploy naar Strato
+name: Deploy goodbyehair-booking
 
 on:
   push:
@@ -12,12 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Upload via SFTP
-        uses: Dylan700/sftp-upload-action@latest
+      - name: Deploy plugin
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: "${{ secrets.FTP_SERVER }}"
-          username: "${{ secrets.FTP_USERNAME }}"
-          password: "${{ secrets.FTP_PASSWORD }}"
-          port: 22
-          uploads: |
-              ./goodbyehair-booking.php => wp-content/plugins/goodbyehair-booking/goodbyehair-booking.php
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./
+          server-dir: /STRATO-apps/wordpress_05/app/wp-content/plugins/goodbyehair-booking/
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/.DS_Store
+            **/README.md
