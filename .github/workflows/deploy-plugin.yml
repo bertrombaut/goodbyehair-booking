@@ -20,4 +20,4 @@ jobs:
           password: "${{ secrets.FTP_PASSWORD }}"
           port: 22
           uploads: |
-              ./goodbyehair-booking.php => STRATO-apps/wordpress_05/app/wp-content/plugins/goodbyehair-booking/goodbyehair-booking.php
+              ./goodbyehair-booking.php => /STRATO-apps/wordpress_05/app/wp-content/plugins/goodbyehair-booking/goodbyehair-booking.php
