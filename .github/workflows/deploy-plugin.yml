@@ -21,4 +21,5 @@ jobs:
           port: 22
           uploads: |
               ./goodbyehair-booking.php => wp-content/plugins/goodbyehair-booking/goodbyehair-booking.php
+
            
