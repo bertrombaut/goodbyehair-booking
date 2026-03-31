@@ -1,4 +1,4 @@
-name: Build Plugin ZIP
+name: Deploy naar Strato
 
 on:
   push:
@@ -6,21 +6,19 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create plugin zip
-        run: |
-          mkdir goodbyehair-booking
-          cp -r * goodbyehair-booking/
-          zip -r goodbyehair-booking.zip goodbyehair-booking -x "*.git*"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload via SFTP
+        uses: Dylan700/sftp-upload-action@v1
         with:
-          name: plugin-zip
-          path: goodbyehair-booking.zip
+        server: ${{ secrets.FTP_SERVER }}
+	username: ${{ secrets.FTP_USERNAME }}
+	password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
+          uploads: |
+            ./goodbyehair-booking.php => /wp-content/plugins/goodbyehair-booking/goodbyehair-booking.php
 
