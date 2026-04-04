@@ -96,6 +96,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const timeButtons = document.querySelectorAll(".gbh-time");
     const chosenTimeText = document.getElementById("gbh-chosen-time");
     const selectedTimeInput = document.getElementById("gbh-selected-time");
+    const timeButtons = document.querySelectorAll(".gbh-time");
+    const chosenTimeText = document.getElementById("gbh-chosen-time");
+    const selectedTimeInput = document.getElementById("gbh-selected-time");
 
     function updateTotals() {
         let time = 0;
@@ -172,6 +175,26 @@ if (backButton && step1 && step2) {
             });
         });
     }
+
+if (timeButtons.length && chosenTimeText && selectedTimeInput) {
+    timeButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            timeButtons.forEach(function (btn) {
+                btn.style.background = "#fff";
+                btn.style.borderColor = "#ccc";
+                btn.style.color = "#000";
+            });
+
+            button.style.background = "#7d3c98";
+            button.style.borderColor = "#7d3c98";
+            button.style.color = "#fff";
+
+            const chosenTime = button.dataset.time;
+            selectedTimeInput.value = chosenTime;
+            chosenTimeText.textContent = "Gekozen tijd: " + chosenTime;
+        });
+    });
+}
 
     updateTotals();
 });
