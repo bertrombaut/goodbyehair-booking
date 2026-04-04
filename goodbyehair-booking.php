@@ -9,6 +9,8 @@ class GBH_Booking {
 
     public function __construct() {
         add_shortcode('gbh_booking', [$this, 'render']);
+        add_action('admin_menu', [$this, 'admin_menu']);
+        add_action('admin_init', [$this, 'register_settings']);
     }
 
     public function render() {
@@ -178,6 +180,61 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return ob_get_clean();
     }
+
+public function admin_menu() {
+    add_options_page(
+        'Booking instellingen',
+        'Booking',
+        'manage_options',
+        'gbh-booking',
+        [$this, 'settings_page']
+    );
+}
+
+public function register_settings() {
+    register_setting('gbh_settings_group', 'gbh_days');
+    register_setting('gbh_settings_group', 'gbh_start_time');
+    register_setting('gbh_settings_group', 'gbh_end_time');
+}
+
+public function settings_page() {
+    $days = get_option('gbh_days', []);
+    $start = get_option('gbh_start_time', '10:00');
+    $end = get_option('gbh_end_time', '20:00');
+    ?>
+    <div class="wrap">
+        <h1>Booking instellingen</h1>
+        <form method="post" action="options.php">
+            <?php settings_fields('gbh_settings_group'); ?>
+
+            <h3>Werkdagen</h3>
+            <?php
+            $all_days = ['ma','di','wo','do','vr','za','zo'];
+            foreach ($all_days as $day) {
+                ?>
+                <label>
+                    <input type="checkbox" name="gbh_days[]" value="<?php echo $day; ?>" <?php checked(in_array($day, $days)); ?>>
+                    <?php echo strtoupper($day); ?>
+                </label><br>
+                <?php
+            }
+            ?>
+
+            <h3>Tijden</h3>
+            <label>Start:
+                <input type="time" name="gbh_start_time" value="<?php echo esc_attr($start); ?>">
+            </label><br><br>
+
+            <label>Einde:
+                <input type="time" name="gbh_end_time" value="<?php echo esc_attr($end); ?>">
+            </label><br><br>
+
+            <?php submit_button(); ?>
+        </form>
+    </div>
+    <?php
+}
+    
 }
 
 new GBH_Booking();
