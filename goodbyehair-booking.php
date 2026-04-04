@@ -72,7 +72,7 @@ class GBH_Booking {
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
        echo '<div style="display:flex;align-items:center;gap:10px;">';
-        echo '<button type="button" id="gbh-back-step" style="padding:8px 12px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug</button>';
+        echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
         echo '<h3 style="margin:0;">Kies datum en tijd</h3>';
         echo '</div>';
        echo '<div id="gbh-times">';
