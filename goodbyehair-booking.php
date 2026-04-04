@@ -209,6 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     public function settings_page() {
+        $times = get_option('gbh_times', []);
         $days = get_option('gbh_days', []);
        $times = get_option('gbh_times', []);
         ?>
