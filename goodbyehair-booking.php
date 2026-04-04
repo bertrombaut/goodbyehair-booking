@@ -71,7 +71,10 @@ class GBH_Booking {
         echo '</div>';
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-        echo '<h3>Kies datum en tijd</h3>';
+       echo '<div style="display:flex;align-items:center;gap:10px;">';
+        echo '<button type="button" id="gbh-back-step" style="padding:8px 12px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug</button>';
+        echo '<h3 style="margin:0;">Kies datum en tijd</h3>';
+        echo '</div>';
        echo '<div id="gbh-times">';
         echo '<button type="button" class="gbh-time" data-time="10:00" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:00</button>';
         echo '<button type="button" class="gbh-time" data-time="10:15" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:15</button>';
@@ -88,6 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const totalTime = document.getElementById("gbh-total-time");
     const totalPrice = document.getElementById("gbh-total-price");
     const nextButton = document.getElementById("gbh-next-step");
+    const backButton = document.getElementById("gbh-back-step");
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
     const timeButtons = document.querySelectorAll(".gbh-time");
@@ -113,12 +117,19 @@ document.addEventListener("DOMContentLoaded", function () {
         checkbox.addEventListener("change", updateTotals);
     });
 
-    if (nextButton && step1 && step2) {
-        nextButton.addEventListener("click", function () {
-            step1.style.display = "none";
-            step2.style.display = "block";
-        });
-    }
+  if (nextButton && step1 && step2) {
+    nextButton.addEventListener("click", function () {
+        step1.style.display = "none";
+        step2.style.display = "block";
+    });
+}
+
+if (backButton && step1 && step2) {
+    backButton.addEventListener("click", function () {
+        step2.style.display = "none";
+        step1.style.display = "block";
+    });
+}
 
     if (timeButtons.length && chosenTimeText && selectedTimeInput) {
         timeButtons.forEach(function (button) {
