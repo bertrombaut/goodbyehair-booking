@@ -79,6 +79,39 @@ if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
     echo '<div style="margin-bottom:12px;color:#c62828;font-weight:600;">Vandaag geen beschikbaarheid</div>';
 }
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
+echo '<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const calendar = document.getElementById("gbh-calendar");
+    if (!calendar) return;
+
+    const days = ' . json_encode(get_option('gbh_days', [])) . ';
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    let html = "<div style=\"display:grid;grid-template-columns:repeat(7,1fr);gap:6px;\">";
+
+    for (let i = 0; i < firstDay; i++) {
+        html += "<div></div>";
+    }
+
+    const map = ["zo","ma","di","wo","do","vr","za"];
+
+    for (let d = 1; d <= totalDays; d++) {
+        const date = new Date(year, month, d);
+        const dayKey = map[date.getDay()];
+        const enabled = days.includes(dayKey);
+
+        html += "<div style=\"padding:10px;border:1px solid #ccc;border-radius:6px;text-align:center;cursor:" + (enabled ? "pointer" : "not-allowed") + ";background:" + (enabled ? "#fff" : "#eee") + ";\">" + d + "</div>";
+    }
+
+    html += "</div>";
+    calendar.innerHTML = html;
+});
+</script>';
 
         $times = get_option('gbh_times', []);
 
