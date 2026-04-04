@@ -72,8 +72,12 @@ class GBH_Booking {
         echo '</div>';
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-       $days = get_option('gbh_days', []);
+        $days = get_option('gbh_days', []);
         echo '<div id="gbh-times"></div>';
+        echo '<div style="margin-top:16px;">';
+        echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">Terug</button>';
+        echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende</button>';
+        echo '</div>';
      echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
     echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;">Gekozen datum: geen</div>';
     echo '<input type="hidden" id="gbh-selected-date" value="">';
@@ -306,6 +310,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    const backToStep1Button = document.getElementById("gbh-back-to-step1");
+    if (backToStep1Button) {
+        backToStep1Button.addEventListener("click", function () {
+            step2.style.display = "none";
+            step1.style.display = "block";
+        });
+    }
+
     const step3 = document.getElementById("gbh-step-3");
     const bevestigButton = document.getElementById("gbh-bevestig");
     const backStep3Button = document.getElementById("gbh-back-step3");
@@ -317,8 +329,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    if (nextButton && step1 && step2) {
-        nextButton.addEventListener("click", function () {
+   const nextToStep3Button = document.getElementById("gbh-next-to-step3");
+    if (nextToStep3Button) {
+        nextToStep3Button.addEventListener("click", function () {
             const date = document.getElementById("gbh-selected-date").value;
             const time = document.getElementById("gbh-selected-time").value;
             if (!date || !time) {
@@ -326,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
             const summary = document.getElementById("gbh-step3-summary");
-            summary.innerHTML = "Datum: <strong>" + date + "</strong><br>Tijd: <strong>" + time + "</strong><br>Tijd: <strong>" + document.getElementById("gbh-total-time").textContent + " min</strong><br>Prijs: <strong>€" + document.getElementById("gbh-total-price").textContent + "</strong>";
+            summary.innerHTML = "Datum: <strong>" + date + "</strong><br>Tijd: <strong>" + time + "</strong><br>Behandeltijd: <strong>" + document.getElementById("gbh-total-time").textContent + " min</strong><br>Prijs: <strong>€" + document.getElementById("gbh-total-price").textContent + "</strong>";
             step2.style.display = "none";
             step3.style.display = "block";
         });
