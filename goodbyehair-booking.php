@@ -318,7 +318,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 button.style.color = "#fff";
 
                 const chosenTime = button.dataset.time;
-                selectedTimeInput.value = chosenTime;
                 chosenTimeText.textContent = "Gekozen tijd: " + chosenTime;
             });
         });
