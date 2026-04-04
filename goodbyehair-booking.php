@@ -72,7 +72,12 @@ class GBH_Booking {
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
         echo '<h3>Kies datum en tijd</h3>';
-        echo '<p>Hier komt straks de tijdselectie</p>';
+       echo '<div id="gbh-times">';
+        echo '<button type="button" class="gbh-time">10:00</button> ';
+        echo '<button type="button" class="gbh-time">10:15</button> ';
+        echo '<button type="button" class="gbh-time">10:30</button> ';
+        echo '<button type="button" class="gbh-time">10:45</button>';
+        echo '</div>';
         echo '</div>';
         
         echo '<script>
