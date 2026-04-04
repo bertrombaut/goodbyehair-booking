@@ -80,6 +80,8 @@ if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
 }
         echo '<div id="gbh-times">';
 
+        echo '<input type="date" id="gbh-date" style="margin-bottom:12px;padding:8px;border:1px solid #ccc;border-radius:8px;">';
+
         $times = get_option('gbh_times', []);
 
         $start_ts = strtotime($start);
