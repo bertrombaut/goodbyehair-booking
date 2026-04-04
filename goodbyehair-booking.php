@@ -78,38 +78,78 @@ $today = date('N');
 if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
     echo '<div style="margin-bottom:12px;color:#c62828;font-weight:600;">Vandaag geen beschikbaarheid</div>';
 }
-        echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
+     echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
 echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
     const calendar = document.getElementById("gbh-calendar");
     if (!calendar) return;
 
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const totalDays = new Date(year, month + 1, 0).getDate();
-
-    let html = "<div style=\"display:grid;grid-template-columns:repeat(7,1fr);gap:6px;\">";
-
-    for (let i = 0; i < firstDay; i++) {
-        html += "<div></div>";
-    }
-
+    const monthNames = ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
+    const dayNames = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const map = ["zo","ma","di","wo","do","vr","za"];
 
-    for (let d = 1; d <= totalDays; d++) {
-        const date = new Date(year, month, d);
-        const dayKey = map[date.getDay()];
-        const enabled = days.includes(dayKey);
+    let current = new Date();
+    let year = current.getFullYear();
+    let month = current.getMonth();
 
-        html += "<div style=\"padding:10px;border:1px solid #ccc;border-radius:6px;text-align:center;cursor:" + (enabled ? "pointer" : "not-allowed") + ";background:" + (enabled ? "#fff" : "#eee") + ";\">" + d + "</div>";
+    function renderCalendar() {
+        const firstDate = new Date(year, month, 1);
+        let firstDay = firstDate.getDay();
+        firstDay = firstDay === 0 ? 6 : firstDay - 1;
+
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        let html = "";
+        html += "<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;\">";
+        html += "<button type=\"button\" id=\"gbh-prev-month\" style=\"padding:8px 12px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;\">←</button>";
+        html += "<strong style=\"font-size:18px;\">" + monthNames[month] + " " + year + "</strong>";
+        html += "<button type=\"button\" id=\"gbh-next-month\" style=\"padding:8px 12px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;\">→</button>";
+        html += "</div>";
+
+        html += "<div style=\"display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;\">";
+        dayNames.forEach(function (name) {
+            html += "<div style=\"padding:8px;text-align:center;font-weight:600;\">" + name + "</div>";
+        });
+        html += "</div>";
+
+        html += "<div style=\"display:grid;grid-template-columns:repeat(7,1fr);gap:6px;\">";
+
+        for (let i = 0; i < firstDay; i++) {
+            html += "<div></div>";
+        }
+
+        for (let d = 1; d <= totalDays; d++) {
+            const date = new Date(year, month, d);
+            const dayKey = map[date.getDay()];
+            const enabled = days.includes(dayKey);
+
+            html += "<div style=\"padding:10px;border:1px solid #ccc;border-radius:6px;text-align:center;cursor:" + (enabled ? "pointer" : "not-allowed") + ";background:" + (enabled ? "#fff" : "#eee") + ";\">" + d + "</div>";
+        }
+
+        html += "</div>";
+        calendar.innerHTML = html;
+
+        document.getElementById("gbh-prev-month").addEventListener("click", function () {
+            month--;
+            if (month < 0) {
+                month = 11;
+                year--;
+            }
+            renderCalendar();
+        });
+
+        document.getElementById("gbh-next-month").addEventListener("click", function () {
+            month++;
+            if (month > 11) {
+                month = 0;
+                year++;
+            }
+            renderCalendar();
+        });
     }
 
-    html += "</div>";
-    calendar.innerHTML = html;
+    renderCalendar();
 });
 </script>';
 
