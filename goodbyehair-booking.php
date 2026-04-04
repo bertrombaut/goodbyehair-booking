@@ -97,10 +97,21 @@ class GBH_Booking {
             }
 
             checkboxes.forEach(function (checkbox) {
-                checkbox.addEventListener("change", updateTotals);
-            });
+    checkbox.addEventListener("change", updateTotals);
+    });
 
-            updateTotals();
+    const nextButton = document.getElementById("gbh-next-step");
+    const step1 = document.querySelector(".gbh-booking");
+    const step2 = document.getElementById("gbh-step-2");
+
+if (nextButton && step1 && step2) {
+    nextButton.addEventListener("click", function () {
+        step1.style.display = "none";
+        step2.style.display = "block";
+    });
+}
+
+updateTotals();
         });
         </script>';
 
