@@ -231,8 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         echo '</div>';
-        echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;"></div>';
-echo '<input type="hidden" id="gbh-selected-time" value="">';
+       echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;"></div>';
         echo '<div style="margin-top:20px;">';
         echo '</div>';
 
