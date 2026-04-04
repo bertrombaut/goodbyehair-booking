@@ -84,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
     const times = ' . json_encode(get_option('gbh_times', [])) . ';
+    const bookings = [];
     const monthNames = ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
     const dayNames = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const map = ["zo","ma","di","wo","do","vr","za"];
@@ -161,12 +162,14 @@ document.addEventListener("DOMContentLoaded", function () {
             let endTs = new Date("1970-01-01T" + end + ":00");
 
             for (let t = startTs; t <= endTs; t.setMinutes(t.getMinutes() + 15)) {
-                let h = String(t.getHours()).padStart(2, "0");
-                let m = String(t.getMinutes()).padStart(2, "0");
-                let time = h + ":" + m;
+    let h = String(t.getHours()).padStart(2, "0");
+    let m = String(t.getMinutes()).padStart(2, "0");
+    let time = h + ":" + m;
 
-                html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;\">" + time + "</button>";
-            }
+    let isBooked = bookings.includes(selectedDate + " " + time);
+
+    html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isBooked ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isBooked ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isBooked ? "#eee" : "#fff") + ";cursor:" + (isBooked ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
+}
         }
 
         timesContainer.innerHTML = html;
