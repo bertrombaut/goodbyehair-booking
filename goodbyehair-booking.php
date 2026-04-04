@@ -73,11 +73,13 @@ class GBH_Booking {
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
         echo '<h3>Kies datum en tijd</h3>';
        echo '<div id="gbh-times">';
-        echo '<button type="button" class="gbh-time">10:00</button> ';
-        echo '<button type="button" class="gbh-time">10:15</button> ';
-        echo '<button type="button" class="gbh-time">10:30</button> ';
-        echo '<button type="button" class="gbh-time">10:45</button>';
+        echo '<button type="button" class="gbh-time" data-time="10:00" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:00</button>';
+        echo '<button type="button" class="gbh-time" data-time="10:15" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:15</button>';
+        echo '<button type="button" class="gbh-time" data-time="10:30" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:30</button>';
+        echo '<button type="button" class="gbh-time" data-time="10:45" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:45</button>';
         echo '</div>';
+        echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
+        echo '<input type="hidden" id="gbh-selected-time" value="">';
         echo '</div>';
         
         echo '<script>
@@ -109,12 +111,23 @@ class GBH_Booking {
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
 
-if (nextButton && step1 && step2) {
-    nextButton.addEventListener("click", function () {
-        step1.style.display = "none";
-        step2.style.display = "block";
+timeButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+        timeButtons.forEach(function (btn) {
+            btn.style.background = "#fff";
+            btn.style.borderColor = "#ccc";
+            btn.style.color = "#000";
+        });
+
+        button.style.background = "#7d3c98";
+        button.style.borderColor = "#7d3c98";
+        button.style.color = "#fff";
+
+        const chosenTime = button.dataset.time;
+        selectedTimeInput.value = chosenTime;
+        chosenTimeText.textContent = "Gekozen tijd: " + chosenTime;
     });
-}
+});
 
 updateTotals();
         });
