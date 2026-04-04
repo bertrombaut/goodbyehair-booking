@@ -79,7 +79,9 @@ if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
     echo '<div style="margin-bottom:12px;color:#c62828;font-weight:600;">Vandaag geen beschikbaarheid</div>';
 }
      echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
-echo '<script>
+    echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;">Gekozen datum: geen</div>';
+    echo '<input type="hidden" id="gbh-selected-date" value="">';
+    echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
     const calendar = document.getElementById("gbh-calendar");
     if (!calendar) return;
@@ -92,6 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let current = new Date();
     let year = current.getFullYear();
     let month = current.getMonth();
+    let selectedDate = "";
 
     function renderCalendar() {
         const firstDate = new Date(year, month, 1);
@@ -123,12 +126,29 @@ document.addEventListener("DOMContentLoaded", function () {
             const date = new Date(year, month, d);
             const dayKey = map[date.getDay()];
             const enabled = days.includes(dayKey);
+            const monthValue = String(month + 1).padStart(2, "0");
+            const dayValue = String(d).padStart(2, "0");
+            const fullDate = year + "-" + monthValue + "-" + dayValue;
+            const isSelected = selectedDate === fullDate;
 
-            html += "<div style=\"padding:10px;border:1px solid #ccc;border-radius:6px;text-align:center;cursor:" + (enabled ? "pointer" : "not-allowed") + ";background:" + (enabled ? "#fff" : "#eee") + ";\">" + d + "</div>";
+            html += "<button type=\"button\" class=\"gbh-calendar-day\" data-date=\"" + fullDate + "\" " + (enabled ? "" : "disabled") + " style=\"padding:10px;border:1px solid " + (isSelected ? "#7d3c98" : "#ccc") + ";border-radius:6px;text-align:center;cursor:" + (enabled ? "pointer" : "not-allowed") + ";background:" + (enabled ? (isSelected ? "#7d3c98" : "#fff") : "#eee") + ";color:" + (isSelected ? "#fff" : "#000") + ";\">" + d + "</button>";
         }
 
         html += "</div>";
         calendar.innerHTML = html;
+
+        const chosenDateText = document.getElementById("gbh-chosen-date");
+        const selectedDateInput = document.getElementById("gbh-selected-date");
+
+        document.querySelectorAll(".gbh-calendar-day").forEach(function (button) {
+            button.addEventListener("click", function () {
+                if (button.disabled) return;
+                selectedDate = button.dataset.date;
+                selectedDateInput.value = selectedDate;
+                chosenDateText.textContent = "Gekozen datum: " + selectedDate;
+                renderCalendar();
+            });
+        });
 
         document.getElementById("gbh-prev-month").addEventListener("click", function () {
             month--;
