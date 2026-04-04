@@ -71,10 +71,7 @@ class GBH_Booking {
         echo '</div>';
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-       echo '<div style="display:flex;align-items:center;gap:10px;">';
-        echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
-        echo '<h3 style="margin:0;">Kies datum en tijd</h3>';
-        echo '</div>';
+       echo '<h3>Kies datum en tijd</h3>';
        echo '<div id="gbh-times">';
         echo '<button type="button" class="gbh-time" data-time="10:00" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:00</button>';
         echo '<button type="button" class="gbh-time" data-time="10:15" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:15</button>';
@@ -82,7 +79,9 @@ class GBH_Booking {
         echo '<button type="button" class="gbh-time" data-time="10:45" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:45</button>';
         echo '</div>';
         echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
-        echo '<input type="hidden" id="gbh-selected-time" value="">';
+        echo '<div style="margin-top:20px;">';
+        echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
+        echo '</div>';
         echo '</div>';
         
         echo '<script>
