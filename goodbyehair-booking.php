@@ -80,8 +80,7 @@ if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
 }
         echo '<div id="gbh-times">';
 
-        $start = get_option('gbh_start_time', '10:00');
-        $end = get_option('gbh_end_time', '20:00');
+        $times = get_option('gbh_times', []);
 
         $start_ts = strtotime($start);
         $end_ts = strtotime($end);
@@ -206,8 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_days');
-        register_setting('gbh_settings_group', 'gbh_start_time');
-        register_setting('gbh_settings_group', 'gbh_end_time');
+        register_setting('gbh_settings_group', 'gbh_times');
     }
 
     public function settings_page() {
@@ -233,14 +231,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 ?>
 
-                <h3>Tijden</h3>
-                <label>Start:
-                    <input type="time" name="gbh_start_time" value="<?php echo esc_attr($start); ?>">
-                </label><br><br>
-
-                <label>Einde:
-                    <input type="time" name="gbh_end_time" value="<?php echo esc_attr($end); ?>">
-                </label><br><br>
+                <h3>Tijden per dag</h3>
+<?php
+$all_days = ['ma','di','wo','do','vr','za','zo'];
+foreach ($all_days as $day) {
+    $start = $times[$day]['start'] ?? '';
+    $end = $times[$day]['end'] ?? '';
+    ?>
+    <label><?php echo strtoupper($day); ?> start:
+        <input type="time" name="gbh_times[<?php echo $day; ?>][start]" value="<?php echo esc_attr($start); ?>">
+    </label>
+    <label>einde:
+        <input type="time" name="gbh_times[<?php echo $day; ?>][end]" value="<?php echo esc_attr($end); ?>">
+    </label>
+    <br><br>
+    <?php
+}
+?>
 
                 <?php submit_button(); ?>
             </form>
