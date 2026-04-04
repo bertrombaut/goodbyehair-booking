@@ -73,19 +73,28 @@ class GBH_Booking {
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
         echo '<h3>Kies datum en tijd</h3>';
-        echo '<div id="gbh-times">';
-        echo '<button type="button" class="gbh-time" data-time="10:00" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:00</button>';
-        echo '<button type="button" class="gbh-time" data-time="10:15" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:15</button>';
-        echo '<button type="button" class="gbh-time" data-time="10:30" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:30</button>';
-        echo '<button type="button" class="gbh-time" data-time="10:45" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:45</button>';
-        echo '</div>';
-        echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
-        echo '<input type="hidden" id="gbh-selected-time" value="">';
-        echo '<div style="margin-top:20px;">';
-        echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
-        echo '</div>';
-        echo '</div>';
+       echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
+echo '<h3>Kies datum en tijd</h3>';
+echo '<div id="gbh-times">';
 
+$start = get_option('gbh_start_time', '10:00');
+$end = get_option('gbh_end_time', '20:00');
+
+$start_ts = strtotime($start);
+$end_ts = strtotime($end);
+
+for ($t = $start_ts; $t <= $end_ts; $t += 900) {
+    $time = date('H:i', $t);
+    echo '<button type="button" class="gbh-time" data-time="' . esc_attr($time) . '" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">' . esc_html($time) . '</button>';
+}
+
+echo '</div>';
+echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
+echo '<input type="hidden" id="gbh-selected-time" value="">';
+echo '<div style="margin-top:20px;">';
+echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
+echo '</div>';
+echo '</div>';
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
     const checkboxes = document.querySelectorAll(".gbh-treatment");
