@@ -67,23 +67,23 @@ class GBH_Booking {
         echo '<button type="button" id="gbh-next-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende</button>';
         echo '</div>';
         echo '</div>';
-
         echo '</div>';
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-       echo '<h3>Kies datum en tijd</h3>';
-       echo '<div id="gbh-times">';
+        echo '<h3>Kies datum en tijd</h3>';
+        echo '<div id="gbh-times">';
         echo '<button type="button" class="gbh-time" data-time="10:00" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:00</button>';
         echo '<button type="button" class="gbh-time" data-time="10:15" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:15</button>';
         echo '<button type="button" class="gbh-time" data-time="10:30" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:30</button>';
         echo '<button type="button" class="gbh-time" data-time="10:45" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">10:45</button>';
         echo '</div>';
         echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
+        echo '<input type="hidden" id="gbh-selected-time" value="">';
         echo '<div style="margin-top:20px;">';
         echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
         echo '</div>';
         echo '</div>';
-        
+
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
     const checkboxes = document.querySelectorAll(".gbh-treatment");
@@ -93,9 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const backButton = document.getElementById("gbh-back-step");
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
-    const timeButtons = document.querySelectorAll(".gbh-time");
-    const chosenTimeText = document.getElementById("gbh-chosen-time");
-    const selectedTimeInput = document.getElementById("gbh-selected-time");
     const timeButtons = document.querySelectorAll(".gbh-time");
     const chosenTimeText = document.getElementById("gbh-chosen-time");
     const selectedTimeInput = document.getElementById("gbh-selected-time");
@@ -119,42 +116,41 @@ document.addEventListener("DOMContentLoaded", function () {
         checkbox.addEventListener("change", updateTotals);
     });
 
-  if (nextButton && step1 && step2) {
-    nextButton.addEventListener("click", function () {
+    if (nextButton && step1 && step2) {
+        nextButton.addEventListener("click", function () {
+            let hasSelection = false;
 
-        let hasSelection = false;
+            checkboxes.forEach(function (checkbox) {
+                if (checkbox.checked) {
+                    hasSelection = true;
+                }
+            });
 
-        checkboxes.forEach(function (checkbox) {
-            if (checkbox.checked) {
-                hasSelection = true;
+            if (!hasSelection) {
+                const summaryBox = document.getElementById("gbh-summary");
+
+                if (summaryBox && !document.getElementById("gbh-error")) {
+                    summaryBox.insertAdjacentHTML("beforeend", "<div id=\"gbh-error\" style=\"margin-top:12px;color:#c62828;font-weight:600;\">Kies eerst minimaal één behandeling</div>");
+                }
+                return;
             }
+
+            const oldError = document.getElementById("gbh-error");
+            if (oldError) {
+                oldError.remove();
+            }
+
+            step1.style.display = "none";
+            step2.style.display = "block";
         });
+    }
 
-        if (!hasSelection) {
-           const summaryBox = document.getElementById("gbh-summary");
-
-if (summaryBox && !document.getElementById("gbh-error")) {
-    summaryBox.insertAdjacentHTML("beforeend", "<div id=\"gbh-error\" style=\"margin-top:12px;color:#c62828;font-weight:600;\">Kies eerst minimaal één behandeling</div>");
-}
-document.title = "";
-            return;
-        }
-
-const oldError = document.getElementById("gbh-error");
-if (oldError) {
-    oldError.remove();
-}
-
-        step1.style.display = "none";
-        step2.style.display = "block";
-    });
-}
-if (backButton && step1 && step2) {
-    backButton.addEventListener("click", function () {
-        step2.style.display = "none";
-        step1.style.display = "block";
-    });
-}
+    if (backButton && step1 && step2) {
+        backButton.addEventListener("click", function () {
+            step2.style.display = "none";
+            step1.style.display = "block";
+        });
+    }
 
     if (timeButtons.length && chosenTimeText && selectedTimeInput) {
         timeButtons.forEach(function (button) {
@@ -175,26 +171,6 @@ if (backButton && step1 && step2) {
             });
         });
     }
-
-if (timeButtons.length && chosenTimeText && selectedTimeInput) {
-    timeButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-            timeButtons.forEach(function (btn) {
-                btn.style.background = "#fff";
-                btn.style.borderColor = "#ccc";
-                btn.style.color = "#000";
-            });
-
-            button.style.background = "#7d3c98";
-            button.style.borderColor = "#7d3c98";
-            button.style.color = "#fff";
-
-            const chosenTime = button.dataset.time;
-            selectedTimeInput.value = chosenTime;
-            chosenTimeText.textContent = "Gekozen tijd: " + chosenTime;
-        });
-    });
-}
 
     updateTotals();
 });
