@@ -143,14 +143,61 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedDateInput = document.getElementById("gbh-selected-date");
 
         document.querySelectorAll(".gbh-calendar-day").forEach(function (button) {
-            button.addEventListener("click", function () {
-                if (button.disabled) return;
-                selectedDate = button.dataset.date;
-                selectedDateInput.value = selectedDate;
-                chosenDateText.textContent = "Gekozen datum: " + selectedDate;
-                renderCalendar();
+    button.addEventListener("click", function () {
+        if (button.disabled) return;
+
+        selectedDate = button.dataset.date;
+        selectedDateInput.value = selectedDate;
+        chosenDateText.textContent = "Gekozen datum: " + selectedDate;
+
+        const dateObj = new Date(selectedDate);
+        const dayKey = map[dateObj.getDay()];
+
+        const dayTimes = times[dayKey];
+        const timesContainer = document.getElementById("gbh-times");
+
+        let html = "";
+
+        if (dayTimes && dayTimes.start && dayTimes.end) {
+            let start = dayTimes.start;
+            let end = dayTimes.end;
+
+            let startTs = new Date("1970-01-01T" + start + ":00");
+            let endTs = new Date("1970-01-01T" + end + ":00");
+
+            for (let t = startTs; t <= endTs; t.setMinutes(t.getMinutes() + 15)) {
+                let h = String(t.getHours()).padStart(2, "0");
+                let m = String(t.getMinutes()).padStart(2, "0");
+                let time = h + ":" + m;
+
+                html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;\">" + time + "</button>";
+            }
+        }
+
+        timesContainer.innerHTML = html;
+
+        document.querySelectorAll(".gbh-time").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+
+                document.querySelectorAll(".gbh-time").forEach(function (b) {
+                    b.style.background = "#fff";
+                    b.style.borderColor = "#ccc";
+                    b.style.color = "#000";
+                });
+
+                btn.style.background = "#7d3c98";
+                btn.style.borderColor = "#7d3c98";
+                btn.style.color = "#fff";
+
+                const chosenTime = btn.dataset.time;
+                document.getElementById("gbh-selected-time").value = chosenTime;
+                document.getElementById("gbh-chosen-time").textContent = "Gekozen tijd: " + chosenTime;
             });
         });
+
+        renderCalendar();
+    });
+});
 
         document.getElementById("gbh-prev-month").addEventListener("click", function () {
             month--;
