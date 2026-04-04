@@ -128,7 +128,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (!hasSelection) {
-            alert("Kies eerst minimaal één behandeling");
+           alert("Kies eerst minimaal één behandeling");
+document.title = "";
             return;
         }
 
