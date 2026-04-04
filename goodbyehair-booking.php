@@ -232,7 +232,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         echo '</div>';
        echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;"></div>';
-echo '<input type="hidden" id="gbh-selected-time" value="">';
+        echo '<div id="gbh-step-3" style="display:none;margin-top:20px;">';
+    echo '<h2>Jouw gegevens</h2>';
+    echo '<div id="gbh-step3-summary" style="margin-bottom:16px;padding:12px;border:1px solid #ddd;border-radius:10px;max-width:400px;"></div>';
+    echo '<label style="display:block;margin-bottom:10px;">Naam<br><input type="text" id="gbh-naam" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+    echo '<label style="display:block;margin-bottom:10px;">E-mail<br><input type="email" id="gbh-email" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+    echo '<label style="display:block;margin-bottom:10px;">Telefoon<br><input type="tel" id="gbh-telefoon" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+    echo '<button type="button" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
+    echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">Terug</button>';
+echo '</div>';
+    echo '<input type="hidden" id="gbh-selected-time" value="">';
         echo '<div style="margin-top:20px;">';
         echo '</div>';
 
