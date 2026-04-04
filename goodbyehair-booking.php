@@ -70,6 +70,11 @@ class GBH_Booking {
 
         echo '</div>';
 
+        echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
+        echo '<h3>Kies datum en tijd</h3>';
+        echo '<p>Hier komt straks de tijdselectie</p>';
+        echo '</div>';
+        
         echo '<script>
         document.addEventListener("DOMContentLoaded", function () {
             const checkboxes = document.querySelectorAll(".gbh-treatment");
