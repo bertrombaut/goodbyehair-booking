@@ -210,8 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     public function settings_page() {
         $days = get_option('gbh_days', []);
-        $start = get_option('gbh_start_time', '10:00');
-        $end = get_option('gbh_end_time', '20:00');
+       $times = get_option('gbh_times', []);
         ?>
         <div class="wrap">
             <h1>Booking instellingen</h1>
