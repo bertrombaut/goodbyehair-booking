@@ -187,8 +187,6 @@ document.addEventListener("DOMContentLoaded", function () {
         echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
         echo '<input type="hidden" id="gbh-selected-time" value="">';
         echo '<div style="margin-top:20px;">';
-        echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
-        echo '</div>';
         echo '</div>';
 
         echo '<script>
