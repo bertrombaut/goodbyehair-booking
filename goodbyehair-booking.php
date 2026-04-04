@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!calendar) return;
 
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
+    const times = ' . json_encode(get_option('gbh_times', [])) . ';
     const monthNames = ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
     const dayNames = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const map = ["zo","ma","di","wo","do","vr","za"];
