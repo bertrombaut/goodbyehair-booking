@@ -63,6 +63,9 @@ class GBH_Booking {
         echo '<strong>Overzicht</strong><br>';
         echo 'Totale behandeltijd: <span id="gbh-total-time">0</span> min<br>';
         echo 'Totale prijs: €<span id="gbh-total-price">0,00</span>';
+        echo '<div style="margin-top:14px;">';
+        echo '<button type="button" id="gbh-next-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende</button>';
+        echo '</div>';
         echo '</div>';
 
         echo '</div>';
