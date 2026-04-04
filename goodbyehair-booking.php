@@ -78,7 +78,7 @@ $today = date('N');
 if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
     echo '<div style="margin-bottom:12px;color:#c62828;font-weight:600;">Vandaag geen beschikbaarheid</div>';
 }
-        echo '<div id="gbh-times">';
+        echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
 
         $times = get_option('gbh_times', []);
 
