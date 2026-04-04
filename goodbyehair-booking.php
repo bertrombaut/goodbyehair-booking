@@ -84,11 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
     const times = ' . json_encode(get_option('gbh_times', [])) . ';
-    const bookings = [
-    selectedDate + " 10:00",
-    selectedDate + " 10:15",
-    selectedDate + " 10:30"
-];
+    const bookings = [];
     const monthNames = ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
     const dayNames = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const map = ["zo","ma","di","wo","do","vr","za"];
