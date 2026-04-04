@@ -74,11 +74,6 @@ class GBH_Booking {
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
        $days = get_option('gbh_days', []);
         echo '<div id="gbh-times"></div>';
-$today = date('N');
-
-if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
-    echo '<div style="margin-bottom:12px;color:#c62828;font-weight:600;">Vandaag geen beschikbaarheid</div>';
-}
      echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
     echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;">Gekozen datum: geen</div>';
     echo '<input type="hidden" id="gbh-selected-date" value="">';
