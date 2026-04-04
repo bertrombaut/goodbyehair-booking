@@ -83,55 +83,66 @@ class GBH_Booking {
         echo '</div>';
         
         echo '<script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const checkboxes = document.querySelectorAll(".gbh-treatment");
-            const totalTime = document.getElementById("gbh-total-time");
-            const totalPrice = document.getElementById("gbh-total-price");
-
-            function updateTotals() {
-                let time = 0;
-                let price = 0;
-
-                checkboxes.forEach(function (checkbox) {
-                    if (checkbox.checked) {
-                        time += parseInt(checkbox.dataset.time) || 0;
-                        price += parseFloat(checkbox.dataset.price) || 0;
-                    }
-                });
-
-                totalTime.textContent = time;
-                totalPrice.textContent = price.toFixed(2).replace(".", ",");
-            }
-
-            checkboxes.forEach(function (checkbox) {
-    checkbox.addEventListener("change", updateTotals);
-    });
-
+document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.querySelectorAll(".gbh-treatment");
+    const totalTime = document.getElementById("gbh-total-time");
+    const totalPrice = document.getElementById("gbh-total-price");
     const nextButton = document.getElementById("gbh-next-step");
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
+    const timeButtons = document.querySelectorAll(".gbh-time");
+    const chosenTimeText = document.getElementById("gbh-chosen-time");
+    const selectedTimeInput = document.getElementById("gbh-selected-time");
 
-timeButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-        timeButtons.forEach(function (btn) {
-            btn.style.background = "#fff";
-            btn.style.borderColor = "#ccc";
-            btn.style.color = "#000";
+    function updateTotals() {
+        let time = 0;
+        let price = 0;
+
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                time += parseInt(checkbox.dataset.time) || 0;
+                price += parseFloat(checkbox.dataset.price) || 0;
+            }
         });
 
-        button.style.background = "#7d3c98";
-        button.style.borderColor = "#7d3c98";
-        button.style.color = "#fff";
+        totalTime.textContent = time;
+        totalPrice.textContent = price.toFixed(2).replace(".", ",");
+    }
 
-        const chosenTime = button.dataset.time;
-        selectedTimeInput.value = chosenTime;
-        chosenTimeText.textContent = "Gekozen tijd: " + chosenTime;
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateTotals);
     });
-});
 
-updateTotals();
+    if (nextButton && step1 && step2) {
+        nextButton.addEventListener("click", function () {
+            step1.style.display = "none";
+            step2.style.display = "block";
         });
-        </script>';
+    }
+
+    if (timeButtons.length && chosenTimeText && selectedTimeInput) {
+        timeButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                timeButtons.forEach(function (btn) {
+                    btn.style.background = "#fff";
+                    btn.style.borderColor = "#ccc";
+                    btn.style.color = "#000";
+                });
+
+                button.style.background = "#7d3c98";
+                button.style.borderColor = "#7d3c98";
+                button.style.color = "#fff";
+
+                const chosenTime = button.dataset.time;
+                selectedTimeInput.value = chosenTime;
+                chosenTimeText.textContent = "Gekozen tijd: " + chosenTime;
+            });
+        });
+    }
+
+    updateTotals();
+});
+</script>';
 
         return ob_get_clean();
     }
