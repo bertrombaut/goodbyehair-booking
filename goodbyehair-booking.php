@@ -48,7 +48,7 @@ class GBH_Booking {
         ob_start();
 
         echo '<div class="gbh-booking">';
-        echo '<h2>Kies je behandeling test</h2>';
+        echo '<h2>Kies je behandeling</h2>';
 
         foreach ($treatments as $category => $items) {
             echo '<h3>' . esc_html($category) . '</h3>';
@@ -73,28 +73,27 @@ class GBH_Booking {
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
         echo '<h3>Kies datum en tijd</h3>';
-       echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-echo '<h3>Kies datum en tijd</h3>';
-echo '<div id="gbh-times">';
+        echo '<div id="gbh-times">';
 
-$start = get_option('gbh_start_time', '10:00');
-$end = get_option('gbh_end_time', '20:00');
+        $start = get_option('gbh_start_time', '10:00');
+        $end = get_option('gbh_end_time', '20:00');
 
-$start_ts = strtotime($start);
-$end_ts = strtotime($end);
+        $start_ts = strtotime($start);
+        $end_ts = strtotime($end);
 
-for ($t = $start_ts; $t <= $end_ts; $t += 900) {
-    $time = date('H:i', $t);
-    echo '<button type="button" class="gbh-time" data-time="' . esc_attr($time) . '" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">' . esc_html($time) . '</button>';
-}
+        for ($t = $start_ts; $t <= $end_ts; $t += 900) {
+            $time = date('H:i', $t);
+            echo '<button type="button" class="gbh-time" data-time="' . esc_attr($time) . '" style="margin:0 8px 8px 0;padding:10px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">' . esc_html($time) . '</button>';
+        }
 
-echo '</div>';
-echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
-echo '<input type="hidden" id="gbh-selected-time" value="">';
-echo '<div style="margin-top:20px;">';
-echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
-echo '</div>';
-echo '</div>';
+        echo '</div>';
+        echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;">Gekozen tijd: geen</div>';
+        echo '<input type="hidden" id="gbh-selected-time" value="">';
+        echo '<div style="margin-top:20px;">';
+        echo '<button type="button" id="gbh-back-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">← Terug</button>';
+        echo '</div>';
+        echo '</div>';
+
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
     const checkboxes = document.querySelectorAll(".gbh-treatment");
@@ -190,60 +189,59 @@ document.addEventListener("DOMContentLoaded", function () {
         return ob_get_clean();
     }
 
-public function admin_menu() {
-    add_options_page(
-        'Booking instellingen',
-        'Booking',
-        'manage_options',
-        'gbh-booking',
-        [$this, 'settings_page']
-    );
-}
+    public function admin_menu() {
+        add_options_page(
+            'Booking instellingen',
+            'Booking',
+            'manage_options',
+            'gbh-booking',
+            [$this, 'settings_page']
+        );
+    }
 
-public function register_settings() {
-    register_setting('gbh_settings_group', 'gbh_days');
-    register_setting('gbh_settings_group', 'gbh_start_time');
-    register_setting('gbh_settings_group', 'gbh_end_time');
-}
+    public function register_settings() {
+        register_setting('gbh_settings_group', 'gbh_days');
+        register_setting('gbh_settings_group', 'gbh_start_time');
+        register_setting('gbh_settings_group', 'gbh_end_time');
+    }
 
-public function settings_page() {
-    $days = get_option('gbh_days', []);
-    $start = get_option('gbh_start_time', '10:00');
-    $end = get_option('gbh_end_time', '20:00');
-    ?>
-    <div class="wrap">
-        <h1>Booking instellingen</h1>
-        <form method="post" action="options.php">
-            <?php settings_fields('gbh_settings_group'); ?>
+    public function settings_page() {
+        $days = get_option('gbh_days', []);
+        $start = get_option('gbh_start_time', '10:00');
+        $end = get_option('gbh_end_time', '20:00');
+        ?>
+        <div class="wrap">
+            <h1>Booking instellingen</h1>
+            <form method="post" action="options.php">
+                <?php settings_fields('gbh_settings_group'); ?>
 
-            <h3>Werkdagen</h3>
-            <?php
-            $all_days = ['ma','di','wo','do','vr','za','zo'];
-            foreach ($all_days as $day) {
-                ?>
-                <label>
-                    <input type="checkbox" name="gbh_days[]" value="<?php echo $day; ?>" <?php checked(in_array($day, $days)); ?>>
-                    <?php echo strtoupper($day); ?>
-                </label><br>
+                <h3>Werkdagen</h3>
                 <?php
-            }
-            ?>
+                $all_days = ['ma','di','wo','do','vr','za','zo'];
+                foreach ($all_days as $day) {
+                    ?>
+                    <label>
+                        <input type="checkbox" name="gbh_days[]" value="<?php echo $day; ?>" <?php checked(in_array($day, $days)); ?>>
+                        <?php echo strtoupper($day); ?>
+                    </label><br>
+                    <?php
+                }
+                ?>
 
-            <h3>Tijden</h3>
-            <label>Start:
-                <input type="time" name="gbh_start_time" value="<?php echo esc_attr($start); ?>">
-            </label><br><br>
+                <h3>Tijden</h3>
+                <label>Start:
+                    <input type="time" name="gbh_start_time" value="<?php echo esc_attr($start); ?>">
+                </label><br><br>
 
-            <label>Einde:
-                <input type="time" name="gbh_end_time" value="<?php echo esc_attr($end); ?>">
-            </label><br><br>
+                <label>Einde:
+                    <input type="time" name="gbh_end_time" value="<?php echo esc_attr($end); ?>">
+                </label><br><br>
 
-            <?php submit_button(); ?>
-        </form>
-    </div>
-    <?php
-}
-    
+                <?php submit_button(); ?>
+            </form>
+        </div>
+        <?php
+    }
 }
 
 new GBH_Booking();
