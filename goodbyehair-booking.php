@@ -118,11 +118,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (nextButton && step1 && step2) {
     nextButton.addEventListener("click", function () {
+
+        let hasSelection = false;
+
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                hasSelection = true;
+            }
+        });
+
+        if (!hasSelection) {
+            alert("Kies eerst minimaal één behandeling");
+            return;
+        }
+
         step1.style.display = "none";
         step2.style.display = "block";
     });
 }
-
 if (backButton && step1 && step2) {
     backButton.addEventListener("click", function () {
         step2.style.display = "none";
