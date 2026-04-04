@@ -73,6 +73,7 @@ class GBH_Booking {
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
        $days = get_option('gbh_days', []);
+        echo '<div id="gbh-times"></div>';
 $today = date('N');
 
 if (!in_array(['ma','di','wo','do','vr','za','zo'][$today-1], $days)) {
