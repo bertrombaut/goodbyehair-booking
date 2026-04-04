@@ -306,10 +306,36 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    const step3 = document.getElementById("gbh-step-3");
+    const bevestigButton = document.getElementById("gbh-bevestig");
+    const backStep3Button = document.getElementById("gbh-back-step3");
+
     if (backButton && step1 && step2) {
         backButton.addEventListener("click", function () {
             step2.style.display = "none";
             step1.style.display = "block";
+        });
+    }
+
+    if (nextButton && step1 && step2) {
+        nextButton.addEventListener("click", function () {
+            const date = document.getElementById("gbh-selected-date").value;
+            const time = document.getElementById("gbh-selected-time").value;
+            if (!date || !time) {
+                alert("Kies eerst een datum en tijd.");
+                return;
+            }
+            const summary = document.getElementById("gbh-step3-summary");
+            summary.innerHTML = "Datum: <strong>" + date + "</strong><br>Tijd: <strong>" + time + "</strong><br>Tijd: <strong>" + document.getElementById("gbh-total-time").textContent + " min</strong><br>Prijs: <strong>€" + document.getElementById("gbh-total-price").textContent + "</strong>";
+            step2.style.display = "none";
+            step3.style.display = "block";
+        });
+    }
+
+    if (backStep3Button) {
+        backStep3Button.addEventListener("click", function () {
+            step3.style.display = "none";
+            step2.style.display = "block";
         });
     }
 
