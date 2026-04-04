@@ -128,10 +128,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (!hasSelection) {
-           alert("Kies eerst minimaal één behandeling");
+           const summaryBox = document.getElementById("gbh-summary");
+
+if (summaryBox && !document.getElementById("gbh-error")) {
+    summaryBox.insertAdjacentHTML("beforeend", "<div id=\"gbh-error\" style=\"margin-top:12px;color:#c62828;font-weight:600;\">Kies eerst minimaal één behandeling</div>");
+}
 document.title = "";
             return;
         }
+
+const oldError = document.getElementById("gbh-error");
+if (oldError) {
+    oldError.remove();
+}
 
         step1.style.display = "none";
         step2.style.display = "block";
