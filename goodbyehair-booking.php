@@ -36,6 +36,7 @@ class GBH_Booking {
         add_action('wp_ajax_gbh_save_booking', [$this, 'save_booking']);
         add_action('wp_ajax_nopriv_gbh_save_booking', [$this, 'save_booking']);
         add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 6);
+        add_action('admin_post_gbh_annuleer', [$this, 'annuleer_boeking']);
     }
 
     public function render() {
@@ -389,9 +390,13 @@ document.addEventListener("DOMContentLoaded", function () {
         global $wpdb;
         $table = $wpdb->prefix . 'gbh_bookings';
         $bookings = $wpdb->get_results("SELECT * FROM $table ORDER BY datum ASC, tijd ASC");
+        $annuleer_url = admin_url('admin-post.php');
         ?>
         <div class="wrap">
             <h1>Afspraken</h1>
+            <?php if (isset($_GET['annuleerd']) && $_GET['annuleerd'] == '1') : ?>
+                <div class="notice notice-success"><p>Afspraak is geannuleerd.</p></div>
+            <?php endif; ?>
             <table class="widefat fixed striped">
                 <thead>
                     <tr>
@@ -403,6 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <th>Behandelingen</th>
                         <th>Duur</th>
                         <th>Prijs</th>
+                        <th>Actie</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -417,15 +423,54 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <td><?php echo esc_html($b->behandelingen); ?></td>
                                 <td><?php echo esc_html($b->behandeltijd); ?> min</td>
                                 <td>€<?php echo esc_html($b->prijs); ?></td>
+                                <td>
+                                    <form method="post" action="<?php echo esc_url($annuleer_url); ?>" onsubmit="return confirm('Weet je zeker dat je deze afspraak wilt annuleren?');">
+                                        <input type="hidden" name="action" value="gbh_annuleer">
+                                        <input type="hidden" name="id" value="<?php echo esc_attr($b->id); ?>">
+                                        <input type="hidden" name="email" value="<?php echo esc_attr($b->email); ?>">
+                                        <input type="hidden" name="naam" value="<?php echo esc_attr($b->naam); ?>">
+                                        <input type="hidden" name="datum" value="<?php echo esc_attr($b->datum); ?>">
+                                        <input type="hidden" name="tijd" value="<?php echo esc_attr($b->tijd); ?>">
+                                        <?php wp_nonce_field('gbh_annuleer_nonce'); ?>
+                                        <button type="submit" style="padding:6px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;">Annuleer</button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else : ?>
-                        <tr><td colspan="8">Geen afspraken gevonden.</td></tr>
+                        <tr><td colspan="9">Geen afspraken gevonden.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
         <?php
+    }
+
+    public function annuleer_boeking() {
+        if (!current_user_can('manage_options')) wp_die('Geen toegang.');
+        check_admin_referer('gbh_annuleer_nonce');
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'gbh_bookings';
+        $id    = intval($_POST['id'] ?? 0);
+        $email = sanitize_email($_POST['email'] ?? '');
+        $naam  = sanitize_text_field($_POST['naam'] ?? '');
+        $datum = sanitize_text_field($_POST['datum'] ?? '');
+        $tijd  = sanitize_text_field($_POST['tijd'] ?? '');
+
+        $wpdb->delete($table, ['id' => $id]);
+
+        if ($email) {
+            $onderwerp = 'Afspraak geannuleerd - GoodByeHair';
+            $bericht  = "Beste " . $naam . ",\n\n";
+            $bericht .= "Je afspraak op " . $datum . " om " . $tijd . " is helaas geannuleerd.\n\n";
+            $bericht .= "Neem contact met ons op om een nieuwe afspraak te maken.\n\n";
+            $bericht .= "GoodByeHair";
+            wp_mail($email, $onderwerp, $bericht);
+        }
+
+        wp_redirect(admin_url('admin.php?page=gbh-booking&annuleerd=1'));
+        exit;
     }
 
     public function save_booking() {
