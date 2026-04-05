@@ -468,6 +468,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     public function register_settings() {
+
+public function stuur_herinnering($booking_id, $email, $naam, $datum, $tijd, $behandelingen) {
+        $onderwerp = 'Herinnering afspraak GoodByeHair';
+        $bericht  = "Beste " . $naam . ",\n\n";
+        $bericht .= "Dit is een herinnering voor je afspraak van morgen!\n\n";
+        $bericht .= "Datum: " . $datum . "\n";
+        $bericht .= "Tijd: " . $tijd . "\n";
+        $bericht .= "Behandelingen: " . $behandelingen . "\n\n";
+        $bericht .= "Tot morgen!\n";
+        $bericht .= "GoodByeHair";
+
+        wp_mail($email, $onderwerp, $bericht);
+    }
+        
         register_setting('gbh_settings_group', 'gbh_days');
         register_setting('gbh_settings_group', 'gbh_times');
     }
