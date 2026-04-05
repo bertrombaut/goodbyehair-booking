@@ -5,6 +5,28 @@
 
 if (!defined('ABSPATH')) exit;
 
+register_activation_hook(__FILE__, 'gbh_create_table');
+
+function gbh_create_table() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'gbh_bookings';
+    $charset = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $table (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        naam varchar(100) NOT NULL,
+        email varchar(100) NOT NULL,
+        telefoon varchar(30) NOT NULL,
+        datum date NOT NULL,
+        tijd time NOT NULL,
+        behandelingen text NOT NULL,
+        behandeltijd int NOT NULL,
+        prijs decimal(10,2) NOT NULL,
+        PRIMARY KEY (id)
+    ) $charset;";
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+}
+
 class GBH_Booking {
 
     public function __construct() {
