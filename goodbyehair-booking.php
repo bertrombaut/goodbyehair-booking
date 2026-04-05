@@ -453,18 +453,32 @@ document.addEventListener("DOMContentLoaded", function () {
             'prijs'         => $prijs,
         ]);
 
-        $onderwerp = 'Bevestiging afspraak GoodByeHair';
-        $bericht  = "Beste " . $naam . ",\n\n";
-        $bericht .= "Je afspraak is bevestigd!\n\n";
-        $bericht .= "Datum: " . $datum . "\n";
-        $bericht .= "Tijd: " . $tijd . "\n";
-        $bericht .= "Behandelingen: " . $behandelingen . "\n";
-        $bericht .= "Behandeltijd: " . $behandeltijd . " minuten\n";
-        $bericht .= "Prijs: €" . number_format($prijs, 2, ',', '.') . "\n\n";
-        $bericht .= "Tot dan!\n";
-        $bericht .= "GoodByeHair";
+        $onderwerp_klant = 'Bevestiging afspraak GoodByeHair';
+        $bericht_klant  = "Beste " . $naam . ",\n\n";
+        $bericht_klant .= "Je afspraak is bevestigd!\n\n";
+        $bericht_klant .= "Datum: " . $datum . "\n";
+        $bericht_klant .= "Tijd: " . $tijd . "\n";
+        $bericht_klant .= "Behandelingen: " . $behandelingen . "\n";
+        $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten\n";
+        $bericht_klant .= "Prijs: €" . number_format($prijs, 2, ',', '.') . "\n\n";
+        $bericht_klant .= "Tot dan!\n";
+        $bericht_klant .= "GoodByeHair";
+        wp_mail($email, $onderwerp_klant, $bericht_klant);
 
-        wp_mail($email, $onderwerp, $bericht);
+        $salon_email = get_option('gbh_salon_email', '');
+        if ($salon_email) {
+            $onderwerp_salon = 'Nieuwe afspraak: ' . $naam;
+            $bericht_salon  = "Er is een nieuwe afspraak gemaakt!\n\n";
+            $bericht_salon .= "Naam: " . $naam . "\n";
+            $bericht_salon .= "Email: " . $email . "\n";
+            $bericht_salon .= "Telefoon: " . $telefoon . "\n";
+            $bericht_salon .= "Datum: " . $datum . "\n";
+            $bericht_salon .= "Tijd: " . $tijd . "\n";
+            $bericht_salon .= "Behandelingen: " . $behandelingen . "\n";
+            $bericht_salon .= "Behandeltijd: " . $behandeltijd . " minuten\n";
+            $bericht_salon .= "Prijs: €" . number_format($prijs, 2, ',', '.') . "\n";
+            wp_mail($salon_email, $onderwerp_salon, $bericht_salon);
+        }
 
         $afspraak_timestamp = strtotime($datum . ' ' . $tijd);
         $herinnering_timestamp = $afspraak_timestamp - (24 * 60 * 60);
@@ -484,23 +498,31 @@ document.addEventListener("DOMContentLoaded", function () {
         $bericht .= "Behandelingen: " . $behandelingen . "\n\n";
         $bericht .= "Tot morgen!\n";
         $bericht .= "GoodByeHair";
-
         wp_mail($email, $onderwerp, $bericht);
     }
 
     public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_days');
         register_setting('gbh_settings_group', 'gbh_times');
+        register_setting('gbh_settings_group', 'gbh_salon_email');
     }
 
     public function settings_page() {
         $times = get_option('gbh_times', []);
         $days = get_option('gbh_days', []);
+        $salon_email = get_option('gbh_salon_email', '');
         ?>
         <div class="wrap">
             <h1>Booking instellingen</h1>
             <form method="post" action="options.php">
                 <?php settings_fields('gbh_settings_group'); ?>
+
+                <h3>E-mail salon</h3>
+                <label>E-mailadres voor nieuwe boekingen:<br>
+                    <input type="email" name="gbh_salon_email" value="<?php echo esc_attr($salon_email); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
+                </label>
+                <br><br>
+
                 <h3>Werkdagen</h3>
                 <?php
                 $all_days = ['ma','di','wo','do','vr','za','zo'];
