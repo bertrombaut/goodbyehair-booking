@@ -35,7 +35,7 @@ class GBH_Booking {
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_ajax_gbh_save_booking', [$this, 'save_booking']);
         add_action('wp_ajax_nopriv_gbh_save_booking', [$this, 'save_booking']);
-        add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 1);
+        add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 6);
     }
 
     public function render() {
@@ -434,7 +434,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!$naam || !$email || !$datum || !$tijd) {
             wp_send_json_error('Vul alle verplichte velden in.');
         }
-       $wpdb->insert($table, [
+        $wpdb->insert($table, [
             'naam'          => $naam,
             'email'         => $email,
             'telefoon'      => $telefoon,
@@ -467,9 +467,7 @@ document.addEventListener("DOMContentLoaded", function () {
         wp_send_json_success('Afspraak opgeslagen.');
     }
 
-    public function register_settings() {
-
-public function stuur_herinnering($booking_id, $email, $naam, $datum, $tijd, $behandelingen) {
+    public function stuur_herinnering($booking_id, $email, $naam, $datum, $tijd, $behandelingen) {
         $onderwerp = 'Herinnering afspraak GoodByeHair';
         $bericht  = "Beste " . $naam . ",\n\n";
         $bericht .= "Dit is een herinnering voor je afspraak van morgen!\n\n";
@@ -481,7 +479,8 @@ public function stuur_herinnering($booking_id, $email, $naam, $datum, $tijd, $be
 
         wp_mail($email, $onderwerp, $bericht);
     }
-        
+
+    public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_days');
         register_setting('gbh_settings_group', 'gbh_times');
     }
