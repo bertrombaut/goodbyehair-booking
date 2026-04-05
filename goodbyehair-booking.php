@@ -270,6 +270,58 @@ document.addEventListener("DOMContentLoaded", function () {
     echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">Terug</button>';
 echo '</div>';
     echo '<input type="hidden" id="gbh-selected-time" value="">';
+        echo '<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const bevestigButton = document.getElementById("gbh-bevestig");
+    if (bevestigButton) {
+        bevestigButton.addEventListener("click", function () {
+            const naam = document.getElementById("gbh-naam").value.trim();
+            const email = document.getElementById("gbh-email").value.trim();
+            const telefoon = document.getElementById("gbh-telefoon").value.trim();
+            const datum = document.getElementById("gbh-selected-date").value;
+            const tijd = document.getElementById("gbh-selected-time").value;
+            const behandeltijd = document.getElementById("gbh-total-time").textContent;
+            const prijs = document.getElementById("gbh-total-price").textContent.replace(",", ".");
+
+            const behandelingen = [];
+            document.querySelectorAll(".gbh-treatment").forEach(function (cb) {
+                if (cb.checked) {
+                    behandelingen.push(cb.closest("label").textContent.trim());
+                }
+            });
+
+            if (!naam || !email || !datum || !tijd) {
+                alert("Vul alle verplichte velden in.");
+                return;
+            }
+
+            const data = new FormData();
+            data.append("action", "gbh_save_booking");
+            data.append("naam", naam);
+            data.append("email", email);
+            data.append("telefoon", telefoon);
+            data.append("datum", datum);
+            data.append("tijd", tijd);
+            data.append("behandelingen", behandelingen.join(", "));
+            data.append("behandeltijd", behandeltijd);
+            data.append("prijs", prijs);
+
+            fetch("' . esc_url(admin_url("admin-ajax.php")) . '", {
+                method: "POST",
+                body: data
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (response) {
+                if (response.success) {
+                    document.getElementById("gbh-step-3").innerHTML = "<div style=\"padding:20px;border:1px solid #ccc;border-radius:10px;max-width:400px;\"><h2>Afspraak bevestigd!</h2><p>Bedankt " + naam + ", je afspraak op " + datum + " om " + tijd + " is vastgelegd.</p></div>";
+                } else {
+                    alert("Er ging iets mis: " + response.data);
+                }
+            });
+        });
+    }
+});
+</script>';
         echo '<div style="margin-top:20px;">';
         echo '</div>';
 
