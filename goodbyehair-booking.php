@@ -443,41 +443,48 @@ public function register_settings() {
     register_setting('gbh_settings_group', 'gbh_days');
     register_setting('gbh_settings_group', 'gbh_times');
 }
-                <?php
-                $all_days = ['ma','di','wo','do','vr','za','zo'];
-                foreach ($all_days as $day) {
-                    ?>
-                    <label>
-                        <input type="checkbox" name="gbh_days[]" value="<?php echo $day; ?>" <?php checked(in_array($day, $days)); ?>>
-                        <?php echo strtoupper($day); ?>
-                    </label><br>
-                    <?php
-                }
-                ?>
 
-                <h3>Tijden per dag</h3>
-<?php
-$all_days = ['ma','di','wo','do','vr','za','zo'];
-foreach ($all_days as $day) {
-    $start = $times[$day]['start'] ?? '';
-    $end = $times[$day]['end'] ?? '';
+public function settings_page() {
+    $times = get_option('gbh_times', []);
+    $days = get_option('gbh_days', []);
     ?>
-    <label><?php echo strtoupper($day); ?> start:
-        <input type="time" name="gbh_times[<?php echo $day; ?>][start]" value="<?php echo esc_attr($start); ?>">
-    </label>
-    <label>einde:
-        <input type="time" name="gbh_times[<?php echo $day; ?>][end]" value="<?php echo esc_attr($end); ?>">
-    </label>
-    <br><br>
+    <div class="wrap">
+        <h1>Booking instellingen</h1>
+        <form method="post" action="options.php">
+            <?php settings_fields('gbh_settings_group'); ?>
+            <h3>Werkdagen</h3>
+            <?php
+            $all_days = ['ma','di','wo','do','vr','za','zo'];
+            foreach ($all_days as $day) {
+                ?>
+                <label>
+                    <input type="checkbox" name="gbh_days[]" value="<?php echo $day; ?>" <?php checked(in_array($day, $days)); ?>>
+                    <?php echo strtoupper($day); ?>
+                </label><br>
+                <?php
+            }
+            ?>
+            <h3>Tijden per dag</h3>
+            <?php
+            foreach ($all_days as $day) {
+                $start = $times[$day]['start'] ?? '';
+                $end = $times[$day]['end'] ?? '';
+                ?>
+                <label><?php echo strtoupper($day); ?> start:
+                    <input type="time" name="gbh_times[<?php echo $day; ?>][start]" value="<?php echo esc_attr($start); ?>">
+                </label>
+                <label>einde:
+                    <input type="time" name="gbh_times[<?php echo $day; ?>][end]" value="<?php echo esc_attr($end); ?>">
+                </label>
+                <br><br>
+                <?php
+            }
+            ?>
+            <?php submit_button(); ?>
+        </form>
+    </div>
     <?php
 }
-?>
-
-                <?php submit_button(); ?>
-            </form>
-        </div>
-        <?php
-    }
 }
 
 new GBH_Booking();
