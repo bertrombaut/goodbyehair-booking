@@ -412,22 +412,37 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    public function register_settings() {
-        register_setting('gbh_settings_group', 'gbh_days');
-        register_setting('gbh_settings_group', 'gbh_times');
+   public function save_booking() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'gbh_bookings';
+    $naam          = sanitize_text_field($_POST['naam'] ?? '');
+    $email         = sanitize_email($_POST['email'] ?? '');
+    $telefoon      = sanitize_text_field($_POST['telefoon'] ?? '');
+    $datum         = sanitize_text_field($_POST['datum'] ?? '');
+    $tijd          = sanitize_text_field($_POST['tijd'] ?? '');
+    $behandelingen = sanitize_text_field($_POST['behandelingen'] ?? '');
+    $behandeltijd  = intval($_POST['behandeltijd'] ?? 0);
+    $prijs         = floatval($_POST['prijs'] ?? 0);
+    if (!$naam || !$email || !$datum || !$tijd) {
+        wp_send_json_error('Vul alle verplichte velden in.');
     }
+    $wpdb->insert($table, [
+        'naam'          => $naam,
+        'email'         => $email,
+        'telefoon'      => $telefoon,
+        'datum'         => $datum,
+        'tijd'          => $tijd,
+        'behandelingen' => $behandelingen,
+        'behandeltijd'  => $behandeltijd,
+        'prijs'         => $prijs,
+    ]);
+    wp_send_json_success('Afspraak opgeslagen.');
+}
 
-    public function settings_page() {
-        $times = get_option('gbh_times', []);
-        $days = get_option('gbh_days', []);
-       $times = get_option('gbh_times', []);
-        ?>
-        <div class="wrap">
-            <h1>Booking instellingen</h1>
-            <form method="post" action="options.php">
-                <?php settings_fields('gbh_settings_group'); ?>
-
-                <h3>Werkdagen</h3>
+public function register_settings() {
+    register_setting('gbh_settings_group', 'gbh_days');
+    register_setting('gbh_settings_group', 'gbh_times');
+}
                 <?php
                 $all_days = ['ma','di','wo','do','vr','za','zo'];
                 foreach ($all_days as $day) {
