@@ -33,6 +33,8 @@ class GBH_Booking {
         add_shortcode('gbh_booking', [$this, 'render']);
         add_action('admin_menu', [$this, 'admin_menu']);
         add_action('admin_init', [$this, 'register_settings']);
+        add_action('wp_ajax_gbh_save_booking', [$this, 'save_booking']);
+        add_action('wp_ajax_nopriv_gbh_save_booking', [$this, 'save_booking']);
     }
 
     public function render() {
