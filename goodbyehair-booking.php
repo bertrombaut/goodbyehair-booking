@@ -510,6 +510,48 @@ document.addEventListener("DOMContentLoaded", function () {
 }
 
 public function register_settings() {
+    public function bookings_page() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'gbh_bookings';
+    $bookings = $wpdb->get_results("SELECT * FROM $table ORDER BY datum ASC, tijd ASC");
+    ?>
+    <div class="wrap">
+        <h1>Afspraken</h1>
+        <table class="widefat fixed striped">
+            <thead>
+                <tr>
+                    <th>Naam</th>
+                    <th>Email</th>
+                    <th>Telefoon</th>
+                    <th>Datum</th>
+                    <th>Tijd</th>
+                    <th>Behandelingen</th>
+                    <th>Duur</th>
+                    <th>Prijs</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($bookings) : ?>
+                    <?php foreach ($bookings as $b) : ?>
+                        <tr>
+                            <td><?php echo esc_html($b->naam); ?></td>
+                            <td><?php echo esc_html($b->email); ?></td>
+                            <td><?php echo esc_html($b->telefoon); ?></td>
+                            <td><?php echo esc_html($b->datum); ?></td>
+                            <td><?php echo esc_html($b->tijd); ?></td>
+                            <td><?php echo esc_html($b->behandelingen); ?></td>
+                            <td><?php echo esc_html($b->behandeltijd); ?> min</td>
+                            <td>€<?php echo esc_html($b->prijs); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <tr><td colspan="8">Geen afspraken gevonden.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+}
     register_setting('gbh_settings_group', 'gbh_days');
     register_setting('gbh_settings_group', 'gbh_times');
 }
