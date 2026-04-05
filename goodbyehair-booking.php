@@ -455,14 +455,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     public function admin_menu() {
-        add_options_page(
-            'Booking instellingen',
-            'Booking',
-            'manage_options',
-            'gbh-booking',
-            [$this, 'settings_page']
-        );
-    }
+    add_menu_page(
+        'GoodByeHair Booking',
+        'GBH Booking',
+        'manage_options',
+        'gbh-booking',
+        [$this, 'bookings_page'],
+        'dashicons-calendar-alt',
+        25
+    );
+    add_submenu_page(
+        'gbh-booking',
+        'Afspraken',
+        'Afspraken',
+        'manage_options',
+        'gbh-booking',
+        [$this, 'bookings_page']
+    );
+    add_submenu_page(
+        'gbh-booking',
+        'Instellingen',
+        'Instellingen',
+        'manage_options',
+        'gbh-settings',
+        [$this, 'settings_page']
+    );
+}
 
    public function save_booking() {
     global $wpdb;
