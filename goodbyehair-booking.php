@@ -433,7 +433,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!$naam || !$email || !$datum || !$tijd) {
             wp_send_json_error('Vul alle verplichte velden in.');
         }
-        $wpdb->insert($table, [
+       $wpdb->insert($table, [
             'naam'          => $naam,
             'email'         => $email,
             'telefoon'      => $telefoon,
@@ -443,6 +443,20 @@ document.addEventListener("DOMContentLoaded", function () {
             'behandeltijd'  => $behandeltijd,
             'prijs'         => $prijs,
         ]);
+
+        $onderwerp = 'Bevestiging afspraak GoodByeHair';
+        $bericht  = "Beste " . $naam . ",\n\n";
+        $bericht .= "Je afspraak is bevestigd!\n\n";
+        $bericht .= "Datum: " . $datum . "\n";
+        $bericht .= "Tijd: " . $tijd . "\n";
+        $bericht .= "Behandelingen: " . $behandelingen . "\n";
+        $bericht .= "Behandeltijd: " . $behandeltijd . " minuten\n";
+        $bericht .= "Prijs: €" . number_format($prijs, 2, ',', '.') . "\n\n";
+        $bericht .= "Tot dan!\n";
+        $bericht .= "GoodByeHair";
+
+        wp_mail($email, $onderwerp, $bericht);
+
         wp_send_json_success('Afspraak opgeslagen.');
     }
 
