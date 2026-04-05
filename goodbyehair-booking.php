@@ -35,6 +35,7 @@ class GBH_Booking {
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_ajax_gbh_save_booking', [$this, 'save_booking']);
         add_action('wp_ajax_nopriv_gbh_save_booking', [$this, 'save_booking']);
+        add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 1);
     }
 
     public function render() {
