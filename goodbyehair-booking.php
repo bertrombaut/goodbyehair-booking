@@ -49,7 +49,7 @@ class GBH_Booking {
             $start_time = substr($b['tijd'], 0, 5);
             $start_ts = strtotime('1970-01-01 ' . $start_time);
             $duur = intval($b['behandeltijd']);
-            $slots = ceil($duur / 15)+1;
+            $slots = ceil($duur / 15) + 1;
             for ($i = 0; $i < $slots; $i++) {
                 $slot_ts = $start_ts + ($i * 15 * 60);
                 $slot_time = date('H:i', $slot_ts);
@@ -237,20 +237,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         allSlots.push(h + ":" + m);
                     }
                     allSlots.forEach(function (time, index) {
-                        let isBooked = bookings.includes(selectedDate + " " + time);
                         let fitsInDay = (index + slotsNeeded) <= allSlots.length;
-                        let blockedByDuration = false;
+                        let isBlocked = false;
                         if (fitsInDay) {
                             for (let s = 0; s < slotsNeeded; s++) {
-                                const checkSlot = allSlots[index + s];
-                                if (checkSlot && bookings.includes(selectedDate + " " + checkSlot)) {
-                                    blockedByDuration = true;
+                                if (bookings.includes(selectedDate + " " + allSlots[index + s])) {
+                                    isBlocked = true;
                                     break;
                                 }
                             }
+                        } else {
+                            isBlocked = true;
                         }
-                        let isDisabled = isBooked || !fitsInDay || blockedByDuration;
-                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isDisabled ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isDisabled ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isDisabled ? "#eee" : "#fff") + ";cursor:" + (isDisabled ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
+                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isBlocked ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isBlocked ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isBlocked ? "#eee" : "#fff") + ";cursor:" + (isBlocked ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
                     });
                 }
                 timesContainer.innerHTML = html;
