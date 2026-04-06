@@ -123,10 +123,9 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<strong>Overzicht</strong><br><br>';
         echo '<div style="font-size:14px;margin-bottom:4px;">Behandeltijd: <span id="gbh-total-time">0</span> min</div>';
         echo '<div style="font-size:14px;">Totaal: <strong>€<span id="gbh-total-price">0,00</span></strong></div>';
-        echo '<button type="button" id="gbh-next-step" class="gbh-next-btn">Kies een Datum/Tijd →</button>';
+        echo '<button type="button" id="gbh-next-step" class="gbh-next-btn">Kies een datum/tijd →</button>';
         echo '</div>';
         echo '</div>';
-
         echo '</div>';
         echo '</div>';
 
@@ -153,6 +152,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let year = current.getFullYear();
     let month = current.getMonth();
     let selectedDate = "";
+    const today = new Date();
+    today.setHours(0,0,0,0);
     function renderCalendar() {
         const firstDate = new Date(year, month, 1);
         let firstDay = firstDate.getDay();
@@ -175,14 +176,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const date = new Date(year, month, d);
             const dayKey = map[date.getDay()];
             const enabled = days.includes(dayKey);
-            const monthValue = String(month + 1).padStart(2, "0");
-            const dayValue = String(d).padStart(2, "0");
-      const fullDate = year + "-" + monthValue + "-" + dayValue;
-            const isSelected = selectedDate === fullDate;
-            const today = new Date();
-            today.setHours(0,0,0,0);
             const isPast = date < today;
             const isEnabled = enabled && !isPast;
+            const monthValue = String(month + 1).padStart(2, "0");
+            const dayValue = String(d).padStart(2, "0");
+            const fullDate = year + "-" + monthValue + "-" + dayValue;
+            const isSelected = selectedDate === fullDate;
             html += "<button type=\"button\" class=\"gbh-calendar-day\" data-date=\"" + fullDate + "\" " + (isEnabled ? "" : "disabled") + " style=\"padding:10px;border:1px solid " + (isSelected ? "#7d3c98" : "#ccc") + ";border-radius:6px;text-align:center;cursor:" + (isEnabled ? "pointer" : "not-allowed") + ";background:" + (isEnabled ? (isSelected ? "#7d3c98" : "#fff") : "#eee") + ";color:" + (isSelected ? "#fff" : "#000") + ";\">" + d + "</button>";
         }
         html += "</div>";
