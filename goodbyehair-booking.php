@@ -1115,11 +1115,17 @@ public function register_settings() {
         $times = get_option('gbh_times', []);
         $days = get_option('gbh_days', []);
         $salon_email = get_option('gbh_salon_email', '');
+
+        // Wachtwoord opslaan
+        if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw']) && check_admin_referer('gbh_settings_group-options')) {
+            update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
+            delete_option('gbh_medewerker_token');
+            echo '<div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>';
+        }
         ?>
         <div class="wrap">
             <h1>Booking instellingen</h1>
             <form method="post" action="options.php">
-                <?php settings_fields('gbh_settings_group'); ?>
 
                 <h3>E-mail salon</h3>
                 <label>E-mailadres voor nieuwe boekingen:<br>
