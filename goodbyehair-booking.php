@@ -99,6 +99,7 @@ class GBH_Booking {
 .gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
 .gbh-next-btn:hover { background:#6a2f82; }
 h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px solid #e8d5f5; padding-bottom:6px; }
+.gbh-section-header { margin-bottom:12px; padding:12px 16px; background:#f3e5f5; border-left:4px solid #7d3c98; border-radius:8px; font-weight:600; font-size:16px; }
 </style>';
 
         echo '<div class="gbh-booking">';
@@ -130,17 +131,17 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '</div>';
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
+        echo '<div class="gbh-section-header">Kies een datum</div>';
+        echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
+        echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
+        echo '<div id="gbh-times-header" class="gbh-section-header" style="display:none;">Kies een tijdstip</div>';
         echo '<div id="gbh-times"></div>';
+        echo '<input type="hidden" id="gbh-selected-date" value="">';
+        echo '<input type="hidden" id="gbh-selected-time" value="">';
         echo '<div style="margin-top:16px;">';
         echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">← Terug</button>';
         echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende →</button>';
         echo '</div>';
-        echo '<div style="margin-bottom:12px;padding:12px 16px;background:#f3e5f5;border-left:4px solid #7d3c98;border-radius:8px;font-weight:600;font-size:16px;">Kies een datum</div>';
-        echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
-        echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
-        echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 16px;background:#f3e5f5;border-left:4px solid #7d3c98;border-radius:8px;font-weight:600;font-size:16px;">Kies een tijdstip</div>';
-        echo '<div id="gbh-times"></div>';
-        echo '<input type="hidden" id="gbh-selected-date" value="">';
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
     const calendar = document.getElementById("gbh-calendar");
@@ -210,11 +211,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         let h = String(t.getHours()).padStart(2, "0");
                         let m = String(t.getMinutes()).padStart(2, "0");
                         let time = h + ":" + m;
-                        let slotMinutes = t.getHours() * 60 + t.getMinutes();
                         let isBooked = bookings.includes(selectedDate + " " + time);
-                        let isPastTime = isToday && slotMinutes <= nowMinutes;
-                        let isDisabled = isBooked || isPastTime;
-                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isDisabled ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isDisabled ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isDisabled ? "#eee" : "#fff") + ";cursor:" + (isDisabled ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
+                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isBooked ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isBooked ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isBooked ? "#eee" : "#fff") + ";cursor:" + (isBooked ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
                     }
                 }
                 timesContainer.innerHTML = html;
@@ -262,7 +260,6 @@ document.addEventListener("DOMContentLoaded", function () {
         echo '<button type="button" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
         echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">← Terug</button>';
         echo '</div>';
-        echo '<input type="hidden" id="gbh-selected-time" value="">';
 
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -273,8 +270,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
     const step3 = document.getElementById("gbh-step-3");
-    const chosenTimeText = document.getElementById("gbh-chosen-time");
-    const selectedTimeInput = document.getElementById("gbh-selected-time");
 
     function updateTotals() {
         let time = 0;
