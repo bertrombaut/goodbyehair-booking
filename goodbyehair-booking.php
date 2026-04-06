@@ -121,7 +121,7 @@ class GBH_Booking {
             $token = bin2hex(random_bytes(32));
             update_option('gbh_medewerker_token', $token);
         }
-        setcookie('gbh_medewerker', $token, time() + (8 * 60 * 60), COOKIEPATH, COOKIE_DOMAIN);
+        setcookie('gbh_medewerker', $token, time() + (8 * 60 * 60), '/', '', false, true);
         wp_send_json_success('Ingelogd');
     }
 
