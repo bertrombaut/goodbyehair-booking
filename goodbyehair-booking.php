@@ -1096,15 +1096,15 @@ document.addEventListener("DOMContentLoaded", function () {
         wp_mail($email, $onderwerp, $bericht);
     }
 
-   public function register_settings() {
+public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_days');
         register_setting('gbh_settings_group', 'gbh_times');
         register_setting('gbh_settings_group', 'gbh_salon_email');
         register_setting('gbh_settings_group', 'gbh_medewerker_user');
-        add_action('update_option_gbh_medewerker_user', function() {
-            $nieuw_pass = $_POST['gbh_medewerker_pass_nieuw'] ?? '';
-            if (!empty($nieuw_pass)) {
-                update_option('gbh_medewerker_pass', password_hash($nieuw_pass, PASSWORD_DEFAULT));
+        add_action('admin_init', function() {
+            if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw'])) {
+                update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
+                delete_option('gbh_medewerker_token');
             }
         });
     }
