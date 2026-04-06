@@ -5,14 +5,29 @@
 
 if (!defined('ABSPATH')) exit;
 
-register_activation_hook(__FILE__, 'gbh_create_table');
+register_activation_hook(__FILE__, 'gbh_create_tables');
 
-function gbh_create_table() {
+function gbh_create_tables() {
     global $wpdb;
-    $table = $wpdb->prefix . 'gbh_bookings';
     $charset = $wpdb->get_charset_collate();
-    $sql = "CREATE TABLE IF NOT EXISTS $table (
+
+    // Klantentabel
+    $klanten = $wpdb->prefix . 'gbh_klanten';
+    $sql1 = "CREATE TABLE IF NOT EXISTS $klanten (
         id bigint(20) NOT NULL AUTO_INCREMENT,
+        naam varchar(100) NOT NULL,
+        email varchar(100) NOT NULL,
+        telefoon varchar(30) NOT NULL,
+        aangemaakt datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY email (email)
+    ) $charset;";
+
+    // Afsprakentabel
+    $bookings = $wpdb->prefix . 'gbh_bookings';
+    $sql2 = "CREATE TABLE IF NOT EXISTS $bookings (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        klant_id bigint(20) DEFAULT NULL,
         naam varchar(100) NOT NULL,
         email varchar(100) NOT NULL,
         telefoon varchar(30) NOT NULL,
@@ -23,22 +38,312 @@ function gbh_create_table() {
         prijs decimal(10,2) NOT NULL,
         PRIMARY KEY (id)
     ) $charset;";
+
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    dbDelta($sql);
+    dbDelta($sql1);
+    dbDelta($sql2);
+
+    // Voeg klant_id kolom toe als die nog niet bestaat (voor bestaande installaties)
+    $columns = $wpdb->get_results("SHOW COLUMNS FROM $bookings LIKE 'klant_id'");
+    if (empty($columns)) {
+        $wpdb->query("ALTER TABLE $bookings ADD COLUMN klant_id bigint(20) DEFAULT NULL AFTER id");
+    }
+
+    // Maak medewerker rol aan
+    if (!get_role('gbh_medewerker')) {
+        add_role('gbh_medewerker', 'GBH Medewerker', [
+            'read' => true,
+        ]);
+    }
 }
 
 class GBH_Booking {
 
     public function __construct() {
         add_shortcode('gbh_booking', [$this, 'render']);
+        add_shortcode('gbh_medewerker', [$this, 'render_medewerker']);
         add_action('admin_menu', [$this, 'admin_menu']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_ajax_gbh_save_booking', [$this, 'save_booking']);
         add_action('wp_ajax_nopriv_gbh_save_booking', [$this, 'save_booking']);
+        add_action('wp_ajax_gbh_zoek_klant', [$this, 'zoek_klant']);
+        add_action('wp_ajax_nopriv_gbh_zoek_klant', [$this, 'zoek_klant']);
+        add_action('wp_ajax_gbh_login', [$this, 'handle_login']);
+        add_action('wp_ajax_nopriv_gbh_login', [$this, 'handle_login']);
+        add_action('wp_ajax_gbh_logout', [$this, 'handle_logout']);
+        add_action('wp_ajax_gbh_klant_opslaan', [$this, 'klant_opslaan']);
+        add_action('wp_ajax_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
         add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 6);
         add_action('admin_post_gbh_annuleer', [$this, 'annuleer_boeking']);
     }
 
+    // -------------------------
+    // KLANT ZOEKEN VIA AJAX
+    // -------------------------
+    public function zoek_klant() {
+        global $wpdb;
+        $email = sanitize_email($_POST['email'] ?? '');
+        if (!$email) wp_send_json_error('Geen email');
+        $klant = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}gbh_klanten WHERE email = %s",
+            $email
+        ));
+        if ($klant) {
+            wp_send_json_success([
+                'gevonden' => true,
+                'naam'     => $klant->naam,
+                'telefoon' => $klant->telefoon,
+            ]);
+        } else {
+            wp_send_json_success(['gevonden' => false]);
+        }
+    }
+
+    // -------------------------
+    // LOGIN / LOGOUT
+    // -------------------------
+    public function handle_login() {
+        $username = sanitize_text_field($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $user = wp_authenticate($username, $password);
+        if (is_wp_error($user)) {
+            wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
+        }
+        if (!in_array('gbh_medewerker', $user->roles) && !in_array('administrator', $user->roles)) {
+            wp_send_json_error('Je hebt geen toegang tot dit gedeelte.');
+        }
+        wp_set_auth_cookie($user->ID, false);
+        wp_send_json_success('Ingelogd');
+    }
+
+    public function handle_logout() {
+        wp_logout();
+        wp_send_json_success('Uitgelogd');
+    }
+
+    // -------------------------
+    // KLANT OPSLAAN (medewerker)
+    // -------------------------
+    public function klant_opslaan() {
+        if (!current_user_can('gbh_medewerker') && !current_user_can('manage_options')) {
+            wp_send_json_error('Geen toegang.');
+        }
+        global $wpdb;
+        $id       = intval($_POST['id'] ?? 0);
+        $naam     = sanitize_text_field($_POST['naam'] ?? '');
+        $email    = sanitize_email($_POST['email'] ?? '');
+        $telefoon = sanitize_text_field($_POST['telefoon'] ?? '');
+        if (!$naam || !$email) wp_send_json_error('Vul naam en email in.');
+        if ($id) {
+            $wpdb->update($wpdb->prefix . 'gbh_klanten', compact('naam', 'email', 'telefoon'), ['id' => $id]);
+        } else {
+            $wpdb->insert($wpdb->prefix . 'gbh_klanten', compact('naam', 'email', 'telefoon'));
+        }
+        wp_send_json_success('Opgeslagen.');
+    }
+
+    // -------------------------
+    // KLANT VERWIJDEREN (medewerker)
+    // -------------------------
+    public function klant_verwijderen() {
+        if (!current_user_can('gbh_medewerker') && !current_user_can('manage_options')) {
+            wp_send_json_error('Geen toegang.');
+        }
+        global $wpdb;
+        $id = intval($_POST['id'] ?? 0);
+        $wpdb->delete($wpdb->prefix . 'gbh_klanten', ['id' => $id]);
+        wp_send_json_success('Verwijderd.');
+    }
+
+    // -------------------------
+    // FRONTEND MEDEWERKER PANEL
+    // -------------------------
+    public function render_medewerker() {
+        $ajax_url = esc_url(admin_url('admin-ajax.php'));
+        ob_start();
+        echo '<div id="gbh-medewerker-wrap">';
+
+        if (!is_user_logged_in() || (!current_user_can('gbh_medewerker') && !current_user_can('manage_options'))) {
+            // Loginformulier
+            echo '<div id="gbh-login-form" style="max-width:360px;margin:0 auto;padding:24px;border:2px solid #7d3c98;border-radius:12px;background:#faf5ff;">';
+            echo '<h2 style="color:#7d3c98;margin-top:0;">Medewerker login</h2>';
+            echo '<div id="gbh-login-error" style="color:#c62828;margin-bottom:10px;display:none;"></div>';
+            echo '<label style="display:block;margin-bottom:10px;">Gebruikersnaam<br><input type="text" id="gbh-login-user" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;box-sizing:border-box;"></label>';
+            echo '<label style="display:block;margin-bottom:16px;">Wachtwoord<br><input type="password" id="gbh-login-pass" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;box-sizing:border-box;"></label>';
+            echo '<button type="button" id="gbh-login-btn" style="width:100%;padding:12px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;font-size:15px;font-weight:600;">Inloggen</button>';
+            echo '</div>';
+            echo '<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("gbh-login-btn").addEventListener("click", function() {
+        const user = document.getElementById("gbh-login-user").value;
+        const pass = document.getElementById("gbh-login-pass").value;
+        const error = document.getElementById("gbh-login-error");
+        const data = new FormData();
+        data.append("action", "gbh_login");
+        data.append("username", user);
+        data.append("password", pass);
+        fetch("' . $ajax_url . '", { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                location.reload();
+            } else {
+                error.style.display = "block";
+                error.textContent = res.data;
+            }
+        });
+    });
+    document.getElementById("gbh-login-pass").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") document.getElementById("gbh-login-btn").click();
+    });
+});
+</script>';
+        } else {
+            // Klantenbeheer
+            global $wpdb;
+            $klanten = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_klanten ORDER BY naam ASC");
+            $current_user = wp_get_current_user();
+
+            echo '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">';
+            echo '<h2 style="color:#7d3c98;margin:0;">Klantenbeheer</h2>';
+            echo '<div>';
+            echo '<span style="margin-right:16px;font-size:14px;color:#666;">Ingelogd als: <strong>' . esc_html($current_user->display_name) . '</strong></span>';
+            echo '<button type="button" id="gbh-logout-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Uitloggen</button>';
+            echo '</div>';
+            echo '</div>';
+
+            // Nieuw klant formulier
+            echo '<div style="margin-bottom:24px;padding:16px;border:2px solid #7d3c98;border-radius:12px;background:#faf5ff;">';
+            echo '<h3 style="color:#7d3c98;margin-top:0;">Nieuwe klant toevoegen</h3>';
+            echo '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+            echo '<input type="text" id="gbh-nieuw-naam" placeholder="Naam" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
+            echo '<input type="email" id="gbh-nieuw-email" placeholder="Email" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
+            echo '<input type="tel" id="gbh-nieuw-telefoon" placeholder="Telefoon" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
+            echo '<button type="button" id="gbh-nieuw-btn" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;font-weight:600;">Toevoegen</button>';
+            echo '</div>';
+            echo '<div id="gbh-nieuw-msg" style="margin-top:8px;font-size:14px;"></div>';
+            echo '</div>';
+
+            // Zoekbalk
+            echo '<input type="text" id="gbh-zoek" placeholder="Zoek op naam of email..." style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-bottom:16px;box-sizing:border-box;">';
+
+            // Klantenlijst
+            echo '<div id="gbh-klanten-lijst">';
+            if ($klanten) {
+                foreach ($klanten as $k) {
+                    echo '<div class="gbh-klant-rij" data-zoek="' . esc_attr(strtolower($k->naam . ' ' . $k->email)) . '" style="padding:14px;border:1px solid #ddd;border-radius:10px;margin-bottom:10px;background:#fff;">';
+                    echo '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">';
+                    echo '<div>';
+                    echo '<strong style="font-size:16px;">' . esc_html($k->naam) . '</strong><br>';
+                    echo '<span style="color:#666;font-size:14px;">' . esc_html($k->email) . ' · ' . esc_html($k->telefoon) . '</span>';
+                    echo '</div>';
+                    echo '<div style="display:flex;gap:8px;">';
+                    echo '<button type="button" class="gbh-edit-btn" data-id="' . esc_attr($k->id) . '" style="padding:6px 14px;border:1px solid #7d3c98;border-radius:8px;background:#fff;color:#7d3c98;cursor:pointer;">Bewerken</button>';
+                    echo '<button type="button" class="gbh-del-btn" data-id="' . esc_attr($k->id) . '" style="padding:6px 14px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;">Verwijderen</button>';
+                    echo '</div>';
+                    echo '</div>';
+                    // Bewerkformulier (verborgen)
+                    echo '<div class="gbh-edit-form" id="gbh-edit-' . esc_attr($k->id) . '" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #eee;">';
+                    echo '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+                    echo '<input type="text" class="gbh-edit-naam" value="' . esc_attr($k->naam) . '" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
+                    echo '<input type="email" class="gbh-edit-email" value="' . esc_attr($k->email) . '" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
+                    echo '<input type="tel" class="gbh-edit-telefoon" value="' . esc_attr($k->telefoon) . '" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
+                    echo '<button type="button" class="gbh-save-btn" data-id="' . esc_attr($k->id) . '" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;font-weight:600;">Opslaan</button>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</div>';
+                }
+            } else {
+                echo '<p style="color:#999;">Nog geen klanten gevonden.</p>';
+            }
+            echo '</div>';
+
+            echo '<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ajaxUrl = "' . $ajax_url . '";
+
+    document.getElementById("gbh-logout-btn").addEventListener("click", function() {
+        const data = new FormData();
+        data.append("action", "gbh_logout");
+        fetch(ajaxUrl, { method: "POST", body: data })
+        .then(() => location.reload());
+    });
+
+    document.getElementById("gbh-zoek").addEventListener("input", function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll(".gbh-klant-rij").forEach(function(rij) {
+            rij.style.display = rij.dataset.zoek.includes(q) ? "block" : "none";
+        });
+    });
+
+    document.getElementById("gbh-nieuw-btn").addEventListener("click", function() {
+        const naam = document.getElementById("gbh-nieuw-naam").value.trim();
+        const email = document.getElementById("gbh-nieuw-email").value.trim();
+        const telefoon = document.getElementById("gbh-nieuw-telefoon").value.trim();
+        const msg = document.getElementById("gbh-nieuw-msg");
+        if (!naam || !email) { msg.style.color = "#c62828"; msg.textContent = "Vul naam en email in."; return; }
+        const data = new FormData();
+        data.append("action", "gbh_klant_opslaan");
+        data.append("naam", naam);
+        data.append("email", email);
+        data.append("telefoon", telefoon);
+        fetch(ajaxUrl, { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) { location.reload(); }
+            else { msg.style.color = "#c62828"; msg.textContent = res.data; }
+        });
+    });
+
+    document.querySelectorAll(".gbh-edit-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            const id = btn.dataset.id;
+            const form = document.getElementById("gbh-edit-" + id);
+            form.style.display = form.style.display === "none" ? "block" : "none";
+        });
+    });
+
+    document.querySelectorAll(".gbh-save-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            const id = btn.dataset.id;
+            const form = document.getElementById("gbh-edit-" + id);
+            const naam = form.querySelector(".gbh-edit-naam").value.trim();
+            const email = form.querySelector(".gbh-edit-email").value.trim();
+            const telefoon = form.querySelector(".gbh-edit-telefoon").value.trim();
+            const data = new FormData();
+            data.append("action", "gbh_klant_opslaan");
+            data.append("id", id);
+            data.append("naam", naam);
+            data.append("email", email);
+            data.append("telefoon", telefoon);
+            fetch(ajaxUrl, { method: "POST", body: data })
+            .then(r => r.json())
+            .then(res => { if (res.success) location.reload(); });
+        });
+    });
+
+    document.querySelectorAll(".gbh-del-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            if (!confirm("Weet je zeker dat je deze klant wilt verwijderen?")) return;
+            const data = new FormData();
+            data.append("action", "gbh_klant_verwijderen");
+            data.append("id", btn.dataset.id);
+            fetch(ajaxUrl, { method: "POST", body: data })
+            .then(r => r.json())
+            .then(res => { if (res.success) location.reload(); });
+        });
+    });
+});
+</script>';
+        }
+
+        echo '</div>';
+        return ob_get_clean();
+    }
+
+    // -------------------------
+    // BOOKING RENDER
+    // -------------------------
     public function render() {
 
         global $wpdb;
@@ -87,6 +392,8 @@ class GBH_Booking {
             ]
         ];
 
+        $ajax_url = esc_url(admin_url('admin-ajax.php'));
+
         ob_start();
 
         echo '<style>
@@ -107,6 +414,7 @@ class GBH_Booking {
 .gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
 .gbh-next-btn:hover { background:#6a2f82; }
 h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px solid #e8d5f5; padding-bottom:6px; }
+.gbh-welkom { padding:10px 14px; background:#e8f5e9; border:1px solid #a5d6a7; border-radius:8px; color:#2e7d32; font-weight:600; margin-bottom:12px; font-size:15px; display:none; }
 </style>';
 
         echo '<div class="gbh-booking">';
@@ -137,6 +445,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '</div>';
         echo '</div>';
 
+        // Stap 2: kalender
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
         echo '<div id="gbh-datum-header" style="display:inline-block;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een datum</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
@@ -150,6 +459,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">← Terug</button>';
         echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;transition:all 0.3s;">Volgende →</button>';
         echo '</div>';
+
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
     const calendar = document.getElementById("gbh-calendar");
@@ -178,13 +488,11 @@ document.addEventListener("DOMContentLoaded", function () {
         datumHeader.style.color = "#fff";
         datumHeader.style.fontSize = "18px";
         datumHeader.style.padding = "12px 20px";
-        // Reset tijdsheader
         const tijdHeader = document.getElementById("gbh-times-header");
         tijdHeader.style.background = "#7d3c98";
         tijdHeader.style.color = "#fff";
         tijdHeader.style.fontSize = "18px";
         tijdHeader.style.padding = "12px 20px";
-        // Reset volgende-knop
         const volgendeBtn = document.getElementById("gbh-next-to-step3");
         volgendeBtn.style.background = "#7d3c98";
         volgendeBtn.style.fontSize = "";
@@ -233,7 +541,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 selectedDate = button.dataset.date;
                 selectedDateInput.value = selectedDate;
                 chosenDateText.textContent = "Gekozen datum: " + selectedDate;
-                // Reset tijdselectie bij nieuwe datum
                 document.getElementById("gbh-chosen-time").textContent = "";
                 document.getElementById("gbh-selected-time").value = "";
                 const tijdHeader = document.getElementById("gbh-times-header");
@@ -250,7 +557,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dayKey = map[dateObj.getDay()];
                 const dayTimes = times[dayKey];
                 const timesContainer = document.getElementById("gbh-times");
-                const timesHeader = document.getElementById("gbh-times-header");
                 const behandeltijd = parseInt(document.getElementById("gbh-total-time").textContent) || 15;
                 const slotsNeeded = Math.ceil(behandeltijd / 15) + 1;
                 let html = "";
@@ -280,41 +586,33 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
                 timesContainer.innerHTML = html;
-                timesHeader.style.display = "inline-block";
+                tijdHeader.style.display = "inline-block";
                 document.getElementById("gbh-datum-header").style.background = "#e8d5f5";
                 document.getElementById("gbh-datum-header").style.color = "#7d3c98";
                 document.getElementById("gbh-datum-header").style.fontSize = "14px";
                 document.getElementById("gbh-datum-header").style.padding = "6px 12px";
                 document.querySelectorAll(".gbh-time").forEach(function (btn) {
                     btn.addEventListener("click", function () {
-                        // Alle tijdknoppen resetten
                         document.querySelectorAll(".gbh-time").forEach(function (b) {
                             b.style.background = "#fff";
                             b.style.borderColor = "#ccc";
                             b.style.color = "#000";
                         });
-                        // Geselecteerde tijdknop markeren
                         btn.style.background = "#7d3c98";
                         btn.style.borderColor = "#7d3c98";
                         btn.style.color = "#fff";
                         document.getElementById("gbh-selected-time").value = btn.dataset.time;
                         document.getElementById("gbh-chosen-time").textContent = "Gekozen tijd: " + btn.dataset.time;
-
-                        // Tijdsheader minder opvallend maken
                         const tijdHeader = document.getElementById("gbh-times-header");
                         tijdHeader.style.background = "#e8d5f5";
                         tijdHeader.style.color = "#7d3c98";
                         tijdHeader.style.fontSize = "14px";
                         tijdHeader.style.padding = "6px 12px";
-
-                        // Volgende-knop opvallender maken
                         const volgendeBtn = document.getElementById("gbh-next-to-step3");
                         volgendeBtn.style.background = "#4a1a6e";
                         volgendeBtn.style.fontSize = "16px";
                         volgendeBtn.style.padding = "14px 28px";
                         volgendeBtn.style.boxShadow = "0 4px 12px rgba(125,60,152,0.4)";
-
-                        // Scroll naar knoppen
                         document.getElementById("gbh-step2-buttons").scrollIntoView({ behavior: "smooth", block: "center" });
                     });
                 });
@@ -335,7 +633,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const backToStep1Button = document.getElementById("gbh-back-to-step1");
     if (backToStep1Button) {
-       backToStep1Button.addEventListener("click", function () {
+        backToStep1Button.addEventListener("click", function () {
             resetTimes();
             renderCalendar();
             document.getElementById("gbh-step-2").style.display = "none";
@@ -346,14 +644,26 @@ document.addEventListener("DOMContentLoaded", function () {
     renderCalendar();
 });
 </script>';
-
         echo '</div>';
+
+        // Stap 3: gegevens invullen
         echo '<div id="gbh-step-3" style="display:none;margin-top:20px;">';
         echo '<h2>Jouw gegevens</h2>';
         echo '<div id="gbh-step3-summary" style="margin-bottom:16px;padding:12px;border:1px solid #ddd;border-radius:10px;max-width:400px;"></div>';
+        echo '<div id="gbh-welkom" class="gbh-welkom"></div>';
+
+        // EMAIL eerst
+        echo '<label style="display:block;margin-bottom:10px;">E-mail<br>';
+        echo '<input type="email" id="gbh-email" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;">';
+        echo '<span id="gbh-email-status" style="display:inline-block;margin-left:8px;font-size:13px;color:#999;"></span>';
+        echo '</label>';
+
+        // NAAM tweede
         echo '<label style="display:block;margin-bottom:10px;">Naam<br><input type="text" id="gbh-naam" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
-        echo '<label style="display:block;margin-bottom:10px;">E-mail<br><input type="email" id="gbh-email" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+
+        // TELEFOON derde
         echo '<label style="display:block;margin-bottom:10px;">Telefoon<br><input type="tel" id="gbh-telefoon" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+
         echo '<button type="button" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
         echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">← Terug</button>';
         echo '</div>';
@@ -367,6 +677,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
     const step3 = document.getElementById("gbh-step-3");
+    const ajaxUrl = "' . $ajax_url . '";
+    let emailTimer = null;
 
     function updateTotals() {
         let time = 0;
@@ -419,6 +731,47 @@ document.addEventListener("DOMContentLoaded", function () {
             summary.innerHTML = "Datum: <strong>" + date + "</strong><br>Tijd: <strong>" + time + "</strong><br>Behandeltijd: <strong>" + totalTime.textContent + " min</strong><br>Prijs: <strong>€" + totalPrice.textContent + "</strong>";
             step2.style.display = "none";
             step3.style.display = "block";
+            document.getElementById("gbh-email").focus();
+        });
+    }
+
+    // Klantherkenning via email
+    const emailInput = document.getElementById("gbh-email");
+    if (emailInput) {
+        emailInput.addEventListener("input", function () {
+            clearTimeout(emailTimer);
+            const email = emailInput.value.trim();
+            const status = document.getElementById("gbh-email-status");
+            const welkom = document.getElementById("gbh-welkom");
+            if (!email || !email.includes("@")) {
+                status.textContent = "";
+                welkom.style.display = "none";
+                return;
+            }
+            status.textContent = "Zoeken...";
+            emailTimer = setTimeout(function () {
+                const data = new FormData();
+                data.append("action", "gbh_zoek_klant");
+                data.append("email", email);
+                fetch(ajaxUrl, { method: "POST", body: data })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success && res.data.gevonden) {
+                        document.getElementById("gbh-naam").value = res.data.naam;
+                        document.getElementById("gbh-telefoon").value = res.data.telefoon;
+                        status.style.color = "#2e7d32";
+                        status.textContent = "✓ Bekend";
+                        welkom.style.display = "block";
+                        welkom.textContent = "Welkom terug, " + res.data.naam + "! Je gegevens zijn ingevuld.";
+                    } else {
+                        document.getElementById("gbh-naam").value = "";
+                        document.getElementById("gbh-telefoon").value = "";
+                        status.style.color = "#999";
+                        status.textContent = "Nieuw";
+                        welkom.style.display = "none";
+                    }
+                });
+            }, 600);
         });
     }
 
@@ -458,10 +811,7 @@ document.addEventListener("DOMContentLoaded", function () {
             data.append("behandelingen", behandelingen.join(", "));
             data.append("behandeltijd", behandeltijd);
             data.append("prijs", prijs);
-            fetch("' . esc_url(admin_url('admin-ajax.php')) . '", {
-                method: "POST",
-                body: data
-            })
+            fetch(ajaxUrl, { method: "POST", body: data })
             .then(function (r) { return r.json(); })
             .then(function (response) {
                 if (response.success) {
@@ -500,12 +850,54 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         add_submenu_page(
             'gbh-booking',
+            'Klanten',
+            'Klanten',
+            'manage_options',
+            'gbh-klanten',
+            [$this, 'klanten_page']
+        );
+        add_submenu_page(
+            'gbh-booking',
             'Instellingen',
             'Instellingen',
             'manage_options',
             'gbh-settings',
             [$this, 'settings_page']
         );
+    }
+
+    public function klanten_page() {
+        global $wpdb;
+        $klanten = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_klanten ORDER BY naam ASC");
+        ?>
+        <div class="wrap">
+            <h1>Klanten</h1>
+            <table class="widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th>Naam</th>
+                        <th>Email</th>
+                        <th>Telefoon</th>
+                        <th>Aangemaakt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($klanten) : ?>
+                        <?php foreach ($klanten as $k) : ?>
+                            <tr>
+                                <td><?php echo esc_html($k->naam); ?></td>
+                                <td><?php echo esc_html($k->email); ?></td>
+                                <td><?php echo esc_html($k->telefoon); ?></td>
+                                <td><?php echo esc_html($k->aangemaakt); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr><td colspan="4">Geen klanten gevonden.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php
     }
 
     public function bookings_page() {
@@ -597,7 +989,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     public function save_booking() {
         global $wpdb;
-        $table = $wpdb->prefix . 'gbh_bookings';
+        $table   = $wpdb->prefix . 'gbh_bookings';
+        $klanten = $wpdb->prefix . 'gbh_klanten';
+
         $naam          = sanitize_text_field($_POST['naam'] ?? '');
         $email         = sanitize_email($_POST['email'] ?? '');
         $telefoon      = sanitize_text_field($_POST['telefoon'] ?? '');
@@ -606,10 +1000,28 @@ document.addEventListener("DOMContentLoaded", function () {
         $behandelingen = sanitize_text_field($_POST['behandelingen'] ?? '');
         $behandeltijd  = intval($_POST['behandeltijd'] ?? 0);
         $prijs         = floatval($_POST['prijs'] ?? 0);
+
         if (!$naam || !$email || !$datum || !$tijd) {
             wp_send_json_error('Vul alle verplichte velden in.');
         }
+
+        // Klant opslaan of bijwerken
+        $klant = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $klanten WHERE email = %s", $email
+        ));
+        if ($klant) {
+            $klant_id = $klant->id;
+            if ($klant->naam !== $naam || $klant->telefoon !== $telefoon) {
+                $wpdb->update($klanten, ['naam' => $naam, 'telefoon' => $telefoon], ['id' => $klant_id]);
+            }
+        } else {
+            $wpdb->insert($klanten, ['naam' => $naam, 'email' => $email, 'telefoon' => $telefoon]);
+            $klant_id = $wpdb->insert_id;
+        }
+
+        // Afspraak opslaan
         $wpdb->insert($table, [
+            'klant_id'      => $klant_id,
             'naam'          => $naam,
             'email'         => $email,
             'telefoon'      => $telefoon,
@@ -620,6 +1032,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'prijs'         => $prijs,
         ]);
 
+        // E-mail naar klant
         $onderwerp_klant = 'Bevestiging afspraak GoodByeHair';
         $bericht_klant  = "Beste " . $naam . ",\n\n";
         $bericht_klant .= "Je afspraak is bevestigd!\n\n";
@@ -628,10 +1041,10 @@ document.addEventListener("DOMContentLoaded", function () {
         $bericht_klant .= "Behandelingen: " . $behandelingen . "\n";
         $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten\n";
         $bericht_klant .= "Prijs: €" . number_format($prijs, 2, ',', '.') . "\n\n";
-        $bericht_klant .= "Tot dan!\n";
-        $bericht_klant .= "GoodByeHair";
+        $bericht_klant .= "Tot dan!\nGoodByeHair";
         wp_mail($email, $onderwerp_klant, $bericht_klant);
 
+        // E-mail naar salon
         $salon_email = get_option('gbh_salon_email', '');
         if ($salon_email) {
             $onderwerp_salon = 'Nieuwe afspraak: ' . $naam;
@@ -647,7 +1060,8 @@ document.addEventListener("DOMContentLoaded", function () {
             wp_mail($salon_email, $onderwerp_salon, $bericht_salon);
         }
 
-        $afspraak_timestamp = strtotime($datum . ' ' . $tijd);
+        // Herinnering inplannen
+        $afspraak_timestamp    = strtotime($datum . ' ' . $tijd);
         $herinnering_timestamp = $afspraak_timestamp - (24 * 60 * 60);
         if ($herinnering_timestamp > time()) {
             wp_schedule_single_event($herinnering_timestamp, 'gbh_stuur_herinnering', [$wpdb->insert_id, $email, $naam, $datum, $tijd, $behandelingen]);
@@ -663,8 +1077,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $bericht .= "Datum: " . $datum . "\n";
         $bericht .= "Tijd: " . $tijd . "\n";
         $bericht .= "Behandelingen: " . $behandelingen . "\n\n";
-        $bericht .= "Tot morgen!\n";
-        $bericht .= "GoodByeHair";
+        $bericht .= "Tot morgen!\nGoodByeHair";
         wp_mail($email, $onderwerp, $bericht);
     }
 
@@ -690,6 +1103,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 </label>
                 <br><br>
 
+                <h3>Medewerker account</h3>
+                <p style="color:#666;">Maak een WordPress gebruiker aan met de rol <strong>GBH Medewerker</strong> om toegang te geven tot het frontend klantenbeheer. Wachtwoord resetten kan via <a href="<?php echo esc_url(admin_url('users.php')); ?>">Gebruikers</a> in het WordPress beheer.</p>
+
                 <h3>Werkdagen</h3>
                 <?php
                 $all_days = ['ma','di','wo','do','vr','za','zo'];
@@ -702,6 +1118,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <?php
                 }
                 ?>
+
                 <h3>Tijden per dag</h3>
                 <?php
                 foreach ($all_days as $day) {
