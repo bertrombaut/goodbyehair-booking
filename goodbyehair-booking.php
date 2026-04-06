@@ -99,7 +99,7 @@ class GBH_Booking {
 .gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
 .gbh-next-btn:hover { background:#6a2f82; }
 h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px solid #e8d5f5; padding-bottom:6px; }
-.gbh-section-header { margin-bottom:12px; padding:12px 16px; background:#f3e5f5; border-left:4px solid #7d3c98; border-radius:8px; font-weight:600; font-size:16px; }
+.gbh-section-header { display:inline-block; margin-bottom:12px; padding:8px 16px; background:#f3e5f5; border-left:4px solid #7d3c98; border-radius:8px; font-weight:600; font-size:16px; }
 </style>';
 
         echo '<div class="gbh-booking">';
@@ -152,12 +152,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const monthNames = ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
     const dayNames = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const map = ["zo","ma","di","wo","do","vr","za"];
-    let current = new Date();
-    let year = current.getFullYear();
-    let month = current.getMonth();
+    let year = new Date().getFullYear();
+    let month = new Date().getMonth();
     let selectedDate = "";
     const today = new Date();
     today.setHours(0,0,0,0);
+
+    function resetTimes() {
+        document.getElementById("gbh-times").innerHTML = "";
+        document.getElementById("gbh-times-header").style.display = "none";
+        document.getElementById("gbh-selected-time").value = "";
+        document.getElementById("gbh-chosen-date").textContent = "";
+        selectedDate = "";
+    }
+
     function renderCalendar() {
         const firstDate = new Date(year, month, 1);
         let firstDay = firstDate.getDay();
@@ -203,6 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dayTimes = times[dayKey];
                 const timesContainer = document.getElementById("gbh-times");
                 const timesHeader = document.getElementById("gbh-times-header");
+                document.getElementById("gbh-selected-time").value = "";
                 let html = "";
                 if (dayTimes && dayTimes.start && dayTimes.end) {
                     let startTs = new Date("1970-01-01T" + dayTimes.start + ":00");
@@ -216,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 timesContainer.innerHTML = html;
-                if (timesHeader) timesHeader.style.display = "block";
+                timesHeader.style.display = "block";
                 document.querySelectorAll(".gbh-time").forEach(function (btn) {
                     btn.addEventListener("click", function () {
                         document.querySelectorAll(".gbh-time").forEach(function (b) {
@@ -245,6 +254,15 @@ document.addEventListener("DOMContentLoaded", function () {
             renderCalendar();
         });
     }
+
+    const backToStep1Button = document.getElementById("gbh-back-to-step1");
+    if (backToStep1Button) {
+        backToStep1Button.addEventListener("click", function () {
+            resetTimes();
+            renderCalendar();
+        });
+    }
+
     renderCalendar();
 });
 </script>';
@@ -305,14 +323,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (oldError) oldError.remove();
             step1.style.display = "none";
             step2.style.display = "block";
-        });
-    }
-
-    const backToStep1Button = document.getElementById("gbh-back-to-step1");
-    if (backToStep1Button) {
-        backToStep1Button.addEventListener("click", function () {
-            step2.style.display = "none";
-            step1.style.display = "block";
         });
     }
 
@@ -600,7 +610,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </label>
                 <br><br>
 
-                <h3>Werkdagen</h3>
+                <h3>Werkdagendagen</h3>
                 <?php
                 $all_days = ['ma','di','wo','do','vr','za','zo'];
                 foreach ($all_days as $day) {
