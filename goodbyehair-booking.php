@@ -143,11 +143,12 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
         echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een tijdstip</div>';
         echo '<div id="gbh-times"></div>';
+        echo '<div id="gbh-chosen-time" style="margin-top:8px;margin-bottom:12px;font-weight:600;"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
         echo '<input type="hidden" id="gbh-selected-time" value="">';
-        echo '<div style="margin-top:16px;">';
+        echo '<div id="gbh-step2-buttons" style="margin-top:16px;">';
         echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">← Terug</button>';
-        echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende →</button>';
+        echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;transition:all 0.3s;">Volgende →</button>';
         echo '</div>';
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -170,12 +171,25 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("gbh-times-header").style.display = "none";
         document.getElementById("gbh-selected-time").value = "";
         document.getElementById("gbh-chosen-date").textContent = "";
+        document.getElementById("gbh-chosen-time").textContent = "";
         document.getElementById("gbh-selected-date").value = "";
         const datumHeader = document.getElementById("gbh-datum-header");
         datumHeader.style.background = "#7d3c98";
         datumHeader.style.color = "#fff";
         datumHeader.style.fontSize = "18px";
         datumHeader.style.padding = "12px 20px";
+        // Reset tijdsheader
+        const tijdHeader = document.getElementById("gbh-times-header");
+        tijdHeader.style.background = "#7d3c98";
+        tijdHeader.style.color = "#fff";
+        tijdHeader.style.fontSize = "18px";
+        tijdHeader.style.padding = "12px 20px";
+        // Reset volgende-knop
+        const volgendeBtn = document.getElementById("gbh-next-to-step3");
+        volgendeBtn.style.background = "#7d3c98";
+        volgendeBtn.style.fontSize = "";
+        volgendeBtn.style.padding = "10px 18px";
+        volgendeBtn.style.boxShadow = "";
         selectedDate = "";
     }
 
@@ -219,6 +233,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 selectedDate = button.dataset.date;
                 selectedDateInput.value = selectedDate;
                 chosenDateText.textContent = "Gekozen datum: " + selectedDate;
+                // Reset tijdselectie bij nieuwe datum
+                document.getElementById("gbh-chosen-time").textContent = "";
+                document.getElementById("gbh-selected-time").value = "";
+                const tijdHeader = document.getElementById("gbh-times-header");
+                tijdHeader.style.background = "#7d3c98";
+                tijdHeader.style.color = "#fff";
+                tijdHeader.style.fontSize = "18px";
+                tijdHeader.style.padding = "12px 20px";
+                const volgendeBtn = document.getElementById("gbh-next-to-step3");
+                volgendeBtn.style.background = "#7d3c98";
+                volgendeBtn.style.fontSize = "";
+                volgendeBtn.style.padding = "10px 18px";
+                volgendeBtn.style.boxShadow = "";
                 const dateObj = new Date(selectedDate);
                 const dayKey = map[dateObj.getDay()];
                 const dayTimes = times[dayKey];
@@ -226,7 +253,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const timesHeader = document.getElementById("gbh-times-header");
                 const behandeltijd = parseInt(document.getElementById("gbh-total-time").textContent) || 15;
                 const slotsNeeded = Math.ceil(behandeltijd / 15) + 1;
-                document.getElementById("gbh-selected-time").value = "";
                 let html = "";
                 if (dayTimes && dayTimes.start && dayTimes.end) {
                     let startTs = new Date("1970-01-01T" + dayTimes.start + ":00");
@@ -261,16 +287,35 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("gbh-datum-header").style.padding = "6px 12px";
                 document.querySelectorAll(".gbh-time").forEach(function (btn) {
                     btn.addEventListener("click", function () {
+                        // Alle tijdknoppen resetten
                         document.querySelectorAll(".gbh-time").forEach(function (b) {
                             b.style.background = "#fff";
                             b.style.borderColor = "#ccc";
                             b.style.color = "#000";
                         });
+                        // Geselecteerde tijdknop markeren
                         btn.style.background = "#7d3c98";
                         btn.style.borderColor = "#7d3c98";
                         btn.style.color = "#fff";
                         document.getElementById("gbh-selected-time").value = btn.dataset.time;
                         document.getElementById("gbh-chosen-time").textContent = "Gekozen tijd: " + btn.dataset.time;
+
+                        // Tijdsheader minder opvallend maken
+                        const tijdHeader = document.getElementById("gbh-times-header");
+                        tijdHeader.style.background = "#e8d5f5";
+                        tijdHeader.style.color = "#7d3c98";
+                        tijdHeader.style.fontSize = "14px";
+                        tijdHeader.style.padding = "6px 12px";
+
+                        // Volgende-knop opvallender maken
+                        const volgendeBtn = document.getElementById("gbh-next-to-step3");
+                        volgendeBtn.style.background = "#4a1a6e";
+                        volgendeBtn.style.fontSize = "16px";
+                        volgendeBtn.style.padding = "14px 28px";
+                        volgendeBtn.style.boxShadow = "0 4px 12px rgba(125,60,152,0.4)";
+
+                        // Scroll naar knoppen
+                        document.getElementById("gbh-step2-buttons").scrollIntoView({ behavior: "smooth", block: "center" });
                     });
                 });
                 renderCalendar();
@@ -303,7 +348,6 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>';
 
         echo '</div>';
-        echo '<div id="gbh-chosen-time" style="margin-top:12px;font-weight:600;"></div>';
         echo '<div id="gbh-step-3" style="display:none;margin-top:20px;">';
         echo '<h2>Jouw gegevens</h2>';
         echo '<div id="gbh-step3-summary" style="margin-bottom:16px;padding:12px;border:1px solid #ddd;border-radius:10px;max-width:400px;"></div>';
