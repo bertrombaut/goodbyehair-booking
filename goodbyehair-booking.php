@@ -81,34 +81,60 @@ class GBH_Booking {
 
         ob_start();
 
+        echo '<style>
+.gbh-booking { width:100%; }
+.gbh-columns { display:flex; gap:30px; align-items:flex-start; flex-wrap:wrap; }
+.gbh-col { flex:1; min-width:200px; }
+.gbh-col-summary { flex:0 0 auto; width:280px; }
+@media(max-width:600px) {
+    .gbh-columns { flex-direction:column; }
+    .gbh-col-summary { width:100%; }
+}
+.gbh-treatment-label { display:flex; align-items:center; gap:8px; padding:8px 10px; margin-bottom:4px; border-radius:8px; cursor:pointer; transition:background 0.15s; font-size:14px; }
+.gbh-treatment-label:hover { background:#f3e5f5; }
+.gbh-treatment-label input { accent-color:#7d3c98; width:16px; height:16px; cursor:pointer; }
+.gbh-price { margin-left:auto; color:#7d3c98; font-weight:600; white-space:nowrap; }
+.gbh-summary-box { padding:16px; border:2px solid #7d3c98; border-radius:12px; background:#faf5ff; }
+.gbh-summary-box strong { color:#7d3c98; font-size:16px; }
+.gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
+.gbh-next-btn:hover { background:#6a2f82; }
+h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px solid #e8d5f5; padding-bottom:6px; }
+</style>';
+
         echo '<div class="gbh-booking">';
         echo '<h2>Kies je behandeling</h2>';
+        echo '<div class="gbh-columns">';
 
         foreach ($treatments as $category => $items) {
-            echo '<h3>' . esc_html($category) . '</h3>';
+            echo '<div class="gbh-col">';
+            echo '<h3 class="gbh-cat">' . esc_html($category) . '</h3>';
             foreach ($items as $t) {
-                echo '<label style="display:block;margin-bottom:6px;">';
+                echo '<label class="gbh-treatment-label">';
                 echo '<input type="checkbox" class="gbh-treatment" data-time="' . esc_attr($t['time']) . '" data-price="' . esc_attr($t['price']) . '"> ';
-                echo esc_html($t['name']) . ' - ' . esc_html($t['time']) . ' min - €' . esc_html($t['price']);
+                echo '<span>' . esc_html($t['name']) . ' <small style="color:#999;">(' . esc_html($t['time']) . ' min)</small></span>';
+                echo '<span class="gbh-price">€' . esc_html($t['price']) . '</span>';
                 echo '</label>';
             }
+            echo '</div>';
         }
 
-        echo '<div id="gbh-summary" style="margin-top:20px;padding:14px;border:1px solid #ddd;border-radius:10px;max-width:320px;">';
-        echo '<strong>Overzicht</strong><br>';
-        echo 'Totale behandeltijd: <span id="gbh-total-time">0</span> min<br>';
-        echo 'Totale prijs: €<span id="gbh-total-price">0,00</span>';
-        echo '<div style="margin-top:14px;">';
-        echo '<button type="button" id="gbh-next-step" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende</button>';
+        echo '<div class="gbh-col-summary">';
+        echo '<div class="gbh-summary-box" id="gbh-summary">';
+        echo '<strong>Overzicht</strong><br><br>';
+        echo '<div style="font-size:14px;margin-bottom:4px;">Behandeltijd: <span id="gbh-total-time">0</span> min</div>';
+        echo '<div style="font-size:14px;">Totaal: <strong>€<span id="gbh-total-price">0,00</span></strong></div>';
+        echo '<button type="button" id="gbh-next-step" class="gbh-next-btn">Volgende →</button>';
         echo '</div>';
+        echo '</div>';
+
         echo '</div>';
         echo '</div>';
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
         echo '<div id="gbh-times"></div>';
         echo '<div style="margin-top:16px;">';
-        echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">Terug</button>';
-        echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende</button>';
+        echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">← Terug</button>';
+        echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende →</button>';
         echo '</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
         echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;">Gekozen datum: geen</div>';
@@ -223,7 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
         echo '<label style="display:block;margin-bottom:10px;">E-mail<br><input type="email" id="gbh-email" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
         echo '<label style="display:block;margin-bottom:10px;">Telefoon<br><input type="tel" id="gbh-telefoon" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
         echo '<button type="button" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
-        echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">Terug</button>';
+        echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">← Terug</button>';
         echo '</div>';
         echo '<input type="hidden" id="gbh-selected-time" value="">';
 
