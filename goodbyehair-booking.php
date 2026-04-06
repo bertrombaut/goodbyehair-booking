@@ -240,12 +240,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         let isBooked = bookings.includes(selectedDate + " " + time);
                         let fitsInDay = (index + slotsNeeded) <= allSlots.length;
                         let blockedByDuration = false;
-                        if (!isBooked && fitsInDay) {
-                            for (let s = 1; s < slotsNeeded; s++) {
-                                if (allSlots[index + s] && bookings.includes(selectedDate + " " + allSlots[index + s])) {
-                                    blockedByDuration = true;
-                                    break;
-                                }
+                        for (let s = 0; s < slotsNeeded; s++) {
+                            if (allSlots[index + s] && bookings.includes(selectedDate + " " + allSlots[index + s])) {
+                                blockedByDuration = true;
+                                break;
                             }
                         }
                         let isDisabled = isBooked || !fitsInDay || blockedByDuration;
