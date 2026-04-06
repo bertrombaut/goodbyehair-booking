@@ -278,7 +278,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const data = new FormData();
         data.append("action", "gbh_logout");
         fetch(ajaxUrl, { method: "POST", body: data })
-        .then(() => location.reload());
+        .then(() => {
+            document.cookie = "gbh_medewerker=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            location.reload();
+        });
     });
 
     document.getElementById("gbh-zoek").addEventListener("input", function() {
