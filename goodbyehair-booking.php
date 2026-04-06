@@ -134,7 +134,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<div id="gbh-datum-header" style="display:inline-block;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een datum</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
         echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
-        echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;display:none;">Kies een tijdstip</div>';
+       echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een tijdstip</div>';
         echo '<div id="gbh-times"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
         echo '<input type="hidden" id="gbh-selected-time" value="">';
