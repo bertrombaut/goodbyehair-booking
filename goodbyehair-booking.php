@@ -131,10 +131,10 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '</div>';
 
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-        echo '<div class="gbh-section-header">Kies een datum</div>';
+        echo '<div id="gbh-datum-header" style="display:inline-block;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een datum</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
         echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
-        echo '<div id="gbh-times-header" class="gbh-section-header" style="display:none;">Kies een tijdstip</div>';
+        echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;display:none;">Kies een tijdstip</div>';
         echo '<div id="gbh-times"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
         echo '<input type="hidden" id="gbh-selected-time" value="">';
@@ -225,7 +225,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 timesContainer.innerHTML = html;
-                timesHeader.style.display = "block";
+                timesHeader.style.display = "inline-block";
+                document.getElementById("gbh-datum-header").style.background = "#e8d5f5";
+                document.getElementById("gbh-datum-header").style.color = "#7d3c98";
+                document.getElementById("gbh-datum-header").style.fontSize = "14px";
+                document.getElementById("gbh-datum-header").style.padding = "6px 12px";
                 document.querySelectorAll(".gbh-time").forEach(function (btn) {
                     btn.addEventListener("click", function () {
                         document.querySelectorAll(".gbh-time").forEach(function (b) {
@@ -320,10 +324,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 return;
             }
-            const oldError = document.getElementById("gbh-error");
+           const oldError = document.getElementById("gbh-error");
             if (oldError) oldError.remove();
             step1.style.display = "none";
             step2.style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
         });
     }
 
