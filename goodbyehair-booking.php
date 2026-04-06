@@ -188,11 +188,11 @@ document.addEventListener("DOMContentLoaded", function() {
         data.append("action", "gbh_login");
         data.append("username", user);
         data.append("password", pass);
-        fetch("' . $ajax_url . '", { method: "POST", body: data })
+       fetch("' . $ajax_url . '", { method: "POST", body: data })
         .then(r => r.json())
         .then(res => {
             if (res.success) {
-                location.reload();
+                window.location.href = window.location.href;
             } else {
                 error.style.display = "block";
                 error.textContent = res.data;
