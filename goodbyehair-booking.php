@@ -49,11 +49,10 @@ function gbh_create_tables() {
         $wpdb->query("ALTER TABLE $bookings ADD COLUMN klant_id bigint(20) DEFAULT NULL AFTER id");
     }
 
-    // Maak medewerker rol aan
-    if (!get_role('gbh_medewerker')) {
-        add_role('gbh_medewerker', 'GBH Medewerker', [
-            'read' => true,
-        ]);
+    // Sla standaard medewerker wachtwoord op
+    if (!get_option('gbh_medewerker_user')) {
+        update_option('gbh_medewerker_user', 'medewerker');
+        update_option('gbh_medewerker_pass', password_hash('welkom123', PASSWORD_DEFAULT));
     }
 }
 
@@ -71,8 +70,11 @@ class GBH_Booking {
         add_action('wp_ajax_gbh_login', [$this, 'handle_login']);
         add_action('wp_ajax_nopriv_gbh_login', [$this, 'handle_login']);
         add_action('wp_ajax_gbh_logout', [$this, 'handle_logout']);
+        add_action('wp_ajax_nopriv_gbh_logout', [$this, 'handle_logout']);
         add_action('wp_ajax_gbh_klant_opslaan', [$this, 'klant_opslaan']);
+        add_action('wp_ajax_nopriv_gbh_klant_opslaan', [$this, 'klant_opslaan']);
         add_action('wp_ajax_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
+        add_action('wp_ajax_nopriv_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
         add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 6);
         add_action('admin_post_gbh_annuleer', [$this, 'annuleer_boeking']);
     }
@@ -100,24 +102,28 @@ class GBH_Booking {
     }
 
     // -------------------------
-    // LOGIN / LOGOUT
+    // LOGIN / LOGOUT (eigen systeem)
     // -------------------------
+    private function gbh_is_ingelogd() {
+        return isset($_COOKIE['gbh_medewerker']) && $_COOKIE['gbh_medewerker'] === get_option('gbh_medewerker_token');
+    }
+
     public function handle_login() {
         $username = sanitize_text_field($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
-        $user = wp_authenticate($username, $password);
-        if (is_wp_error($user)) {
+        $opgeslagen_user = get_option('gbh_medewerker_user', '');
+        $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
+        if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
             wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
         }
-        if (!in_array('gbh_medewerker', $user->roles) && !in_array('administrator', $user->roles)) {
-            wp_send_json_error('Je hebt geen toegang tot dit gedeelte.');
-        }
-        wp_set_auth_cookie($user->ID, false);
+        $token = bin2hex(random_bytes(32));
+        update_option('gbh_medewerker_token', $token);
+        setcookie('gbh_medewerker', $token, time() + (8 * 60 * 60), '/');
         wp_send_json_success('Ingelogd');
     }
 
     public function handle_logout() {
-        wp_logout();
+        setcookie('gbh_medewerker', '', time() - 3600, '/');
         wp_send_json_success('Uitgelogd');
     }
 
@@ -125,7 +131,7 @@ class GBH_Booking {
     // KLANT OPSLAAN (medewerker)
     // -------------------------
     public function klant_opslaan() {
-        if (!current_user_can('gbh_medewerker') && !current_user_can('manage_options')) {
+        if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
             wp_send_json_error('Geen toegang.');
         }
         global $wpdb;
@@ -146,7 +152,7 @@ class GBH_Booking {
     // KLANT VERWIJDEREN (medewerker)
     // -------------------------
     public function klant_verwijderen() {
-        if (!current_user_can('gbh_medewerker') && !current_user_can('manage_options')) {
+        if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
             wp_send_json_error('Geen toegang.');
         }
         global $wpdb;
@@ -163,7 +169,7 @@ class GBH_Booking {
         ob_start();
         echo '<div id="gbh-medewerker-wrap">';
 
-        if (!is_user_logged_in() || (!current_user_can('gbh_medewerker') && !current_user_can('manage_options'))) {
+        if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
             // Loginformulier
             echo '<div id="gbh-login-form" style="max-width:360px;margin:0 auto;padding:24px;border:2px solid #7d3c98;border-radius:12px;background:#faf5ff;">';
             echo '<h2 style="color:#7d3c98;margin-top:0;">Medewerker login</h2>';
@@ -1081,10 +1087,17 @@ document.addEventListener("DOMContentLoaded", function () {
         wp_mail($email, $onderwerp, $bericht);
     }
 
-    public function register_settings() {
+   public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_days');
         register_setting('gbh_settings_group', 'gbh_times');
         register_setting('gbh_settings_group', 'gbh_salon_email');
+        register_setting('gbh_settings_group', 'gbh_medewerker_user');
+        add_action('update_option_gbh_medewerker_user', function() {
+            $nieuw_pass = $_POST['gbh_medewerker_pass_nieuw'] ?? '';
+            if (!empty($nieuw_pass)) {
+                update_option('gbh_medewerker_pass', password_hash($nieuw_pass, PASSWORD_DEFAULT));
+            }
+        });
     }
 
     public function settings_page() {
@@ -1103,8 +1116,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 </label>
                 <br><br>
 
-                <h3>Medewerker account</h3>
-                <p style="color:#666;">Maak een WordPress gebruiker aan met de rol <strong>GBH Medewerker</strong> om toegang te geven tot het frontend klantenbeheer. Wachtwoord resetten kan via <a href="<?php echo esc_url(admin_url('users.php')); ?>">Gebruikers</a> in het WordPress beheer.</p>
+           <h3>Medewerker account</h3>
+                <?php
+                $med_user = get_option('gbh_medewerker_user', '');
+                ?>
+                <label>Gebruikersnaam medewerker:<br>
+                    <input type="text" name="gbh_medewerker_user" value="<?php echo esc_attr($med_user); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
+                </label><br><br>
+                <label>Nieuw wachtwoord (laat leeg om te behouden):<br>
+                    <input type="password" name="gbh_medewerker_pass_nieuw" value="" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
+                </label><br><br>
 
                 <h3>Werkdagen</h3>
                 <?php
