@@ -105,7 +105,10 @@ class GBH_Booking {
     // LOGIN / LOGOUT (eigen systeem)
     // -------------------------
     private function gbh_is_ingelogd() {
-        return isset($_COOKIE['gbh_medewerker']) && $_COOKIE['gbh_medewerker'] === get_option('gbh_medewerker_token');
+        if (!isset($_COOKIE['gbh_medewerker'])) return false;
+        $cookie = $_COOKIE['gbh_medewerker'];
+        $token = get_option('gbh_medewerker_token', '');
+        return $cookie === $token;
     }
 
     public function handle_login() {
@@ -173,6 +176,11 @@ class GBH_Booking {
         echo '<div id="gbh-medewerker-wrap">';
 
         if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
+            // DEBUG - tijdelijk
+            $cookie_val = $_COOKIE['gbh_medewerker'] ?? 'GEEN COOKIE';
+            $token_val = get_option('gbh_medewerker_token', 'GEEN TOKEN');
+            echo '<p style="color:red;">Cookie: ' . esc_html($cookie_val) . '</p>';
+            echo '<p style="color:red;">Token: ' . esc_html($token_val) . '</p>';
             // Loginformulier
             echo '<div id="gbh-login-form" style="max-width:360px;margin:0 auto;padding:24px;border:2px solid #7d3c98;border-radius:12px;background:#faf5ff;">';
             echo '<h2 style="color:#7d3c98;margin-top:0;">Medewerker login</h2>';
