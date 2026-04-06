@@ -170,6 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("gbh-times-header").style.display = "none";
         document.getElementById("gbh-selected-time").value = "";
         document.getElementById("gbh-chosen-date").textContent = "";
+        document.getElementById("gbh-selected-date").value = "";
         const datumHeader = document.getElementById("gbh-datum-header");
         datumHeader.style.background = "#7d3c98";
         datumHeader.style.color = "#fff";
