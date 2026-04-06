@@ -123,7 +123,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<strong>Overzicht</strong><br><br>';
         echo '<div style="font-size:14px;margin-bottom:4px;">Behandeltijd: <span id="gbh-total-time">0</span> min</div>';
         echo '<div style="font-size:14px;">Totaal: <strong>€<span id="gbh-total-price">0,00</span></strong></div>';
-        echo '<button type="button" id="gbh-next-step" class="gbh-next-btn">Volgende →</button>';
+        echo '<button type="button" id="gbh-next-step" class="gbh-next-btn">Kies een Datum/Tijd →</button>';
         echo '</div>';
         echo '</div>';
 
