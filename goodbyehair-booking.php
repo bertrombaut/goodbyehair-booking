@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const date = new Date(year, month, d);
             const dayKey = map[date.getDay()];
             const enabled = days.includes(dayKey);
-            const isPast = date < today;
+            const isPast = date <= today;
             const isEnabled = enabled && !isPast;
             const monthValue = String(month + 1).padStart(2, "0");
             const dayValue = String(d).padStart(2, "0");
