@@ -1101,13 +1101,12 @@ public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_times');
         register_setting('gbh_settings_group', 'gbh_salon_email');
         register_setting('gbh_settings_group', 'gbh_medewerker_user');
-        add_action('updated_option', function($option_name) {
-            if ($option_name === 'gbh_medewerker_user') {
-                if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw'])) {
-                    update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
-                    delete_option('gbh_medewerker_token');
-                }
+       add_action('pre_update_option_gbh_medewerker_user', function($value) {
+            if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw'])) {
+                update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
+                delete_option('gbh_medewerker_token');
             }
+            return $value;
         });
     }
 
@@ -1116,12 +1115,7 @@ public function register_settings() {
         $days = get_option('gbh_days', []);
         $salon_email = get_option('gbh_salon_email', '');
 
-        // Wachtwoord opslaan
-        if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw']) && isset($_POST['_wpnonce'])) {
-            update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
-            delete_option('gbh_medewerker_token');
-            echo '<div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>';
-        }
+      
         ?>
         <div class="wrap">
             <h1>Booking instellingen</h1>
