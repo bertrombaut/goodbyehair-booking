@@ -198,6 +198,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dayKey = map[dateObj.getDay()];
                 const dayTimes = times[dayKey];
                 const timesContainer = document.getElementById("gbh-times");
+                const isToday = selectedDate === today.getFullYear() + "-" + String(today.getMonth()+1).padStart(2,"0") + "-" + String(today.getDate()).padStart(2,"0");
+                const nowMinutes = today.getHours() * 60 + today.getMinutes();
                 let html = "";
                 if (dayTimes && dayTimes.start && dayTimes.end) {
                     let startTs = new Date("1970-01-01T" + dayTimes.start + ":00");
@@ -206,8 +208,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         let h = String(t.getHours()).padStart(2, "0");
                         let m = String(t.getMinutes()).padStart(2, "0");
                         let time = h + ":" + m;
+                        let slotMinutes = t.getHours() * 60 + t.getMinutes();
                         let isBooked = bookings.includes(selectedDate + " " + time);
-                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isBooked ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isBooked ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isBooked ? "#eee" : "#fff") + ";cursor:" + (isBooked ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
+                        let isPastTime = isToday && slotMinutes <= nowMinutes;
+                        let isDisabled = isBooked || isPastTime;
+                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isDisabled ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isDisabled ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isDisabled ? "#eee" : "#fff") + ";cursor:" + (isDisabled ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
                     }
                 }
                 timesContainer.innerHTML = html;
