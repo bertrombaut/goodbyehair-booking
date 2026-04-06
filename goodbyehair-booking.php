@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const timesContainer = document.getElementById("gbh-times");
                 const timesHeader = document.getElementById("gbh-times-header");
                 const behandeltijd = parseInt(document.getElementById("gbh-total-time").textContent) || 15;
-                const slotsNeeded = Math.ceil(behandeltijd / 15);
+                const slotsNeeded = Math.ceil(behandeltijd / 15) + 1;
                 document.getElementById("gbh-selected-time").value = "";
                 let html = "";
                 if (dayTimes && dayTimes.start && dayTimes.end) {
