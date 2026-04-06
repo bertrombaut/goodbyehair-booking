@@ -1101,10 +1101,12 @@ public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_times');
         register_setting('gbh_settings_group', 'gbh_salon_email');
         register_setting('gbh_settings_group', 'gbh_medewerker_user');
-        add_action('admin_init', function() {
-            if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw'])) {
-                update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
-                delete_option('gbh_medewerker_token');
+        add_action('updated_option', function($option_name) {
+            if ($option_name === 'gbh_medewerker_user') {
+                if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw'])) {
+                    update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
+                    delete_option('gbh_medewerker_token');
+                }
             }
         });
     }
