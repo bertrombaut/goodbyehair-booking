@@ -49,7 +49,7 @@ class GBH_Booking {
             $start_time = substr($b['tijd'], 0, 5);
             $start_ts = strtotime('1970-01-01 ' . $start_time);
             $duur = intval($b['behandeltijd']);
-            $slots = ceil($duur / 15);
+            $slots = ceil($duur / 15)+1;
             for ($i = 0; $i < $slots; $i++) {
                 $slot_ts = $start_ts + ($i * 15 * 60);
                 $slot_time = date('H:i', $slot_ts);
