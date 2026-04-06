@@ -43,10 +43,18 @@ class GBH_Booking {
 
         global $wpdb;
         $table = $wpdb->prefix . 'gbh_bookings';
-        $booked = $wpdb->get_results("SELECT datum, tijd FROM $table", ARRAY_A);
+        $booked = $wpdb->get_results("SELECT datum, tijd, behandeltijd FROM $table", ARRAY_A);
         $bookings_list = [];
         foreach ($booked as $b) {
-            $bookings_list[] = $b['datum'] . ' ' . substr($b['tijd'], 0, 5);
+            $start_time = substr($b['tijd'], 0, 5);
+            $start_ts = strtotime('1970-01-01 ' . $start_time);
+            $duur = intval($b['behandeltijd']);
+            $slots = ceil($duur / 15);
+            for ($i = 0; $i < $slots; $i++) {
+                $slot_ts = $start_ts + ($i * 15 * 60);
+                $slot_time = date('H:i', $slot_ts);
+                $bookings_list[] = $b['datum'] . ' ' . $slot_time;
+            }
         }
 
         $treatments = [
@@ -99,7 +107,6 @@ class GBH_Booking {
 .gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
 .gbh-next-btn:hover { background:#6a2f82; }
 h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px solid #e8d5f5; padding-bottom:6px; }
-.gbh-section-header { display:inline-block; margin-bottom:12px; padding:8px 16px; background:#f3e5f5; border-left:4px solid #7d3c98; border-radius:8px; font-weight:600; font-size:16px; }
 </style>';
 
         echo '<div class="gbh-booking">';
@@ -134,7 +141,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<div id="gbh-datum-header" style="display:inline-block;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een datum</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
         echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
-       echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een tijdstip</div>';
+        echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;">Kies een tijdstip</div>';
         echo '<div id="gbh-times"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
         echo '<input type="hidden" id="gbh-selected-time" value="">';
@@ -163,6 +170,11 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("gbh-times-header").style.display = "none";
         document.getElementById("gbh-selected-time").value = "";
         document.getElementById("gbh-chosen-date").textContent = "";
+        const datumHeader = document.getElementById("gbh-datum-header");
+        datumHeader.style.background = "#7d3c98";
+        datumHeader.style.color = "#fff";
+        datumHeader.style.fontSize = "18px";
+        datumHeader.style.padding = "12px 20px";
         selectedDate = "";
     }
 
@@ -211,18 +223,34 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dayTimes = times[dayKey];
                 const timesContainer = document.getElementById("gbh-times");
                 const timesHeader = document.getElementById("gbh-times-header");
+                const behandeltijd = parseInt(document.getElementById("gbh-total-time").textContent) || 15;
+                const slotsNeeded = Math.ceil(behandeltijd / 15);
                 document.getElementById("gbh-selected-time").value = "";
                 let html = "";
                 if (dayTimes && dayTimes.start && dayTimes.end) {
                     let startTs = new Date("1970-01-01T" + dayTimes.start + ":00");
                     let endTs = new Date("1970-01-01T" + dayTimes.end + ":00");
-                    for (let t = startTs; t <= endTs; t.setMinutes(t.getMinutes() + 15)) {
+                    let allSlots = [];
+                    for (let t = new Date(startTs); t <= endTs; t.setMinutes(t.getMinutes() + 15)) {
                         let h = String(t.getHours()).padStart(2, "0");
                         let m = String(t.getMinutes()).padStart(2, "0");
-                        let time = h + ":" + m;
-                        let isBooked = bookings.includes(selectedDate + " " + time);
-                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isBooked ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isBooked ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isBooked ? "#eee" : "#fff") + ";cursor:" + (isBooked ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
+                        allSlots.push(h + ":" + m);
                     }
+                    allSlots.forEach(function (time, index) {
+                        let isBooked = bookings.includes(selectedDate + " " + time);
+                        let fitsInDay = (index + slotsNeeded) <= allSlots.length;
+                        let blockedByDuration = false;
+                        if (!isBooked && fitsInDay) {
+                            for (let s = 1; s < slotsNeeded; s++) {
+                                if (allSlots[index + s] && bookings.includes(selectedDate + " " + allSlots[index + s])) {
+                                    blockedByDuration = true;
+                                    break;
+                                }
+                            }
+                        }
+                        let isDisabled = isBooked || !fitsInDay || blockedByDuration;
+                        html += "<button type=\"button\" class=\"gbh-time\" data-time=\"" + time + "\" " + (isDisabled ? "disabled" : "") + " style=\"margin:0 8px 8px 0;padding:10px 14px;border:1px solid " + (isDisabled ? "#ddd" : "#ccc") + ";border-radius:8px;background:" + (isDisabled ? "#eee" : "#fff") + ";cursor:" + (isDisabled ? "not-allowed" : "pointer") + ";\">" + time + "</button>";
+                    });
                 }
                 timesContainer.innerHTML = html;
                 timesHeader.style.display = "inline-block";
@@ -259,7 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-  const backToStep1Button = document.getElementById("gbh-back-to-step1");
+    const backToStep1Button = document.getElementById("gbh-back-to-step1");
     if (backToStep1Button) {
         backToStep1Button.addEventListener("click", function () {
             resetTimes();
@@ -324,7 +352,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 return;
             }
-           const oldError = document.getElementById("gbh-error");
+            const oldError = document.getElementById("gbh-error");
             if (oldError) oldError.remove();
             step1.style.display = "none";
             step2.style.display = "block";
@@ -616,7 +644,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </label>
                 <br><br>
 
-                <h3>Werkdagendagen</h3>
+                <h3>Werkdagen</h3>
                 <?php
                 $all_days = ['ma','di','wo','do','vr','za','zo'];
                 foreach ($all_days as $day) {
