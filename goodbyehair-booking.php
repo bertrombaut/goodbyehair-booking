@@ -111,8 +111,8 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
             foreach ($items as $t) {
                 echo '<label class="gbh-treatment-label">';
                 echo '<input type="checkbox" class="gbh-treatment" data-time="' . esc_attr($t['time']) . '" data-price="' . esc_attr($t['price']) . '"> ';
-                echo '<span>' . esc_html($t['name']) . ' <small style="color:#999;">(' . esc_html($t['time']) . ' min)</small></span>';
-                echo '<span class="gbh-price">€' . esc_html($t['price']) . '</span>';
+                echo '<span style="font-size:18px !important;">' . esc_html($t['name']) . ' <span style="color:#999;font-size:15px !important;">(' . esc_html($t['time']) . ' min)</span></span>';
+                echo '<span class="gbh-price" style="font-size:18px !important;">€' . esc_html($t['price']) . '</span>';
                 echo '</label>';
             }
             echo '</div>';
