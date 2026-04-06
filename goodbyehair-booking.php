@@ -290,8 +290,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const backToStep1Button = document.getElementById("gbh-back-to-step1");
     if (backToStep1Button) {
-        backToStep1Button.addEventListener("click", function () {
+       backToStep1Button.addEventListener("click", function () {
             resetTimes();
+            renderCalendar();
             document.getElementById("gbh-step-2").style.display = "none";
             document.querySelector(".gbh-booking").style.display = "block";
         });
