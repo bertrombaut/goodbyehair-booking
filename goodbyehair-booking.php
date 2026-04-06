@@ -90,10 +90,10 @@ class GBH_Booking {
     .gbh-columns { flex-direction:column; }
     .gbh-col-summary { width:100%; }
 }
-.gbh-treatment-label { display:flex; align-items:center; gap:8px; padding:10px 12px; margin-bottom:6px; border-radius:8px; cursor:pointer; transition:background 0.15s; font-size:16px; }
+.gbh-treatment-label { display:flex; align-items:center; gap:8px; padding:10px 12px; margin-bottom:6px; border-radius:8px; cursor:pointer; transition:background 0.15s; font-size:18px !important; }
 .gbh-treatment-label:hover { background:#f3e5f5; }
-.gbh-treatment-label input { accent-color:#7d3c98; width:18px; height:18px; cursor:pointer; }
-.gbh-price { margin-left:auto; color:#7d3c98; font-weight:600; white-space:nowrap; }
+.gbh-treatment-label input { accent-color:#7d3c98; width:20px; height:20px; cursor:pointer; }
+.gbh-price { margin-left:auto; color:#7d3c98; font-weight:600; white-space:nowrap; font-size:18px !important; }
 .gbh-summary-box { padding:16px; border:2px solid #7d3c98; border-radius:12px; background:#faf5ff; }
 .gbh-summary-box strong { color:#7d3c98; font-size:16px; }
 .gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
