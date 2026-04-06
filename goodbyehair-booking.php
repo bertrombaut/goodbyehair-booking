@@ -135,8 +135,11 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">← Terug</button>';
         echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;">Volgende →</button>';
         echo '</div>';
+        echo '<div style="margin-bottom:12px;padding:12px 16px;background:#f3e5f5;border-left:4px solid #7d3c98;border-radius:8px;font-weight:600;font-size:16px;">Kies een datum</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
-        echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;">Gekozen datum: geen</div>';
+        echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
+        echo '<div id="gbh-times-header" style="display:none;margin-bottom:12px;padding:12px 16px;background:#f3e5f5;border-left:4px solid #7d3c98;border-radius:8px;font-weight:600;font-size:16px;">Kies een tijdstip</div>';
+        echo '<div id="gbh-times"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -198,8 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dayKey = map[dateObj.getDay()];
                 const dayTimes = times[dayKey];
                 const timesContainer = document.getElementById("gbh-times");
-                const isToday = selectedDate === today.getFullYear() + "-" + String(today.getMonth()+1).padStart(2,"0") + "-" + String(today.getDate()).padStart(2,"0");
-                const nowMinutes = today.getHours() * 60 + today.getMinutes();
+                const timesHeader = document.getElementById("gbh-times-header");
                 let html = "";
                 if (dayTimes && dayTimes.start && dayTimes.end) {
                     let startTs = new Date("1970-01-01T" + dayTimes.start + ":00");
@@ -216,6 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 timesContainer.innerHTML = html;
+                if (timesHeader) timesHeader.style.display = "block";
                 document.querySelectorAll(".gbh-time").forEach(function (btn) {
                     btn.addEventListener("click", function () {
                         document.querySelectorAll(".gbh-time").forEach(function (b) {
