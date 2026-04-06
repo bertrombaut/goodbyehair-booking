@@ -1117,7 +1117,7 @@ public function register_settings() {
         $salon_email = get_option('gbh_salon_email', '');
 
         // Wachtwoord opslaan
-        if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw']) && check_admin_referer('gbh_settings_group-options')) {
+        if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw']) && isset($_POST['_wpnonce'])) {
             update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
             delete_option('gbh_medewerker_token');
             echo '<div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>';
