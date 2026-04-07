@@ -702,16 +702,16 @@ document.addEventListener("DOMContentLoaded", function () {
         echo '<div id="gbh-welkom" class="gbh-welkom"></div>';
 
         // EMAIL eerst
-        echo '<label style="display:block;margin-bottom:10px;">E-mail<br>';
-        echo '<input type="email" id="gbh-email" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;">';
+        echo '<label style="display:block;margin-bottom:10px;">E-mail <span style="color:#c62828;">*</span><br>';
+        echo '<input type="email" id="gbh-email" required style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;">';
         echo '<span id="gbh-email-status" style="display:inline-block;margin-left:8px;font-size:13px;color:#999;"></span>';
         echo '</label>';
 
         // NAAM tweede
-        echo '<label style="display:block;margin-bottom:10px;">Naam<br><input type="text" id="gbh-naam" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+        echo '<label style="display:block;margin-bottom:10px;">Naam <span style="color:#c62828;">*</span><br><input type="text" id="gbh-naam" required style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
 
         // TELEFOON derde
-        echo '<label style="display:block;margin-bottom:10px;">Telefoon<br><input type="tel" id="gbh-telefoon" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+        echo '<label style="display:block;margin-bottom:10px;">Telefoon <span style="color:#c62828;">*</span><br><input type="tel" id="gbh-telefoon" required style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
 
         echo '<button type="button" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
         echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">← Terug</button>';
@@ -847,7 +847,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (cb.checked) behandelingen.push(cb.closest("label").textContent.trim());
             });
             if (!naam || !email || !datum || !tijd) {
-                alert("Vul alle verplichte velden in.");
                 return;
             }
             const data = new FormData();
