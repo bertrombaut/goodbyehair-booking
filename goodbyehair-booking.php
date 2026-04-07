@@ -802,6 +802,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Klantherkenning via email
     const emailInput = document.getElementById("gbh-email");
+    const telefoonInput = document.getElementById("gbh-telefoon");
+    if (telefoonInput) {
+        telefoonInput.addEventListener("input", function() {
+            telefoonInput.setCustomValidity("");
+        });
+    }
     if (emailInput) {
         emailInput.addEventListener("input", function () {
             clearTimeout(emailTimer);
