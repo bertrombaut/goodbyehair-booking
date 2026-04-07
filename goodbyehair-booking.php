@@ -499,7 +499,7 @@ document.addEventListener("DOMContentLoaded", function() {
         echo '<div id="gbh-chosen-time" style="margin-top:8px;margin-bottom:12px;font-weight:600;"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
         echo '<input type="hidden" id="gbh-selected-time" value="">';
-        echo '<div id="gbh-stap2-fout" style="display:none;margin-bottom:10px;padding:10px 14px;background:#fdecea;border:1px solid #f5c6cb;border-radius:8px;color:#c62828;font-weight:600;"></div>';
+        echo '<div id="gbh-stap2-fout" style="display:none;margin-bottom:10px;padding:10px 14px;background:#fdecea;border:1px solid #f5c6cb;border-radius:8px;color:#c62828;font-weight:600;text-align:center;animation:gbh-knipperen 2s step-start infinite;"></div>';
         echo '<div id="gbh-step2-buttons" style="margin-top:16px;">';
         echo '<button type="button" id="gbh-back-to-step1" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-right:10px;">← Terug</button>';
         echo '<button type="button" id="gbh-next-to-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;transition:all 0.3s;">Volgende →</button>';
@@ -586,6 +586,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 selectedDate = button.dataset.date;
                 selectedDateInput.value = selectedDate;
                 chosenDateText.textContent = "Gekozen datum: " + selectedDate;
+                document.getElementById("gbh-stap2-fout").style.display = "none";
                 document.getElementById("gbh-chosen-time").textContent = "";
                 document.getElementById("gbh-selected-time").value = "";
                 const tijdHeader = document.getElementById("gbh-times-header");
