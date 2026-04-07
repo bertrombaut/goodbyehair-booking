@@ -1120,14 +1120,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // E-mail naar klant
         $onderwerp_klant = 'Bevestiging afspraak GoodByeHair';
-        $bericht_klant  = "Beste " . $naam . ",\n\n";
-        $bericht_klant .= "Je afspraak is bevestigd!\n\n";
-        $bericht_klant .= "Datum: " . date('d-m-Y', strtotime($datum)) . "\n";
-        $bericht_klant .= "Tijd: " . $tijd . "\n";
-        $bericht_klant .= "Behandelingen: " . $behandelingen . "\n";
-        $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten\n\n";
-       $bericht_klant .= "Tot dan!\n\nMet vriendelijke groet,\nGoodbyehair\nBergerhof 16\n6871ZJ Renkum\n06 22 438 738\ninfo@goodbyehair.nl";
-        wp_mail($email, $onderwerp_klant, $bericht_klant);
+       $headers_klant = ['Content-Type: text/html; charset=UTF-8'];
+        $bericht_klant  = '<img src="https://goodbyehair.nl/wp-content/uploads/2023/10/goodbyehair-2.png" alt="Goodbyehair" style="max-width:200px;margin-bottom:20px;"><br><br>';
+        $bericht_klant .= "Beste " . $naam . ",<br><br>";
+        $bericht_klant .= "Je afspraak is bevestigd!<br><br>";
+        $bericht_klant .= "Datum: " . date('d-m-Y', strtotime($datum)) . "<br>";
+        $bericht_klant .= "Tijd: " . $tijd . "<br>";
+        $bericht_klant .= "Behandelingen: " . $behandelingen . "<br>";
+        $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten<br><br>";
+        $bericht_klant .= "Tot dan!<br><br>";
+        $bericht_klant .= "Met vriendelijke groet,<br>Goodbyehair<br>Bergerhof 16<br>6871ZJ Renkum<br>06 22 438 738<br>info@goodbyehair.nl";
+        wp_mail($email, $onderwerp_klant, $bericht_klant, $headers_klant);
 
         // E-mail naar salon
         $salon_email = get_option('gbh_salon_email', '');
