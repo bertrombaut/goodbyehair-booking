@@ -1160,13 +1160,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     public function stuur_herinnering($booking_id, $email, $naam, $datum, $tijd, $behandelingen) {
         $onderwerp = 'Herinnering afspraak GoodByeHair';
-        $bericht  = "Beste " . $naam . ",\n\n";
-        $bericht .= "Dit is een herinnering voor je afspraak van morgen!\n\n";
-        $bericht .= "Datum: " . date('d-m-Y', strtotime($datum)) . "\n";
-        $bericht .= "Tijd: " . $tijd . "\n";
-        $bericht .= "Behandelingen: " . $behandelingen . "\n\n";
-        $bericht .= "Tot morgen!\nGoodByeHair";
-        wp_mail($email, $onderwerp, $bericht);
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+        $bericht  = '<img src="https://goodbyehair.nl/wp-content/uploads/2023/10/goodbyehair-2.png" alt="Goodbyehair" style="max-width:200px;margin-bottom:20px;"><br><br>';
+        $bericht .= "Beste " . $naam . ",<br><br>";
+        $bericht .= "Dit is een herinnering voor je afspraak van morgen!<br><br>";
+        $bericht .= "Datum: " . date('d-m-Y', strtotime($datum)) . "<br>";
+        $bericht .= "Tijd: " . $tijd . "<br>";
+        $bericht .= "Behandelingen: " . $behandelingen . "<br><br>";
+        $bericht .= "Tot morgen!<br><br>";
+        $bericht .= "Met vriendelijke groet,<br>Goodbyehair<br>Bergerhof 16<br>6871ZJ Renkum<br>06 22 438 738<br>info@goodbyehair.nl";
+        wp_mail($email, $onderwerp, $bericht, $headers);
     }
 
 public function register_settings() {
