@@ -77,6 +77,8 @@ class GBH_Booking {
         add_action('wp_ajax_nopriv_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
         add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 6);
         add_action('admin_post_gbh_annuleer', [$this, 'annuleer_boeking']);
+        add_filter('wp_mail_from', function($email) { return 'info@goodbyehair.nl'; });
+        add_filter('wp_mail_from_name', function($name) { return 'Goodbyehair'; });
     }
 
     // -------------------------
