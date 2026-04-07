@@ -1122,53 +1122,47 @@ public function sla_wachtwoord_op() {
         $times = get_option('gbh_times', []);
         $days = get_option('gbh_days', []);
         $salon_email = get_option('gbh_salon_email', '');
-
-      
+        $all_days = ['ma','di','wo','do','vr','za','zo'];
         ?>
-       <div class="wrap">
+        <div class="wrap">
             <h1>Booking instellingen</h1>
+
+            <h3>Medewerker account</h3>
+            <?php if (isset($_GET['ww_opgeslagen'])) : ?>
+                <div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>
+            <?php endif; ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="gbh_sla_wachtwoord_op">
+                <?php wp_nonce_field('gbh_wachtwoord_nonce'); ?>
+                <label>Gebruikersnaam medewerker:<br>
+                    <input type="text" name="gbh_medewerker_user" value="<?php echo esc_attr(get_option('gbh_medewerker_user', '')); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
+                </label><br><br>
+                <label>Nieuw wachtwoord (laat leeg om te behouden):<br>
+                    <input type="password" name="gbh_medewerker_pass_nieuw" value="" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
+                </label><br><br>
+                <button type="submit" style="padding:8px 16px;border:0;border-radius:6px;background:#7d3c98;color:#fff;cursor:pointer;">Opslaan</button>
+            </form>
+            <br>
+
+            <form method="post" action="options.php">
+                <?php settings_fields('gbh_settings_group'); ?>
 
                 <h3>E-mail salon</h3>
                 <label>E-mailadres voor nieuwe boekingen:<br>
                     <input type="email" name="gbh_salon_email" value="<?php echo esc_attr($salon_email); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
                 </label>
                 <br><br>
-                <form method="post" action="options.php">
-                <?php settings_fields('gbh_settings_group'); ?>
-
-                <h3>Medewerker account</h3>
-                <?php if (isset($_GET['ww_opgeslagen'])) : ?>
-                    <div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>
-                <?php endif; ?>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                    <input type="hidden" name="action" value="gbh_sla_wachtwoord_op">
-                    <?php wp_nonce_field('gbh_wachtwoord_nonce'); ?>
-                    <label>Gebruikersnaam medewerker:<br>
-                        <input type="text" name="gbh_medewerker_user" value="<?php echo esc_attr(get_option('gbh_medewerker_user', '')); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
-                    </label><br><br>
-                    <label>Nieuw wachtwoord (laat leeg om te behouden):<br>
-                        <input type="password" name="gbh_medewerker_pass_nieuw" value="" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
-                    </label><br><br>
-                    <button type="submit" style="padding:8px 16px;border:0;border-radius:6px;background:#7d3c98;color:#fff;cursor:pointer;">Opslaan</button>
-                </form>
-                <br>
 
                 <h3>Werkdagen</h3>
-                <?php
-                $all_days = ['ma','di','wo','do','vr','za','zo'];
-                foreach ($all_days as $day) {
-                    ?>
+                <?php foreach ($all_days as $day) : ?>
                     <label>
                         <input type="checkbox" name="gbh_days[]" value="<?php echo $day; ?>" <?php checked(in_array($day, $days)); ?>>
                         <?php echo strtoupper($day); ?>
                     </label><br>
-                    <?php
-                }
-                ?>
+                <?php endforeach; ?>
 
                 <h3>Tijden per dag</h3>
-                <?php
-                foreach ($all_days as $day) {
+                <?php foreach ($all_days as $day) :
                     $start = $times[$day]['start'] ?? '';
                     $end = $times[$day]['end'] ?? '';
                     ?>
@@ -1179,9 +1173,8 @@ public function sla_wachtwoord_op() {
                         <input type="time" name="gbh_times[<?php echo $day; ?>][end]" value="<?php echo esc_attr($end); ?>">
                     </label>
                     <br><br>
-                    <?php
-                }
-                ?>
+                <?php endforeach; ?>
+
                 <?php submit_button(); ?>
             </form>
         </div>
