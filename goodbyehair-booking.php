@@ -698,6 +698,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Stap 3: gegevens invullen
         echo '<div id="gbh-step-3" style="display:none;margin-top:20px;">';
         echo '<h2>Jouw gegevens</h2>';
+        echo '<form id="gbh-step3-form">';
         echo '<div id="gbh-step3-summary" style="margin-bottom:16px;padding:12px;border:1px solid #ddd;border-radius:10px;max-width:400px;"></div>';
         echo '<div id="gbh-welkom" class="gbh-welkom"></div>';
 
@@ -713,8 +714,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // TELEFOON derde
         echo '<label style="display:block;margin-bottom:10px;">Telefoon <span style="color:#c62828;">*</span><br><input type="tel" id="gbh-telefoon" required style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
 
-        echo '<button type="button" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
+        echo '<button type="submit" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
         echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">← Terug</button>';
+        echo '</form>';
+        echo '</div>';
         echo '</div>';
 
         echo '<script>
@@ -832,9 +835,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    const bevestigButton = document.getElementById("gbh-bevestig");
-    if (bevestigButton) {
-        bevestigButton.addEventListener("click", function () {
+    const bevestigForm = document.getElementById("gbh-step3-form");
+    if (bevestigForm) {
+        bevestigForm.addEventListener("submit", function (e) {
+            e.preventDefault();
             const naam = document.getElementById("gbh-naam").value.trim();
             const email = document.getElementById("gbh-email").value.trim();
             const telefoon = document.getElementById("gbh-telefoon").value.trim();
