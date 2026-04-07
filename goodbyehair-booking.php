@@ -1126,7 +1126,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $bericht_klant .= "Tijd: " . $tijd . "\n";
         $bericht_klant .= "Behandelingen: " . $behandelingen . "\n";
         $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten\n\n";
-        $bericht_klant .= "Tot dan!\nGoodByeHair";
+       $bericht_klant .= "Tot dan!\n\nMet vriendelijke groet,\nGoodbyehair\nBergerhof 16\n6871ZJ Renkum\n06 22 438 738\ninfo@goodbyehair.nl";
         wp_mail($email, $onderwerp_klant, $bericht_klant);
 
         // E-mail naar salon
