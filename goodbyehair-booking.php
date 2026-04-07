@@ -863,9 +863,10 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(ajaxUrl, { method: "POST", body: data })
             .then(function (r) { return r.json(); })
             .then(function (response) {
-               if (response.success) {
+              if (response.success) {
                     step3.innerHTML = "<div style=\"padding:20px;border:1px solid #ccc;border-radius:10px;max-width:400px;\"><h2>Afspraak bevestigd!</h2><p>Bedankt " + naam + ", je afspraak op " + datum + " om " + tijd + " is vastgelegd.</p></div>";
                     window.scrollTo({ top: 0, behavior: "smooth" });
+                } else {
                     alert("Er ging iets mis: " + response.data);
                 }
             });
