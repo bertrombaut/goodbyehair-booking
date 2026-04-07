@@ -443,7 +443,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
             echo '<h3 class="gbh-cat">' . esc_html($category) . '</h3>';
             foreach ($items as $t) {
                 echo '<label class="gbh-treatment-label">';
-                echo '<input type="checkbox" class="gbh-treatment" data-time="' . esc_attr($t['time']) . '" data-price="' . esc_attr($t['price']) . '"> ';
+                echo '<input type="checkbox" class="gbh-treatment" data-time="' . esc_attr($t['time']) . '" data-price="' . esc_attr($t['price']) . '" data-name="' . esc_attr($t['name']) . '"> ';
                 echo '<span style="font-size:18px !important;">' . esc_html($t['name']) . ' <span style="color:#999;font-size:15px !important;">(' . esc_html($t['time']) . ' min)</span></span>';
                 echo '<span class="gbh-price" style="font-size:18px !important;">€' . esc_html($t['price']) . '</span>';
                 echo '</label>';
@@ -867,7 +867,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const prijs = totalPrice.textContent.replace(",", ".");
             const behandelingen = [];
             document.querySelectorAll(".gbh-treatment").forEach(function (cb) {
-                if (cb.checked) behandelingen.push(cb.closest("label").textContent.trim());
+                if (cb.checked) behandelingen.push(cb.dataset.name);
             });
             if (!naam || !email || !datum || !tijd) {
                 return;
