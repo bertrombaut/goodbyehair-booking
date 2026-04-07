@@ -731,6 +731,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
     const step3 = document.getElementById("gbh-step-3");
+    const ajaxUrl = "' . $ajax_url . '";
+    let emailTimer = null;
     function formatDatum(datum) {
         const parts = datum.split("-");
         return parts[2] + "-" + parts[1] + "-" + parts[0];
