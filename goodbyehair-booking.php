@@ -1123,8 +1123,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $bericht_klant .= "Datum: " . date('d-m-Y', strtotime($datum)) . "\n";
         $bericht_klant .= "Tijd: " . $tijd . "\n";
         $bericht_klant .= "Behandelingen: " . $behandelingen . "\n";
-        $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten\n";
-        $bericht_klant .= "Prijs: €" . number_format($prijs, 2, ',', '.') . "\n\n";
+        $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten\n\n";
         $bericht_klant .= "Tot dan!\nGoodByeHair";
         wp_mail($email, $onderwerp_klant, $bericht_klant);
 
