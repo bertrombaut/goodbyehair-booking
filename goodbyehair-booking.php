@@ -661,6 +661,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         volgendeBtn.style.fontSize = "16px";
                         volgendeBtn.style.padding = "14px 28px";
                         volgendeBtn.style.boxShadow = "0 4px 12px rgba(125,60,152,0.4)";
+                        volgendeBtn.style.animation = "gbh-knipperen 2s step-start infinite";
                         document.getElementById("gbh-step2-buttons").scrollIntoView({ behavior: "smooth", block: "center" });
                     });
                 });
