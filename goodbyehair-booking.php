@@ -491,10 +491,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Stap 2: kalender
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-        echo '<div id="gbh-datum-header" style="display:block;text-align:center;margin:0 auto 12px auto;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;width:3cm;animation:gbh-knipperen 2s step-start infinite;">Kies een datum</div>';
+        echo '<div id="gbh-datum-header" style="display:table;text-align:center;margin:0 auto 12px auto;padding:10px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;white-space:nowrap;animation:gbh-knipperen 2s step-start infinite;">Kies een datum</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
         echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
-        echo '<div id="gbh-times-header" style="display:none;text-align:center;margin:0 auto 12px auto;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;width:3cm;">Kies een tijdstip</div>';
+        echo '<div id="gbh-times-header" style="display:none;text-align:center;margin:0 auto 12px auto;padding:10px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;white-space:nowrap;">Kies een tijdstip</div>';
         echo '<div id="gbh-times"></div>';
         echo '<div id="gbh-chosen-time" style="margin-top:8px;margin-bottom:12px;font-weight:600;"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
@@ -630,7 +630,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
                 timesContainer.innerHTML = html;
-                tijdHeader.style.display = "inline-block";
+                tijdHeader.style.display = "table";
+                tijdHeader.style.margin = "0 auto 12px auto";
                 document.getElementById("gbh-datum-header").style.background = "#e8d5f5";
                 document.getElementById("gbh-datum-header").style.color = "#7d3c98";
                 document.getElementById("gbh-datum-header").style.fontSize = "14px";
