@@ -415,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function() {
 .gbh-booking { width:100%; }
 .gbh-columns { display:flex; gap:30px; align-items:flex-start; flex-wrap:wrap; }
 .gbh-col { flex:1; min-width:200px; }
-.gbh-col-summary { flex:0 0 auto; width:280px; }
+.gbh-col-summary { flex:0 0 auto; width:280px; position:sticky; top:20px; align-self:flex-start; }
 @media(max-width:600px) {
     .gbh-columns { flex-direction:column; }
     .gbh-col-summary { width:100%; }
