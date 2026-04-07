@@ -874,6 +874,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const telCijfers = telefoon.replace(/[\s\-]/g, "");
             const telInput = document.getElementById("gbh-telefoon");
+           if (telCijfers[0] !== "0") {
+                telInput.setCustomValidity("Een telefoonnummer begint altijd met een 0.");
+                telInput.reportValidity();
+                return;
+            }
             if (!/^\d{10}$/.test(telCijfers)) {
                 telInput.setCustomValidity("Geef een volledig telefoonnummer van 10 cijfers.");
                 telInput.reportValidity();
