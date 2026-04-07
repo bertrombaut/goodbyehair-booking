@@ -714,7 +714,7 @@ document.addEventListener("DOMContentLoaded", function () {
         echo '<label style="display:block;margin-bottom:10px;">Naam <span style="color:#c62828;">*</span><br><input type="text" id="gbh-naam" required style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
 
         // TELEFOON derde
-        echo '<label style="display:block;margin-bottom:10px;">Telefoon <span style="color:#c62828;">*</span><br><input type="tel" id="gbh-telefoon" required style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+        echo '<label style="display:block;margin-bottom:10px;">Telefoon <span style="color:#c62828;">*</span><br><input type="tel" id="gbh-telefoon" required pattern="[\d\s\-]{10,}" title="Geef een volledig telefoonnummer van minimaal 10 cijfers" style="width:100%;max-width:400px;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
 
         echo '<button type="submit" id="gbh-bevestig" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;margin-top:10px;">Afspraak bevestigen</button>';
         echo '<button type="button" id="gbh-back-step3" style="padding:10px 18px;border:0;border-radius:8px;background:#ccc;color:#000;cursor:pointer;margin-top:10px;margin-left:10px;">← Terug</button>';
