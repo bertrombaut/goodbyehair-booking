@@ -415,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function() {
 .gbh-booking { width:100%; }
 .gbh-columns { display:flex; gap:30px; align-items:flex-start; flex-wrap:wrap; }
 .gbh-col { flex:1; min-width:200px; }
-.gbh-col-summary { flex:0 0 auto; width:280px; position:sticky; top:20px; align-self:flex-start; }
+.gbh-col-summary { flex:0 0 auto; width:280px; }
 @media(max-width:600px) {
     .gbh-columns { flex-direction:column; }
     .gbh-col-summary { width:100%; }
@@ -424,7 +424,7 @@ document.addEventListener("DOMContentLoaded", function() {
 .gbh-treatment-label:hover { background:#f3e5f5; }
 .gbh-treatment-label input { accent-color:#7d3c98; width:20px; height:20px; cursor:pointer; }
 .gbh-price { margin-left:auto; color:#7d3c98; font-weight:600; white-space:nowrap; font-size:18px !important; }
-.gbh-summary-box { padding:16px; border:2px solid #7d3c98; border-radius:12px; background:#faf5ff; }
+.gbh-summary-box { padding:16px; border:2px solid #7d3c98; border-radius:12px; background:#faf5ff; position:fixed; bottom:20px; right:20px; width:240px; z-index:999; box-shadow:0 4px 16px rgba(0,0,0,0.15); }
 .gbh-summary-box strong { color:#7d3c98; font-size:16px; }
 .gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
 .gbh-next-btn:hover { background:#6a2f82; }
