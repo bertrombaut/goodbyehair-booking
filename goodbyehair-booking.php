@@ -1125,17 +1125,18 @@ public function sla_wachtwoord_op() {
 
       
         ?>
-        <div class="wrap">
+       <div class="wrap">
             <h1>Booking instellingen</h1>
-            <form method="post" action="options.php">
 
                 <h3>E-mail salon</h3>
                 <label>E-mailadres voor nieuwe boekingen:<br>
                     <input type="email" name="gbh_salon_email" value="<?php echo esc_attr($salon_email); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
                 </label>
                 <br><br>
+                <form method="post" action="options.php">
+                <?php settings_fields('gbh_settings_group'); ?>
 
-          <h3>Medewerker account</h3>
+                <h3>Medewerker account</h3>
                 <?php if (isset($_GET['ww_opgeslagen'])) : ?>
                     <div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>
                 <?php endif; ?>
