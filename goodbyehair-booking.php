@@ -731,8 +731,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const step1 = document.querySelector(".gbh-booking");
     const step2 = document.getElementById("gbh-step-2");
     const step3 = document.getElementById("gbh-step-3");
-    const ajaxUrl = "' . $ajax_url . '";
-    let emailTimer = null;
+    function formatDatum(datum) {
+        const parts = datum.split("-");
+        return parts[2] + "-" + parts[1] + "-" + parts[0];
+    }
 
     function updateTotals() {
         let time = 0;
@@ -789,7 +791,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             document.getElementById("gbh-stap2-fout").style.display = "none";
             const summary = document.getElementById("gbh-step3-summary");
-            summary.innerHTML = "Datum: <strong>" + date + "</strong><br>Tijd: <strong>" + time + "</strong><br>Behandeltijd: <strong>" + totalTime.textContent + " min</strong><br>Prijs: <strong>€" + totalPrice.textContent + "</strong>";
+           summary.innerHTML = "Datum: <strong>" + formatDatum(date) + "</strong><br>Tijd: <strong>" + time + "</strong><br>Behandeltijd: <strong>" + totalTime.textContent + " min</strong><br>Prijs: <strong>€" + totalPrice.textContent + "</strong>";
             step2.style.display = "none";
             step3.style.display = "block";
             document.getElementById("gbh-email").focus();
@@ -876,8 +878,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(function (r) { return r.json(); })
             .then(function (response) {
               if (response.success) {
-                    step3.innerHTML = "<div style=\"padding:20px;border:1px solid #ccc;border-radius:10px;max-width:400px;\"><h2>Afspraak bevestigd!</h2><p>Bedankt " + naam + ", je afspraak op " + datum + " om " + tijd + " is vastgelegd.</p></div>";
-                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    step3.innerHTML = "<div style=\"padding:20px;border:1px solid #ccc;border-radius:10px;max-width:400px;\"><h2>Afspraak bevestigd!</h2><p>Bedankt " + naam + ", je afspraak op " + formatDatum(datum) + " om " + tijd + " is vastgelegd.</p></div>";
                 } else {
                     alert("Er ging iets mis: " + response.data);
                 }
@@ -1098,7 +1099,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $onderwerp_klant = 'Bevestiging afspraak GoodByeHair';
         $bericht_klant  = "Beste " . $naam . ",\n\n";
         $bericht_klant .= "Je afspraak is bevestigd!\n\n";
-        $bericht_klant .= "Datum: " . $datum . "\n";
+        $bericht_klant .= "Datum: " . date('d-m-Y', strtotime($datum)) . "\n";
         $bericht_klant .= "Tijd: " . $tijd . "\n";
         $bericht_klant .= "Behandelingen: " . $behandelingen . "\n";
         $bericht_klant .= "Behandeltijd: " . $behandeltijd . " minuten\n";
@@ -1114,7 +1115,7 @@ document.addEventListener("DOMContentLoaded", function () {
             $bericht_salon .= "Naam: " . $naam . "\n";
             $bericht_salon .= "Email: " . $email . "\n";
             $bericht_salon .= "Telefoon: " . $telefoon . "\n";
-            $bericht_salon .= "Datum: " . $datum . "\n";
+            $bericht_salon .= "Datum: " . date('d-m-Y', strtotime($datum)) . "\n";
             $bericht_salon .= "Tijd: " . $tijd . "\n";
             $bericht_salon .= "Behandelingen: " . $behandelingen . "\n";
             $bericht_salon .= "Behandeltijd: " . $behandeltijd . " minuten\n";
@@ -1136,7 +1137,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $onderwerp = 'Herinnering afspraak GoodByeHair';
         $bericht  = "Beste " . $naam . ",\n\n";
         $bericht .= "Dit is een herinnering voor je afspraak van morgen!\n\n";
-        $bericht .= "Datum: " . $datum . "\n";
+        $bericht .= "Datum: " . date('d-m-Y', strtotime($datum)) . "\n";
         $bericht .= "Tijd: " . $tijd . "\n";
         $bericht .= "Behandelingen: " . $behandelingen . "\n\n";
         $bericht .= "Tot morgen!\nGoodByeHair";
