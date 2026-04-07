@@ -1158,6 +1158,15 @@ document.addEventListener("DOMContentLoaded", function () {
         wp_send_json_success('Afspraak opgeslagen.');
     }
 
+public function test_herinnering() {
+        if (!current_user_can('manage_options')) wp_die('Geen toegang.');
+        check_admin_referer('gbh_test_herinnering_nonce');
+        $email = get_option('gbh_salon_email', 'info@goodbyehair.nl');
+        $this->stuur_herinnering(0, $email, 'Test Klant', date('Y-m-d', strtotime('+1 day')), '10:00', 'Oksels');
+        wp_redirect(admin_url('admin.php?page=gbh-settings&test_verstuurd=1'));
+        exit;
+    }
+    
     public function stuur_herinnering($booking_id, $email, $naam, $datum, $tijd, $behandelingen) {
         $onderwerp = 'Herinnering afspraak GoodByeHair';
         $headers = ['Content-Type: text/html; charset=UTF-8'];
@@ -1178,6 +1187,7 @@ public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_salon_email');
         register_setting('gbh_settings_group', 'gbh_medewerker_user');
        add_action('admin_post_gbh_sla_wachtwoord_op', [$this, 'sla_wachtwoord_op']);
+    add_action('admin_post_gbh_test_herinnering', [$this, 'test_herinnering']);
     }
 
 public function sla_wachtwoord_op() {
@@ -1205,8 +1215,17 @@ public function sla_wachtwoord_op() {
 
             <h3>Medewerker account</h3>
             <?php if (isset($_GET['ww_opgeslagen'])) : ?>
-                <div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>
+                            <div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>
             <?php endif; ?>
+        <?php if (isset($_GET['test_verstuurd'])) : ?>
+                <div class="notice notice-success"><p>Test herinneringsmail verstuurd!</p></div>
+            <?php endif; ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="gbh_test_herinnering">
+                <?php wp_nonce_field('gbh_test_herinnering_nonce'); ?>
+                <button type="submit" style="padding:8px 16px;border:0;border-radius:6px;background:#7d3c98;color:#fff;cursor:pointer;">Stuur test herinneringsmail</button>
+            </form>
+            <br>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="gbh_sla_wachtwoord_op">
                 <?php wp_nonce_field('gbh_wachtwoord_nonce'); ?>
