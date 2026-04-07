@@ -431,6 +431,7 @@ document.addEventListener("DOMContentLoaded", function() {
 h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px solid #e8d5f5; padding-bottom:6px; }
 .gbh-welkom { padding:10px 14px; background:#e8f5e9; border:1px solid #a5d6a7; border-radius:8px; color:#2e7d32; font-weight:600; margin-bottom:12px; font-size:15px; display:none; }
 @keyframes gbh-knipperen { 0%, 100% { opacity:1; } 50% { opacity:0; } }
+@keyframes gbh-knipperen-tijd { 0%, 100% { opacity:1; } 50% { opacity:0; } }
 </style>';
 
         echo '<div class="gbh-booking">';
@@ -490,10 +491,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Stap 2: kalender
         echo '<div id="gbh-step-2" style="display:none;margin-top:20px;">';
-        echo '<div id="gbh-datum-header" style="display:block;text-align:center;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;animation:gbh-knipperen 1s step-start infinite;">Kies een datum</div>';
+        echo '<div id="gbh-datum-header" style="display:block;text-align:center;margin:0 auto 12px auto;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;width:3cm;animation:gbh-knipperen 2s step-start infinite;">Kies een datum</div>';
         echo '<div id="gbh-calendar" style="margin-bottom:20px;"></div>';
         echo '<div id="gbh-chosen-date" style="margin:0 0 12px 0;font-weight:600;"></div>';
-        echo '<div id="gbh-times-header" style="display:none;text-align:center;margin-bottom:12px;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;animation:gbh-knipperen 1s step-start infinite;">Kies een tijdstip</div>';
+        echo '<div id="gbh-times-header" style="display:none;text-align:center;margin:0 auto 12px auto;padding:12px 20px;background:#7d3c98;color:#fff;border-radius:8px;font-weight:700;font-size:18px;width:3cm;">Kies een tijdstip</div>';
         echo '<div id="gbh-times"></div>';
         echo '<div id="gbh-chosen-time" style="margin-top:8px;margin-bottom:12px;font-weight:600;"></div>';
         echo '<input type="hidden" id="gbh-selected-date" value="">';
@@ -634,6 +635,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("gbh-datum-header").style.color = "#7d3c98";
                 document.getElementById("gbh-datum-header").style.fontSize = "14px";
                 document.getElementById("gbh-datum-header").style.padding = "6px 12px";
+                document.getElementById("gbh-datum-header").style.animation = "none";
+                document.getElementById("gbh-times-header").style.animation = "gbh-knipperen-tijd 2s step-start infinite";
                 document.querySelectorAll(".gbh-time").forEach(function (btn) {
                     btn.addEventListener("click", function () {
                         document.querySelectorAll(".gbh-time").forEach(function (b) {
@@ -651,6 +654,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         tijdHeader.style.color = "#7d3c98";
                         tijdHeader.style.fontSize = "14px";
                         tijdHeader.style.padding = "6px 12px";
+                        tijdHeader.style.animation = "none";
                         const volgendeBtn = document.getElementById("gbh-next-to-step3");
                         volgendeBtn.style.background = "#4a1a6e";
                         volgendeBtn.style.fontSize = "16px";
