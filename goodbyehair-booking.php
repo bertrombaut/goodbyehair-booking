@@ -424,7 +424,7 @@ document.addEventListener("DOMContentLoaded", function() {
 .gbh-treatment-label:hover { background:#f3e5f5; }
 .gbh-treatment-label input { accent-color:#7d3c98; width:20px; height:20px; cursor:pointer; }
 .gbh-price { margin-left:auto; color:#7d3c98; font-weight:600; white-space:nowrap; font-size:18px !important; }
-.gbh-summary-box { padding:16px; border:2px solid #7d3c98; border-radius:12px; background:#faf5ff; position:fixed; bottom:20px; right:20px; width:240px; z-index:999; box-shadow:0 4px 16px rgba(0,0,0,0.15); }
+.gbh-summary-box { padding:16px; border:2px solid #7d3c98; border-radius:12px; background:#faf5ff; position:fixed; width:240px; z-index:999; box-shadow:0 4px 16px rgba(0,0,0,0.15); }
 .gbh-summary-box strong { color:#7d3c98; font-size:16px; }
 .gbh-next-btn { display:block; width:100%; margin-top:14px; padding:12px; border:0; border-radius:8px; background:#7d3c98; color:#fff; cursor:pointer; font-size:15px; font-weight:600; }
 .gbh-next-btn:hover { background:#6a2f82; }
@@ -450,11 +450,35 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         }
 
         echo '<div class="gbh-col-summary">';
+        echo '<div id="gbh-summary-anchor"></div>';
         echo '<div class="gbh-summary-box" id="gbh-summary">';
         echo '<strong>Overzicht</strong><br><br>';
         echo '<div style="font-size:14px;margin-bottom:4px;">Behandeltijd: <span id="gbh-total-time">0</span> min</div>';
         echo '<div style="font-size:14px;">Totaal: <strong>€<span id="gbh-total-price">0,00</span></strong></div>';
         echo '<button type="button" id="gbh-next-step" class="gbh-next-btn">Kies een datum/tijd →</button>';
+        echo '<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function positionSummary() {
+        const anchor = document.getElementById("gbh-summary-anchor");
+        const box = document.querySelector(".gbh-summary-box");
+        if (!anchor || !box) return;
+        const rect = anchor.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        box.style.top = Math.max(20, rect.top + scrollTop - scrollTop + 20) + "px";
+        box.style.left = (rect.left + window.pageXOffset) + "px";
+    }
+    positionSummary();
+    window.addEventListener("scroll", function() {
+        const anchor = document.getElementById("gbh-summary-anchor");
+        const box = document.querySelector(".gbh-summary-box");
+        if (!anchor || !box) return;
+        const rect = anchor.getBoundingClientRect();
+        box.style.top = Math.max(20, rect.top) + "px";
+        box.style.left = (rect.left + window.pageXOffset) + "px";
+    });
+    window.addEventListener("resize", positionSummary);
+});
+</script>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
