@@ -1101,15 +1101,23 @@ public function register_settings() {
         register_setting('gbh_settings_group', 'gbh_times');
         register_setting('gbh_settings_group', 'gbh_salon_email');
         register_setting('gbh_settings_group', 'gbh_medewerker_user');
-       add_action('pre_update_option_gbh_medewerker_user', function($value) {
-            if (isset($_POST['gbh_medewerker_pass_nieuw']) && !empty($_POST['gbh_medewerker_pass_nieuw'])) {
-                update_option('gbh_medewerker_pass', password_hash($_POST['gbh_medewerker_pass_nieuw'], PASSWORD_DEFAULT));
-                delete_option('gbh_medewerker_token');
-            }
-            return $value;
-        });
+       add_action('admin_post_gbh_sla_wachtwoord_op', [$this, 'sla_wachtwoord_op']);
     }
 
+public function sla_wachtwoord_op() {
+        if (!current_user_can('manage_options')) wp_die('Geen toegang.');
+        check_admin_referer('gbh_wachtwoord_nonce');
+        $nieuw = $_POST['gbh_medewerker_pass_nieuw'] ?? '';
+        $user  = sanitize_text_field($_POST['gbh_medewerker_user'] ?? '');
+        if ($user) update_option('gbh_medewerker_user', $user);
+        if (!empty($nieuw)) {
+            update_option('gbh_medewerker_pass', password_hash($nieuw, PASSWORD_DEFAULT));
+            delete_option('gbh_medewerker_token');
+        }
+        wp_redirect(admin_url('admin.php?page=gbh-settings&ww_opgeslagen=1'));
+        exit;
+    }
+    
     public function settings_page() {
         $times = get_option('gbh_times', []);
         $days = get_option('gbh_days', []);
@@ -1127,16 +1135,22 @@ public function register_settings() {
                 </label>
                 <br><br>
 
-           <h3>Medewerker account</h3>
-                <?php
-                $med_user = get_option('gbh_medewerker_user', '');
-                ?>
-                <label>Gebruikersnaam medewerker:<br>
-                    <input type="text" name="gbh_medewerker_user" value="<?php echo esc_attr($med_user); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
-                </label><br><br>
-                <label>Nieuw wachtwoord (laat leeg om te behouden):<br>
-                    <input type="password" name="gbh_medewerker_pass_nieuw" value="" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
-                </label><br><br>
+          <h3>Medewerker account</h3>
+                <?php if (isset($_GET['ww_opgeslagen'])) : ?>
+                    <div class="notice notice-success"><p>Wachtwoord opgeslagen.</p></div>
+                <?php endif; ?>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="gbh_sla_wachtwoord_op">
+                    <?php wp_nonce_field('gbh_wachtwoord_nonce'); ?>
+                    <label>Gebruikersnaam medewerker:<br>
+                        <input type="text" name="gbh_medewerker_user" value="<?php echo esc_attr(get_option('gbh_medewerker_user', '')); ?>" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
+                    </label><br><br>
+                    <label>Nieuw wachtwoord (laat leeg om te behouden):<br>
+                        <input type="password" name="gbh_medewerker_pass_nieuw" value="" style="width:300px;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;">
+                    </label><br><br>
+                    <button type="submit" style="padding:8px 16px;border:0;border-radius:6px;background:#7d3c98;color:#fff;cursor:pointer;">Opslaan</button>
+                </form>
+                <br>
 
                 <h3>Werkdagen</h3>
                 <?php
