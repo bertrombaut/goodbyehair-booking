@@ -468,12 +468,15 @@ document.addEventListener("DOMContentLoaded", function() {
         box.style.left = (rect.left + window.pageXOffset) + "px";
     }
     positionSummary();
-    window.addEventListener("scroll", function() {
+   window.addEventListener("scroll", function() {
         const anchor = document.getElementById("gbh-summary-anchor");
         const box = document.querySelector(".gbh-summary-box");
         if (!anchor || !box) return;
         const rect = anchor.getBoundingClientRect();
-        box.style.top = Math.max(20, rect.top) + "px";
+        const windowHeight = window.innerHeight;
+        const boxHeight = box.offsetHeight;
+        const centeredTop = (windowHeight / 2) - (boxHeight / 2);
+        box.style.top = Math.max(20, centeredTop) + "px";
         box.style.left = (rect.left + window.pageXOffset) + "px";
     });
     window.addEventListener("resize", positionSummary);
