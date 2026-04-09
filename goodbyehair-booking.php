@@ -434,8 +434,9 @@ document.addEventListener("DOMContentLoaded", function() {
         const tijd_tot = document.getElementById("gbh-blok-tot").value;
         const msg = document.getElementById("gbh-blok-msg");
         if (!datum_van) { msg.style.color = "#c62828"; msg.textContent = "Kies een datum."; return; }
+        if (!hele_dag && (!tijd_van || !tijd_tot)) { msg.style.color = "#c62828"; msg.textContent = "Vul een tijd van en tot in."; return; }
+        if (!hele_dag && tijd_van >= tijd_tot) { msg.style.color = "#c62828"; msg.textContent = "Eindtijd moet na begintijd liggen."; return; }
         if (hele_dag && datum_tot && datum_tot < datum_van) { msg.style.color = "#c62828"; msg.textContent = "Datum tot en met moet na datum van liggen."; return; }
-        const eindDatum = datum_tot || datum_van;
         const taken = [];
         let huidigeDatum = new Date(datum_van);
         const stopDatum = new Date(eindDatum);
