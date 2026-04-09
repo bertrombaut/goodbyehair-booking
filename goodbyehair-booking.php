@@ -365,9 +365,11 @@ public function handle_logout() {
             echo '<label style="display:block;margin-bottom:16px;">Wachtwoord<br><div style="position:relative;"><input type="password" id="gbh-login-pass" style="width:100%;padding:10px;padding-right:44px;border:1px solid #ccc;border-radius:8px;margin-top:4px;box-sizing:border-box;"><button type="button" onclick="const p=document.getElementById(\'gbh-login-pass\');p.type=p.type===\'password\'?\'text\':\'password\';" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#999;font-size:13px;">Toon</button></div></label>';
             echo '<button type="button" id="gbh-login-btn" style="width:100%;padding:12px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;font-size:15px;font-weight:600;">Inloggen</button>';
             echo '</div>';
-            echo '<script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("gbh-login-btn").addEventListener("click", function() {
+           echo '<script>
+function gbhKoppelLogin() {
+    var btn = document.getElementById("gbh-login-btn");
+    if (!btn) { setTimeout(gbhKoppelLogin, 100); return; }
+    btn.addEventListener("click", function() {
         const user = document.getElementById("gbh-login-user").value;
         const pass = document.getElementById("gbh-login-pass").value;
         const error = document.getElementById("gbh-login-error");
@@ -390,8 +392,9 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("gbh-login-pass").addEventListener("keydown", function(e) {
         if (e.key === "Enter") document.getElementById("gbh-login-btn").click();
     });
-});
-</script>';
+}
+gbhKoppelLogin();
+</script>
         } else {
             // Klantenbeheer
             global $wpdb;
