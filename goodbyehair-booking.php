@@ -797,7 +797,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!calendar) return;
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
     const times = ' . json_encode(get_option('gbh_times', [])) . ';
-    const bookings = ' . json_encode($bookings_list) . ';
+    let bookings = ' . json_encode($bookings_list) . ';
     let geblokkeerde_dagen = ' . json_encode($geblokkeerde_dagen) . ';
     const gbhAjaxUrl = "' . $ajax_url . '";
     const gbhCalNonce = "' . $nonce . '";
