@@ -424,6 +424,7 @@ document.addEventListener("DOMContentLoaded", function() {
         ];
 
         $ajax_url = esc_url(admin_url('admin-ajax.php'));
+        $nonce = wp_create_nonce('gbh_ajax_nonce');
 
         ob_start();
 
@@ -748,6 +749,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const step2 = document.getElementById("gbh-step-2");
     const step3 = document.getElementById("gbh-step-3");
     const ajaxUrl = "' . $ajax_url . '";
+    const gbhNonce = "' . $nonce . '";
     let emailTimer = null;
     function formatDatum(datum) {
         const parts = datum.split("-");
@@ -839,6 +841,7 @@ document.addEventListener("DOMContentLoaded", function () {
             emailTimer = setTimeout(function () {
                 const data = new FormData();
                 data.append("action", "gbh_zoek_klant");
+                data.append("gbh_nonce", gbhNonce);
                 data.append("email", email);
                 fetch(ajaxUrl, { method: "POST", body: data })
                 .then(r => r.json())
@@ -903,6 +906,7 @@ document.addEventListener("DOMContentLoaded", function () {
             telInput.setCustomValidity("");
             const data = new FormData();
             data.append("action", "gbh_save_booking");
+            data.append("gbh_nonce", gbhNonce);
             data.append("naam", naam);
             data.append("email", email);
             data.append("telefoon", telefoon);
