@@ -1468,8 +1468,16 @@ function positionSummary() {
         $behandeltijd  = intval($_POST['behandeltijd'] ?? 0);
         $prijs         = floatval($_POST['prijs'] ?? 0);
 
-        if (!$naam || !$email || !$datum || !$tijd) {
+       if (!$naam || !$email || !$datum || !$tijd) {
             wp_send_json_error('Vul alle verplichte velden in.');
+        }
+
+        $bezet = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $table WHERE datum = %s AND tijd = %s",
+            $datum, $tijd
+        ));
+        if ($bezet > 0) {
+            wp_send_json_error('Dit tijdslot is helaas net bezet geraakt. Kies een ander tijdstip.');
         }
 
         // Klant opslaan of bijwerken
