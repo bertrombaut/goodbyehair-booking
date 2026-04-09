@@ -124,11 +124,8 @@ class GBH_Booking {
         if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
             wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
         }
-       $token = get_option('gbh_medewerker_token', '');
-        if (empty($token)) {
-            $token = bin2hex(random_bytes(32));
-            update_option('gbh_medewerker_token', $token);
-        }
+       $token = bin2hex(random_bytes(32));
+        update_option('gbh_medewerker_token', $token);
         setcookie('gbh_medewerker', $token, time() + (8 * 60 * 60), '/', '', false, true);
         wp_send_json_success('Ingelogd');
     }
