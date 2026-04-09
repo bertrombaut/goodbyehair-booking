@@ -356,7 +356,7 @@ document.addEventListener("DOMContentLoaded", function() {
         data.append("action", "gbh_login");
         data.append("username", user);
         data.append("password", pass);
-       fetch("' . $ajax_url . '", { method: "POST", body: data })
+       fetch("' . $ajax_url . '", { method: "POST", body: data, credentials: "same-origin" })
         .then(r => r.json())
         .then(res => {
             if (res.success) {
