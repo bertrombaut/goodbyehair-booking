@@ -272,6 +272,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     echo '<input type="email" class="gbh-edit-email" value="' . esc_attr($k->email) . '" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
                     echo '<input type="tel" class="gbh-edit-telefoon" value="' . esc_attr($k->telefoon) . '" style="flex:1;min-width:140px;padding:10px;border:1px solid #ccc;border-radius:8px;">';
                     echo '<button type="button" class="gbh-save-btn" data-id="' . esc_attr($k->id) . '" style="padding:10px 18px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;font-weight:600;">Opslaan</button>';
+                    echo '<button type="button" class="gbh-annuleer-btn" data-id="' . esc_attr($k->id) . '" style="padding:10px 18px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#000;cursor:pointer;">Annuleren</button>';
                     echo '</div>';
                     echo '</div>';
                     echo '</div>';
@@ -329,6 +330,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const id = btn.dataset.id;
             const form = document.getElementById("gbh-edit-" + id);
             form.style.display = form.style.display === "none" ? "block" : "none";
+        });
+    });
+
+document.querySelectorAll(".gbh-annuleer-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            const id = btn.dataset.id;
+            const form = document.getElementById("gbh-edit-" + id);
+            form.style.display = "none";
         });
     });
 
