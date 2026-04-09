@@ -195,7 +195,11 @@ class GBH_Booking {
     // LOGIN / LOGOUT (eigen systeem)
     // -------------------------
         private function gbh_is_ingelogd() {
-        if (empty($_COOKIE['gbh_medewerker'])) return false;
+
+    error_log('COOKIE: ' . print_r($_COOKIE['gbh_medewerker'] ?? 'geen', true));
+    error_log('SESSIONS: ' . print_r(get_option('gbh_medewerker_tokens', []), true));
+
+    if (empty($_COOKIE['gbh_medewerker'])) return false;
 
         $cookie = sanitize_text_field(wp_unslash($_COOKIE['gbh_medewerker']));
         if (strpos($cookie, '|') === false) return false;
