@@ -254,14 +254,14 @@ class GBH_Booking {
 
         update_option('gbh_medewerker_tokens', $sessions);
 
-                setcookie('gbh_medewerker', $session_id . '|' . $token, [
+ setcookie('gbh_medewerker', $session_id . '|' . $token, [
             'expires'  => $expires,
             'path'     => '/',
-            'domain'   => 'goodbyehair.nl',
+            'domain'   => parse_url(home_url(), PHP_URL_HOST),
             'secure'   => is_ssl(),
             'httponly' => true,
             'samesite' => 'Lax',
-        ]);
+        ]);;
 
         wp_send_json_success('Ingelogd');
     }
