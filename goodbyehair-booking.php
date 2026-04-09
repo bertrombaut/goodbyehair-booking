@@ -329,6 +329,7 @@ class GBH_Booking {
         }
         global $wpdb;
         $id = intval($_POST['id'] ?? 0);
+        $wpdb->delete($wpdb->prefix . 'gbh_bookings', ['klant_id' => $id]);
         $wpdb->delete($wpdb->prefix . 'gbh_klanten', ['id' => $id]);
         wp_send_json_success('Verwijderd.');
     }
