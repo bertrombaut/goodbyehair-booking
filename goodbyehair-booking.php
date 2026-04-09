@@ -249,10 +249,10 @@ class GBH_Booking {
 
         update_option('gbh_medewerker_tokens', $sessions);
 
-        setcookie('gbh_medewerker', $session_id . '|' . $token, [
+                setcookie('gbh_medewerker', $session_id . '|' . $token, [
             'expires'  => $expires,
-            'path'     => COOKIEPATH ? COOKIEPATH : '/',
-            'domain'   => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+            'path'     => '/',
+            'domain'   => 'goodbyehair.nl',
             'secure'   => is_ssl(),
             'httponly' => true,
             'samesite' => 'Lax',
@@ -276,10 +276,10 @@ class GBH_Booking {
             }
         }
 
-        setcookie('gbh_medewerker', '', [
+                setcookie('gbh_medewerker', '', [
             'expires'  => time() - 3600,
-            'path'     => COOKIEPATH ? COOKIEPATH : '/',
-            'domain'   => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+            'path'     => '/',
+            'domain'   => 'goodbyehair.nl',
             'secure'   => is_ssl(),
             'httponly' => true,
             'samesite' => 'Lax',
