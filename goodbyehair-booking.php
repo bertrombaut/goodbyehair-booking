@@ -493,7 +493,6 @@ gbhKoppelLogin();
             echo '</div>';
 
             echo '<script>
-echo '<script>
 setTimeout(function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
