@@ -9,6 +9,7 @@ register_activation_hook(__FILE__, 'gbh_create_tables');
 add_action('plugins_loaded', 'gbh_create_tables');
 
 function gbh_create_tables() {
+        delete_option('gbh_medewerker_token');
     global $wpdb;
     $charset = $wpdb->get_charset_collate();
 
