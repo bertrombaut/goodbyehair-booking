@@ -121,7 +121,7 @@ class GBH_Booking {
             'tijd_van' => $hele_dag ? null : $tijd_van,
             'tijd_tot' => $hele_dag ? null : $tijd_tot,
         ]);
-        wp_send_json_success('Blokkade opgeslagen.');
+        wp_send_json_success(['bericht' => 'Blokkade opgeslagen.', 'id' => $wpdb->insert_id]);
     }
 
     // -------------------------
@@ -430,7 +430,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const fouten = results.filter(r => !r.success);
             if (fouten.length > 0) {
                 msg.style.color = "#c62828";
-                msg.textContent = "Sommige datums konden niet worden opgeslagen (mogelijk al geblokkeerd).";
+                msg.textContent = "Sommige datums konden niet worden opgeslagen.";
                 return;
             }
             msg.style.color = "#2e7d32";
@@ -443,30 +443,46 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("gbh-blok-tijden").style.display = "flex";
             document.getElementById("gbh-blok-datum-tot-wrap").style.display = "none";
 
-            // Nieuwe rijen direct toevoegen aan de tabel
-            const tbody = document.querySelector("#gbh-blokkades-lijst tbody");
             const geenMsg = document.querySelector("#gbh-blokkades-lijst p");
             if (geenMsg) {
-                document.getElementById("gbh-blokkades-lijst").innerHTML = "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\"><thead><tr style=\"background:#fdecea;\"><th style=\"padding:8px;text-align:left;\">Datum</th><th style=\"padding:8px;text-align:left;\">Tijd</th><th style=\"padding:8px;\"></th></tr></thead><tbody id=\"gbh-blok-tbody\"></tbody></table>";
+                document.getElementById("gbh-blokkades-lijst").innerHTML = "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\"><thead><tr style=\"background:#fdecea;\"><th style=\"padding:8px;text-align:left;\">Datum</th><th style=\"padding:8px;text-align:left;\">Tijd</th><th style=\"padding:8px;\"></th></tr></thead><tbody></tbody></table>";
             }
             const tbl = document.querySelector("#gbh-blokkades-lijst tbody");
+            results.forEach(function(res) {
+                const id = res.data.id;
+                const d = res.data.id ? res.data : null;
+            });
             let huidigeDatum2 = new Date(datum_van);
             const stopDatum2 = new Date(eindDatum);
+            let i = 0;
             while (huidigeDatum2 <= stopDatum2) {
                 const d = huidigeDatum2.toISOString().split("T")[0];
                 const parts = d.split("-");
                 const datumNl = parts[2] + "-" + parts[1] + "-" + parts[0];
                 const tijdStr = hele_dag ? "Hele dag" : tijd_van + " - " + tijd_tot;
+                const nieuweId = results[i] ? results[i].data.id : null;
                 const tr = document.createElement("tr");
                 tr.style.borderBottom = "1px solid #eee";
-                tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" class=\"gbh-blok-del\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
+                tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" class=\"gbh-blok-del\" data-id=\"" + nieuweId + "\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
                 tr.querySelector(".gbh-blok-del").addEventListener("click", function() {
                     if (!confirm("Blokkade verwijderen?")) return;
-                    msg.textContent = "";
-                    tr.remove();
+                    const delData = new FormData();
+                    delData.append("action", "gbh_blokkade_verwijderen");
+                    delData.append("gbh_nonce", gbhNonce);
+                    delData.append("id", nieuweId);
+                    fetch(ajaxUrl, { method: "POST", body: delData })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success) {
+                            tr.remove();
+                            msg.style.color = "#2e7d32";
+                            msg.textContent = "Blokkade verwijderd.";
+                        }
+                    });
                 });
                 tbl.appendChild(tr);
                 huidigeDatum2.setDate(huidigeDatum2.getDate() + 1);
+                i++;
             }
         });
     });
