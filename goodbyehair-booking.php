@@ -395,6 +395,10 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("gbh-blok-heledag").addEventListener("change", function() {
         document.getElementById("gbh-blok-tijden").style.display = this.checked ? "none" : "flex";
         document.getElementById("gbh-blok-datum-tot-wrap").style.display = this.checked ? "block" : "none";
+        if (this.checked) {
+            const datumVan = document.getElementById("gbh-blok-datum").value;
+            if (datumVan) document.getElementById("gbh-blok-datum-tot").value = datumVan;
+        }
     });
 
     document.getElementById("gbh-blok-btn").addEventListener("click", function() {
@@ -422,7 +426,13 @@ document.addEventListener("DOMContentLoaded", function() {
             taken.push(fetch(ajaxUrl, { method: "POST", body: data }));
             huidigeDatum.setDate(huidigeDatum.getDate() + 1);
         }
-        Promise.all(taken).then(() => {
+        Promise.all(taken.map(p => p.then(r => r.json()))).then(results => {
+            const fouten = results.filter(r => !r.success);
+            if (fouten.length > 0) {
+                msg.style.color = "#c62828";
+                msg.textContent = "Sommige datums konden niet worden opgeslagen (mogelijk al geblokkeerd).";
+                return;
+            }
             msg.style.color = "#2e7d32";
             msg.textContent = "Blokkade(s) opgeslagen!";
             document.getElementById("gbh-blok-datum").value = "";
@@ -432,6 +442,32 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("gbh-blok-heledag").checked = false;
             document.getElementById("gbh-blok-tijden").style.display = "flex";
             document.getElementById("gbh-blok-datum-tot-wrap").style.display = "none";
+
+            // Nieuwe rijen direct toevoegen aan de tabel
+            const tbody = document.querySelector("#gbh-blokkades-lijst tbody");
+            const geenMsg = document.querySelector("#gbh-blokkades-lijst p");
+            if (geenMsg) {
+                document.getElementById("gbh-blokkades-lijst").innerHTML = "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\"><thead><tr style=\"background:#fdecea;\"><th style=\"padding:8px;text-align:left;\">Datum</th><th style=\"padding:8px;text-align:left;\">Tijd</th><th style=\"padding:8px;\"></th></tr></thead><tbody id=\"gbh-blok-tbody\"></tbody></table>";
+            }
+            const tbl = document.querySelector("#gbh-blokkades-lijst tbody");
+            let huidigeDatum2 = new Date(datum_van);
+            const stopDatum2 = new Date(eindDatum);
+            while (huidigeDatum2 <= stopDatum2) {
+                const d = huidigeDatum2.toISOString().split("T")[0];
+                const parts = d.split("-");
+                const datumNl = parts[2] + "-" + parts[1] + "-" + parts[0];
+                const tijdStr = hele_dag ? "Hele dag" : tijd_van + " - " + tijd_tot;
+                const tr = document.createElement("tr");
+                tr.style.borderBottom = "1px solid #eee";
+                tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" class=\"gbh-blok-del\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
+                tr.querySelector(".gbh-blok-del").addEventListener("click", function() {
+                    if (!confirm("Blokkade verwijderen?")) return;
+                    msg.textContent = "";
+                    tr.remove();
+                });
+                tbl.appendChild(tr);
+                huidigeDatum2.setDate(huidigeDatum2.getDate() + 1);
+            }
         });
     });
    document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
