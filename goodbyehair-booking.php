@@ -514,10 +514,10 @@ document.addEventListener("DOMContentLoaded", function() {
         if (hele_dag && datum_tot && datum_tot < datum_van) { msg.style.color = "#c62828"; msg.textContent = "Datum tot en met moet na datum van liggen."; return; }
         const eindDatum = datum_tot || datum_van;
         const taken = [];
-        let huidigeDatum = new Date(datum_van);
-        const stopDatum = new Date(eindDatum);
+        let huidigeDatum = new Date(datum_van + "T00:00:00");
+        const stopDatum = new Date(eindDatum + "T00:00:00");
         while (huidigeDatum <= stopDatum) {
-            const d = huidigeDatum.toISOString().split("T")[0];
+            const d = huidigeDatum.getFullYear() + "-" + String(huidigeDatum.getMonth() + 1).padStart(2, "0") + "-" + String(huidigeDatum.getDate()).padStart(2, "0");
             const data = new FormData();
             data.append("action", "gbh_blokkade_opslaan");
             data.append("gbh_nonce", gbhNonce);
