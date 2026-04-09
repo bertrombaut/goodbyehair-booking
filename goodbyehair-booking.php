@@ -762,11 +762,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const dayKey = map[date.getDay()];
             const enabled = days.includes(dayKey);
             const isPast = date <= today;
-            const isGeblokkeerd = geblokkeerde_dagen.includes(fullDate);
-            const isEnabled = enabled && !isPast && !isGeblokkeerd;
-            const monthValue = String(month + 1).padStart(2, "0");
+           const monthValue = String(month + 1).padStart(2, "0");
             const dayValue = String(d).padStart(2, "0");
             const fullDate = year + "-" + monthValue + "-" + dayValue;
+            const isGeblokkeerd = geblokkeerde_dagen.includes(fullDate);
+            const isEnabled = enabled && !isPast && !isGeblokkeerd;
             const isSelected = selectedDate === fullDate;
             html += "<button type=\"button\" class=\"gbh-calendar-day\" data-date=\"" + fullDate + "\" " + (isEnabled ? "" : "disabled") + " style=\"padding:10px;border:1px solid " + (isSelected ? "#7d3c98" : "#ccc") + ";border-radius:6px;text-align:center;cursor:" + (isEnabled ? "pointer" : "not-allowed") + ";background:" + (isEnabled ? (isSelected ? "#7d3c98" : "#fff") : "#eee") + ";color:" + (isSelected ? "#fff" : "#000") + ";\">" + d + "</button>";
         }
