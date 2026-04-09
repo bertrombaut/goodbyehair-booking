@@ -221,9 +221,12 @@ class GBH_Booking {
     }
 
         public function handle_login() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
         $username = strtolower(sanitize_text_field($_POST['username'] ?? ''));
         $password = $_POST['password'] ?? '';
-        $opgeslagen_user = get_option('gbh_medewerker_user', '');
+        $opgeslagen_user = strtolower(get_option('gbh_medewerker_user', ''));
         $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
 
         if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
@@ -356,6 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const error = document.getElementById("gbh-login-error");
         const data = new FormData();
         data.append("action", "gbh_login");
+        data.append("gbh_nonce", "' . $nonce . '");
         data.append("username", user);
         data.append("password", pass);
        fetch("' . $ajax_url . '", { method: "POST", body: data, credentials: "same-origin" })
