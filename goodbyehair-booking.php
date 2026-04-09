@@ -145,9 +145,6 @@ class GBH_Booking {
     // BLOKKADES OPHALEN
     // -------------------------
     public function get_blokkades() {
-        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
-            wp_send_json_error('Ongeldige aanvraag.');
-        }
         global $wpdb;
         $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades", ARRAY_A);
         $geblokkeerde_dagen = [];
