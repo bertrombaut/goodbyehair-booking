@@ -573,6 +573,13 @@ document.addEventListener("DOMContentLoaded", function () {
         volgendeBtn.style.fontSize = "";
         volgendeBtn.style.padding = "10px 18px";
         volgendeBtn.style.boxShadow = "";
+        volgendeBtn.style.animation = "none";
+        const datumHeader = document.getElementById("gbh-datum-header");
+        datumHeader.style.background = "#7d3c98";
+        datumHeader.style.color = "#fff";
+        datumHeader.style.fontSize = "18px";
+        datumHeader.style.padding = "12px 20px";
+        datumHeader.style.animation = "gbh-knipperen 2s step-start infinite";
         selectedDate = "";
     }
 
