@@ -805,22 +805,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const gbhAjaxUrl = "' . $ajax_url . '";
     const gbhCalNonce = "' . $nonce . '";
 
-    function herlaadBlokkades(callback) {
-        const data = new FormData();
-        data.append("action", "gbh_get_blokkades");
-        data.append("gbh_nonce", gbhCalNonce);
-        fetch(gbhAjaxUrl, { method: "POST", body: data })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                geblokkeerde_dagen = res.data.geblokkeerde_dagen;
-                res.data.geblokkeerde_slots.forEach(function(slot) {
-                    if (!bookings.includes(slot)) bookings.push(slot);
-                });
-            }
-            if (callback) callback();
+    window.gbhSetBlokkades = function(dagen, slots) {
+        geblokkeerde_dagen = dagen;
+        slots.forEach(function(slot) {
+            if (!bookings.includes(slot)) bookings.push(slot);
         });
-    }
+    };
+    window.gbhRenderCalendar = function() {
+        renderCalendar();
+    };
     const monthNames = ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
     const dayNames = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const map = ["zo","ma","di","wo","do","vr","za"];
@@ -1084,10 +1077,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const oldError = document.getElementById("gbh-error");
             if (oldError) oldError.remove();
-            herlaadBlokkades(function() {
+            const blokData = new FormData();
+            blokData.append("action", "gbh_get_blokkades");
+            blokData.append("gbh_nonce", gbhNonce);
+            fetch(ajaxUrl, { method: "POST", body: blokData })
+            .then(r => r.json())
+            .then(function(res) {
+                if (res.success && window.gbhSetBlokkades) {
+                    window.gbhSetBlokkades(res.data.geblokkeerde_dagen, res.data.geblokkeerde_slots);
+                }
                 step1.style.display = "none";
                 step2.style.display = "block";
-                renderCalendar();
+                if (window.gbhRenderCalendar) window.gbhRenderCalendar();
                 window.scrollTo({ top: 0, behavior: "smooth" });
             });
         });
