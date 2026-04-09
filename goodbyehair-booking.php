@@ -259,7 +259,7 @@ class GBH_Booking {
         'expires'  => $expires,
         'path'     => '/',
         'domain'   => '',
-        'secure'   => false,
+        'secure'   => true,
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
@@ -293,7 +293,7 @@ public function handle_logout() {
         'expires'  => time() - 3600,
         'path'     => '/',
         'domain'   => '',        // moet exact hetzelfde zijn als bij instellen
-        'secure'   => false,
+        'secure'   => true,
         'httponly' => true,
         'samesite' => 'Lax',
     ];
