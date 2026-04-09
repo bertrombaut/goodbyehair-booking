@@ -387,35 +387,43 @@ document.addEventListener("DOMContentLoaded", function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
 
-    document.getElementById("gbh-blok-heledag").addEventListener("change", function() {
-    document.getElementById("gbh-blok-toggle").addEventListener("click", function() {
+   document.getElementById("gbh-blok-toggle").addEventListener("click", function() {
         const paneel = document.getElementById("gbh-blok-paneel");
         paneel.style.display = paneel.style.display === "none" ? "block" : "none";
     });
+
+    document.getElementById("gbh-blok-heledag").addEventListener("change", function() {
         document.getElementById("gbh-blok-tijden").style.display = this.checked ? "none" : "flex";
+        document.getElementById("gbh-blok-datum-tot-wrap").style.display = this.checked ? "block" : "none";
     });
 
     document.getElementById("gbh-blok-btn").addEventListener("click", function() {
-        const datum = document.getElementById("gbh-blok-datum").value;
+        const datum_van = document.getElementById("gbh-blok-datum").value;
         const hele_dag = document.getElementById("gbh-blok-heledag").checked ? 1 : 0;
+        const datum_tot = hele_dag ? document.getElementById("gbh-blok-datum-tot").value : datum_van;
         const tijd_van = document.getElementById("gbh-blok-van").value;
         const tijd_tot = document.getElementById("gbh-blok-tot").value;
         const msg = document.getElementById("gbh-blok-msg");
-        const data = new FormData();
-        data.append("action", "gbh_blokkade_opslaan");
-        data.append("gbh_nonce", gbhNonce);
-        data.append("datum", datum);
-        data.append("hele_dag", hele_dag);
-        data.append("tijd_van", tijd_van);
-        data.append("tijd_tot", tijd_tot);
-        fetch(ajaxUrl, { method: "POST", body: data })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) { location.reload(); }
-            else { msg.style.color = "#c62828"; msg.textContent = res.data; }
-        });
+        if (!datum_van) { msg.style.color = "#c62828"; msg.textContent = "Kies een datum."; return; }
+        if (hele_dag && datum_tot && datum_tot < datum_van) { msg.style.color = "#c62828"; msg.textContent = "Datum tot en met moet na datum van liggen."; return; }
+        const eindDatum = datum_tot || datum_van;
+        const taken = [];
+        let huidigeDatum = new Date(datum_van);
+        const stopDatum = new Date(eindDatum);
+        while (huidigeDatum <= stopDatum) {
+            const d = huidigeDatum.toISOString().split("T")[0];
+            const data = new FormData();
+            data.append("action", "gbh_blokkade_opslaan");
+            data.append("gbh_nonce", gbhNonce);
+            data.append("datum", d);
+            data.append("hele_dag", hele_dag);
+            data.append("tijd_van", tijd_van);
+            data.append("tijd_tot", tijd_tot);
+            taken.push(fetch(ajaxUrl, { method: "POST", body: data }));
+            huidigeDatum.setDate(huidigeDatum.getDate() + 1);
+        }
+        Promise.all(taken).then(() => location.reload());
     });
-
     document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
         btn.addEventListener("click", function() {
             if (!confirm("Blokkade verwijderen?")) return;
