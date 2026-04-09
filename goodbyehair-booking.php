@@ -192,7 +192,7 @@ class GBH_Booking {
             echo '<h2 style="color:#7d3c98;margin-top:0;">Medewerker login</h2>';
             echo '<div id="gbh-login-error" style="color:#c62828;margin-bottom:10px;display:none;"></div>';
             echo '<label style="display:block;margin-bottom:10px;">Gebruikersnaam<br><input type="text" id="gbh-login-user" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;box-sizing:border-box;"></label>';
-            echo '<label style="display:block;margin-bottom:16px;">Wachtwoord<br><input type="password" id="gbh-login-pass" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-top:4px;box-sizing:border-box;"></label>';
+            echo '<label style="display:block;margin-bottom:16px;">Wachtwoord<br><div style="position:relative;"><input type="password" id="gbh-login-pass" style="width:100%;padding:10px;padding-right:44px;border:1px solid #ccc;border-radius:8px;margin-top:4px;box-sizing:border-box;"><button type="button" onclick="const p=document.getElementById(\'gbh-login-pass\');p.type=p.type===\'password\'?\'text\':\'password\';" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#999;font-size:13px;">Toon</button></div></label>';
             echo '<button type="button" id="gbh-login-btn" style="width:100%;padding:12px;border:0;border-radius:8px;background:#7d3c98;color:#fff;cursor:pointer;font-size:15px;font-weight:600;">Inloggen</button>';
             echo '</div>';
             echo '<script>
