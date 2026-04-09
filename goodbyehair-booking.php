@@ -762,13 +762,21 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!calendar) return;
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
     const times = ' . json_encode(get_option('gbh_times', [])) . ';
-    let bookings = ' . json_encode($bookings_list) . ';
+    const boekingenVastgesteld = ' . json_encode($bookings_list) . ';
+    let blokkadeSlots = ' . json_encode(array_values(array_filter(array_map(function($bl) {
+        if (!$bl['hele_dag']) {
+            return null; // slots komen via JS
+        }
+        return null;
+    }, $blokkades_raw)))) . ';
+    let bookings = boekingenVastgesteld.slice();
     let geblokkeerde_dagen = ' . json_encode($geblokkeerde_dagen) . ';
     const gbhAjaxUrl = "' . $ajax_url . '";
     const gbhCalNonce = "' . $nonce . '";
 
     window.gbhSetBlokkades = function(dagen, slots) {
         geblokkeerde_dagen = dagen;
+        bookings = boekingenVastgesteld.slice();
         slots.forEach(function(slot) {
             if (!bookings.includes(slot)) bookings.push(slot);
         });
