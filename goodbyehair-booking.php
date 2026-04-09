@@ -226,10 +226,10 @@ class GBH_Booking {
         }
         $username = strtolower(sanitize_text_field($_POST['username'] ?? ''));
         $password = $_POST['password'] ?? '';
-        $opgeslagen_user = strtolower(get_option('gbh_medewerker_user', ''));
+       $opgeslagen_user = strtolower(get_option('gbh_medewerker_user', ''));
         $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
 
-        if ($username !== strtolower($opgeslagen_user) || !password_verify($password, $opgeslagen_pass)) {
+        if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
             wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
         }
 
