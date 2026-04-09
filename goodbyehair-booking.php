@@ -238,6 +238,8 @@ class GBH_Booking {
         $expires = time() + (8 * 60 * 60);
 
         $sessions = get_option('gbh_medewerker_tokens', []);
+        delete_option('gbh_medewerker_tokens');
+        $sessions = [];
         if (!is_array($sessions)) $sessions = [];
 
         foreach ($sessions as $key => $session) {
