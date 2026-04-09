@@ -357,6 +357,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!confirm("Weet je zeker dat je deze klant wilt verwijderen?")) return;
             const data = new FormData();
             data.append("action", "gbh_klant_verwijderen");
+            data.append("gbh_nonce", gbhNonce);
             data.append("id", btn.dataset.id);
             fetch(ajaxUrl, { method: "POST", body: data })
             .then(r => r.json())
