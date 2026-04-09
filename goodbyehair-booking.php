@@ -9,7 +9,7 @@ register_activation_hook(__FILE__, 'gbh_create_tables');
 add_action('plugins_loaded', 'gbh_create_tables');
 
 function gbh_create_tables() {
-        delete_option('gbh_medewerker_token');
+        
     global $wpdb;
     $charset = $wpdb->get_charset_collate();
 
@@ -196,10 +196,7 @@ class GBH_Booking {
     // -------------------------
         private function gbh_is_ingelogd() {
 
-    error_log('COOKIE: ' . print_r($_COOKIE['gbh_medewerker'] ?? 'geen', true));
-    error_log('SESSIONS: ' . print_r(get_option('gbh_medewerker_tokens', []), true));
-
-    if (empty($_COOKIE['gbh_medewerker'])) return false;
+      if (empty($_COOKIE['gbh_medewerker'])) return false;
 
         $cookie = sanitize_text_field(wp_unslash($_COOKIE['gbh_medewerker']));
         if (strpos($cookie, '|') === false) return false;
@@ -600,7 +597,6 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch(ajaxUrl, { method: "POST", body: data })
         .then(r => r.json())
         .then(res => {
-            document.cookie = "gbh_medewerker=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             location.reload();
         });
     });
