@@ -767,12 +767,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
     const times = ' . json_encode(get_option('gbh_times', [])) . ';
     const boekingenVastgesteld = ' . json_encode($bookings_list) . ';
-    let blokkadeSlots = ' . json_encode(array_values(array_filter(array_map(function($bl) {
-        if (!$bl['hele_dag']) {
-            return null; // slots komen via JS
-        }
-        return null;
-    }, $blokkades_raw)))) . ';
+   let blokkadeSlots = [];
     let bookings = boekingenVastgesteld.slice();
     let geblokkeerde_dagen = ' . json_encode($geblokkeerde_dagen) . ';
     const gbhAjaxUrl = "' . $ajax_url . '";
