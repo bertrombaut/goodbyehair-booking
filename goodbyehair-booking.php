@@ -1135,7 +1135,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'behandeltijd'  => $behandeltijd,
             'prijs'         => $prijs,
         ]);
-
+        $boeking_id = $wpdb->insert_id;
         // E-mail naar klant
         $onderwerp_klant = 'Bevestiging afspraak GoodByeHair';
        $headers_klant = ['Content-Type: text/html; charset=UTF-8'];
@@ -1170,7 +1170,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $afspraak_timestamp    = strtotime($datum . ' ' . $tijd);
         $herinnering_timestamp = $afspraak_timestamp - (24 * 60 * 60);
         if ($herinnering_timestamp > time()) {
-            wp_schedule_single_event($herinnering_timestamp, 'gbh_stuur_herinnering', [$wpdb->insert_id, $email, $naam, $datum, $tijd, $behandelingen]);
+            wp_schedule_single_event($herinnering_timestamp, 'gbh_stuur_herinnering', [$boeking_id, $email, $naam, $datum, $tijd, $behandelingen]);
         }
 
         wp_send_json_success('Afspraak opgeslagen.');
