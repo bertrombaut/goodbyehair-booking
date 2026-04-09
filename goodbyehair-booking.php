@@ -349,7 +349,8 @@ document.addEventListener("DOMContentLoaded", function() {
             echo '<div id="gbh-blok-paneel" style="display:none;margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
             echo '<h3 style="color:#c62828;margin-top:0;">Tijd blokkeren</h3>';
             echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">';
-            echo '<div><label style="font-size:13px;">Datum<br><input type="date" id="gbh-blok-datum" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
+            echo '<div><label style="font-size:13px;">Datum van<br><input type="date" id="gbh-blok-datum" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
+            echo '<div id="gbh-blok-datum-tot-wrap" style="display:none;"><label style="font-size:13px;">Datum tot en met<br><input type="date" id="gbh-blok-datum-tot" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
             echo '<div><label style="font-size:13px;"><input type="checkbox" id="gbh-blok-heledag" style="margin-right:6px;">Hele dag</label></div>';
             echo '<div id="gbh-blok-tijden" style="display:flex;gap:10px;">';
             echo '<label style="font-size:13px;">Van<br><input type="time" id="gbh-blok-van" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
