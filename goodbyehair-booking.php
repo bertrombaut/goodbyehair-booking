@@ -417,7 +417,22 @@ document.addEventListener("DOMContentLoaded", function() {
             taken.push(fetch(ajaxUrl, { method: "POST", body: data }));
             huidigeDatum.setDate(huidigeDatum.getDate() + 1);
         }
-        Promise.all(taken).then(() => location.reload());
+        Promise.all(taken).then(() => {
+            msg.style.color = "#2e7d32";
+            msg.textContent = "Blokkade(s) opgeslagen!";
+            document.getElementById("gbh-blok-datum").value = "";
+            document.getElementById("gbh-blok-datum-tot").value = "";
+            document.getElementById("gbh-blok-van").value = "";
+            document.getElementById("gbh-blok-tot").value = "";
+            document.getElementById("gbh-blok-heledag").checked = false;
+            document.getElementById("gbh-blok-tijden").style.display = "flex";
+            document.getElementById("gbh-blok-datum-tot-wrap").style.display = "none";
+            fetch(ajaxUrl + "?action=gbh_get_blokkades&gbh_nonce=" + gbhNonce)
+            .then(() => {
+                const lijst = document.getElementById("gbh-blokkades-lijst");
+                if (lijst) lijst.innerHTML = "<p style='color:#2e7d32;font-size:14px;'>Opgeslagen. Herlaad de pagina om de volledige lijst te zien.</p>";
+            });
+        });
     });
     document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
         btn.addEventListener("click", function() {
