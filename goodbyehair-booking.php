@@ -261,7 +261,7 @@ class GBH_Booking {
             'secure'   => is_ssl(),
             'httponly' => true,
             'samesite' => 'Lax',
-        ]);;
+        ]);
 
         wp_send_json_success('Ingelogd');
     }
