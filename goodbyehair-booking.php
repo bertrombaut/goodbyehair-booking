@@ -394,7 +394,7 @@ function gbhKoppelLogin() {
     });
 }
 gbhKoppelLogin();
-</script>;
+</script>';
         } else {
             // Klantenbeheer
             global $wpdb;
