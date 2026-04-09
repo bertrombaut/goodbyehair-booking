@@ -687,6 +687,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         tijdHeader.style.color = "#7d3c98";
                         tijdHeader.style.fontSize = "14px";
                         tijdHeader.style.padding = "6px 12px";
+                        tijdHeader.style.animation = "none";
                         document.getElementById("gbh-stap2-fout").style.display = "none";
                         const volgendeBtn = document.getElementById("gbh-next-to-step3");
                         volgendeBtn.style.background = "#4a1a6e";
