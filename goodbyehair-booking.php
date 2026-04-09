@@ -221,78 +221,97 @@ class GBH_Booking {
     }
 
         public function handle_login() {
-        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
-            wp_send_json_error('Ongeldige aanvraag.');
-        }
-        $username = strtolower(sanitize_text_field($_POST['username'] ?? ''));
-        $password = $_POST['password'] ?? '';
-       $opgeslagen_user = strtolower(get_option('gbh_medewerker_user', ''));
-        $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
-
-        if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
-            wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
-        }
-
-        $session_id = bin2hex(random_bytes(16));
-        $token = bin2hex(random_bytes(32));
-        $expires = time() + (8 * 60 * 60);
-
-        $sessions = get_option('gbh_medewerker_tokens', []);
-        
-        if (!is_array($sessions)) $sessions = [];
-
-        foreach ($sessions as $key => $session) {
-            if (empty($session['expires']) || time() > intval($session['expires'])) {
-                unset($sessions[$key]);
-            }
-        }
-
-        $sessions[$session_id] = [
-            'token'   => hash('sha256', $token),
-            'expires' => $expires,
-        ];
-
-        update_option('gbh_medewerker_tokens', $sessions);
-
- setcookie('gbh_medewerker', $session_id . '|' . $token, [
-            'expires'  => $expires,
-            'path'     => '/',
-            'domain'   => parse_url(home_url(), PHP_URL_HOST),
-            'secure'   => is_ssl(),
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-
-        wp_send_json_success('Ingelogd');
+    if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+        wp_send_json_error('Ongeldige aanvraag.');
     }
 
-        public function handle_logout() {
-        $sessions = get_option('gbh_medewerker_tokens', []);
-        if (!is_array($sessions)) $sessions = [];
+    $username = strtolower(sanitize_text_field($_POST['username'] ?? ''));
+    $password = $_POST['password'] ?? '';
+    $opgeslagen_user = strtolower(get_option('gbh_medewerker_user', ''));
+    $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
 
-        if (!empty($_COOKIE['gbh_medewerker'])) {
-            $cookie = sanitize_text_field(wp_unslash($_COOKIE['gbh_medewerker']));
-            if (strpos($cookie, '|') !== false) {
-                list($session_id) = explode('|', $cookie, 2);
-                if (!empty($sessions[$session_id])) {
-                    unset($sessions[$session_id]);
-                    update_option('gbh_medewerker_tokens', $sessions);
-                }
-            }
-        }
-
-        setcookie('gbh_medewerker', '', [
-            'expires'  => time() - 3600,
-            'path'     => '/',
-            'domain'   => parse_url(home_url(), PHP_URL_HOST),
-            'secure'   => is_ssl(),
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-
-        wp_send_json_success('Uitgelogd');
+    if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
+        wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
     }
 
+    $session_id = bin2hex(random_bytes(16));
+    $token      = bin2hex(random_bytes(32));
+    $expires    = time() + (8 * 60 * 60);
+
+    $sessions = get_option('gbh_medewerker_tokens', []);
+    if (!is_array($sessions)) $sessions = [];
+
+    // Verlopen sessies opruimen
+    foreach ($sessions as $key => $session) {
+        if (empty($session['expires']) || time() > intval($session['expires'])) {
+            unset($sessions[$key]);
+        }
+    }
+
+    $sessions[$session_id] = [
+        'token'   => hash('sha256', $token),
+        'expires' => $expires,
+    ];
+    update_option('gbh_medewerker_tokens', $sessions);
+
+    // Cookie instellen zonder domain, werkt betrouwbaarder op alle browsers
+    $cookie_waarde = $session_id . '|' . $token;
+    $cookie_opties = [
+        'expires'  => $expires,
+        'path'     => '/',
+        'domain'   => '',        // lege string = browser bepaalt zelf
+        'secure'   => is_ssl(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ];
+
+    // Controleer of headers al verstuurd zijn
+    if (headers_sent($file, $line)) {
+        wp_send_json_error('Cookie kon niet worden gezet (headers al verstuurd in ' . $file . ':' . $line . ').');
+        return;
+    }
+
+    setcookie('gbh_medewerker', $cookie_waarde, $cookie_opties);
+    wp_send_json_success('Ingelogd');
+}
+
+public function handle_logout() {
+    // Nonce check toegevoegd (ontbrak eerder)
+    if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+        wp_send_json_error('Ongeldige aanvraag.');
+    }
+
+    $sessions = get_option('gbh_medewerker_tokens', []);
+    if (!is_array($sessions)) $sessions = [];
+
+    // Huidige sessie verwijderen uit opgeslagen sessies
+    if (!empty($_COOKIE['gbh_medewerker'])) {
+        $cookie = sanitize_text_field(wp_unslash($_COOKIE['gbh_medewerker']));
+        if (strpos($cookie, '|') !== false) {
+            list($session_id) = explode('|', $cookie, 2);
+            if (!empty($sessions[$session_id])) {
+                unset($sessions[$session_id]);
+                update_option('gbh_medewerker_tokens', $sessions);
+            }
+        }
+    }
+
+    // Cookie verwijderen met dezelfde opties als bij het instellen
+    $cookie_opties = [
+        'expires'  => time() - 3600,
+        'path'     => '/',
+        'domain'   => '',        // moet exact hetzelfde zijn als bij instellen
+        'secure'   => is_ssl(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ];
+
+    if (!headers_sent()) {
+        setcookie('gbh_medewerker', '', $cookie_opties);
+    }
+
+    wp_send_json_success('Uitgelogd');
+}
     // -------------------------
     // KLANT OPSLAAN (medewerker)
     // -------------------------
