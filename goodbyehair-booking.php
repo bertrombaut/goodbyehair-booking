@@ -525,7 +525,9 @@ document.addEventListener("DOMContentLoaded", function() {
         data.append("action", "gbh_logout");
         data.append("gbh_nonce", gbhNonce);
         fetch(ajaxUrl, { method: "POST", body: data })
-        .then(() => {
+        .then(r => r.json())
+        .then(res => {
+            alert("Server zegt: " + JSON.stringify(res));
             document.cookie = "gbh_medewerker=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             location.reload();
         });
