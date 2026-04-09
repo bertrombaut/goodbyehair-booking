@@ -118,7 +118,7 @@ class GBH_Booking {
     }
 
     public function handle_login() {
-        $username = sanitize_text_field($_POST['username'] ?? '');
+       $username = strtolower(sanitize_text_field($_POST['username'] ?? ''));
         $password = $_POST['password'] ?? '';
         $opgeslagen_user = get_option('gbh_medewerker_user', '');
         $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
