@@ -307,6 +307,7 @@ document.addEventListener("DOMContentLoaded", function() {
             echo '<label style="font-size:13px;">Tot<br><input type="time" id="gbh-blok-tot" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
             echo '</div>';
             echo '<button type="button" id="gbh-blok-btn" style="padding:10px 18px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Blokkeren</button>';
+            echo '<button type="button" id="gbh-blok-sluiten" style="padding:10px 18px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#000;cursor:pointer;">← Terug</button>';
             echo '</div>';
             echo '<div id="gbh-blok-msg" style="font-size:14px;margin-bottom:10px;"></div>';
             echo '<div id="gbh-blokkades-lijst">';
