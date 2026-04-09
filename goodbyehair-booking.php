@@ -508,24 +508,29 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
-   document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
+   function koppelVerwijderKnop(btn, tr, nieuweId) {
         btn.addEventListener("click", function() {
             if (!confirm("Blokkade verwijderen?")) return;
+            const id = nieuweId || btn.dataset.id;
             const data = new FormData();
             data.append("action", "gbh_blokkade_verwijderen");
             data.append("gbh_nonce", gbhNonce);
-            data.append("id", btn.dataset.id);
+            data.append("id", id);
             fetch(ajaxUrl, { method: "POST", body: data })
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    btn.closest("tr").remove();
+                    tr.remove();
                     const msg = document.getElementById("gbh-blok-msg");
                     msg.style.color = "#2e7d32";
                     msg.textContent = "Blokkade verwijderd.";
                 }
             });
         });
+    }
+
+    document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
+        koppelVerwijderKnop(btn, btn.closest("tr"), null);
     });
 
     document.getElementById("gbh-logout-btn").addEventListener("click", function() {
