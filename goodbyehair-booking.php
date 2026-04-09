@@ -241,7 +241,6 @@ class GBH_Booking {
     $sessions = get_option('gbh_medewerker_tokens', []);
     if (!is_array($sessions)) $sessions = [];
 
-    // Verlopen sessies opruimen
     foreach ($sessions as $key => $session) {
         if (empty($session['expires']) || time() > intval($session['expires'])) {
             unset($sessions[$key]);
@@ -254,24 +253,17 @@ class GBH_Booking {
     ];
     update_option('gbh_medewerker_tokens', $sessions);
 
-    // Cookie instellen zonder domain, werkt betrouwbaarder op alle browsers
     $cookie_waarde = $session_id . '|' . $token;
-    $cookie_opties = [
+
+    setcookie('gbh_medewerker', $cookie_waarde, [
         'expires'  => $expires,
         'path'     => '/',
-        'domain'   => '',        // lege string = browser bepaalt zelf
+        'domain'   => '',
         'secure'   => is_ssl(),
         'httponly' => true,
         'samesite' => 'Lax',
-    ];
+    ]);
 
-    // Controleer of headers al verstuurd zijn
-    if (headers_sent($file, $line)) {
-        wp_send_json_error('Cookie kon niet worden gezet (headers al verstuurd in ' . $file . ':' . $line . ').');
-        return;
-    }
-
-    setcookie('gbh_medewerker', $cookie_waarde, $cookie_opties);
     wp_send_json_success('Ingelogd');
 }
 
