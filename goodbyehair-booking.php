@@ -452,6 +452,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
 </style>';
 
         echo '<div class="gbh-booking">';
+        echo '<div style="text-align:right;margin-bottom:16px;"><a href="https://goodbyehair.nl/medewerker-login/" style="font-size:13px;color:#999;text-decoration:none;border:1px solid #ddd;border-radius:8px;padding:6px 12px;">Medewerker login</a></div>';
         echo '<h2>Kies je behandeling</h2>';
         echo '<div class="gbh-columns">';
 
