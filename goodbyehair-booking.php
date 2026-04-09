@@ -1568,7 +1568,7 @@ public function sla_wachtwoord_op() {
         if ($user) update_option('gbh_medewerker_user', $user);
         if (!empty($nieuw)) {
             update_option('gbh_medewerker_pass', password_hash($nieuw, PASSWORD_DEFAULT));
-            delete_option('gbh_medewerker_token');
+            
         }
         wp_redirect(admin_url('admin.php?page=gbh-settings&ww_opgeslagen=1'));
         exit;
