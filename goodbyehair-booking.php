@@ -427,11 +427,8 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("gbh-blok-heledag").checked = false;
             document.getElementById("gbh-blok-tijden").style.display = "flex";
             document.getElementById("gbh-blok-datum-tot-wrap").style.display = "none";
-            fetch(ajaxUrl + "?action=gbh_get_blokkades&gbh_nonce=" + gbhNonce)
-            .then(() => {
-                const lijst = document.getElementById("gbh-blokkades-lijst");
-                if (lijst) lijst.innerHTML = "<p style='color:#2e7d32;font-size:14px;'>Opgeslagen. Herlaad de pagina om de volledige lijst te zien.</p>";
-            });
+            const lijst = document.getElementById("gbh-blokkades-lijst");
+            if (lijst) lijst.innerHTML = "<p style='color:#2e7d32;font-size:14px;'>Opgeslagen. Herlaad de pagina om de volledige lijst te zien.</p>";
         });
     });
     document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
