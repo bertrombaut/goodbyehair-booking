@@ -193,30 +193,97 @@ class GBH_Booking {
     // -------------------------
     // LOGIN / LOGOUT (eigen systeem)
     // -------------------------
-    private function gbh_is_ingelogd() {
-        if (!isset($_COOKIE['gbh_medewerker'])) return false;
-        $cookie = $_COOKIE['gbh_medewerker'];
-        $token = get_option('gbh_medewerker_token', '');
-        return $cookie === $token;
+        private function gbh_is_ingelogd() {
+        if (empty($_COOKIE['gbh_medewerker'])) return false;
+
+        $cookie = sanitize_text_field(wp_unslash($_COOKIE['gbh_medewerker']));
+        if (strpos($cookie, '|') === false) return false;
+
+        list($session_id, $token) = explode('|', $cookie, 2);
+        if (!$session_id || !$token) return false;
+
+        $sessions = get_option('gbh_medewerker_tokens', []);
+        if (!is_array($sessions) || empty($sessions[$session_id])) return false;
+
+        $session = $sessions[$session_id];
+
+        if (empty($session['token']) || empty($session['expires'])) return false;
+
+        if (time() > intval($session['expires'])) {
+            unset($sessions[$session_id]);
+            update_option('gbh_medewerker_tokens', $sessions);
+            return false;
+        }
+
+        return hash_equals($session['token'], hash('sha256', $token));
     }
 
-    public function handle_login() {
-       $username = strtolower(sanitize_text_field($_POST['username'] ?? ''));
+        public function handle_login() {
+        $username = strtolower(sanitize_text_field($_POST['username'] ?? ''));
         $password = $_POST['password'] ?? '';
         $opgeslagen_user = get_option('gbh_medewerker_user', '');
         $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
+
         if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
             wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
         }
-       $token = bin2hex(random_bytes(32));
-        update_option('gbh_medewerker_token', $token);
-        setcookie('gbh_medewerker', $token, time() + (8 * 60 * 60), '/', '', false, false);
+
+        $session_id = bin2hex(random_bytes(16));
+        $token = bin2hex(random_bytes(32));
+        $expires = time() + (8 * 60 * 60);
+
+        $sessions = get_option('gbh_medewerker_tokens', []);
+        if (!is_array($sessions)) $sessions = [];
+
+        foreach ($sessions as $key => $session) {
+            if (empty($session['expires']) || time() > intval($session['expires'])) {
+                unset($sessions[$key]);
+            }
+        }
+
+        $sessions[$session_id] = [
+            'token'   => hash('sha256', $token),
+            'expires' => $expires,
+        ];
+
+        update_option('gbh_medewerker_tokens', $sessions);
+
+        setcookie('gbh_medewerker', $session_id . '|' . $token, [
+            'expires'  => $expires,
+            'path'     => COOKIEPATH ? COOKIEPATH : '/',
+            'domain'   => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+            'secure'   => is_ssl(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
         wp_send_json_success('Ingelogd');
     }
 
-    public function handle_logout() {
-        delete_option('gbh_medewerker_token');
-        setcookie('gbh_medewerker', '', time() - 3600, '/', '', false, false);
+        public function handle_logout() {
+        $sessions = get_option('gbh_medewerker_tokens', []);
+        if (!is_array($sessions)) $sessions = [];
+
+        if (!empty($_COOKIE['gbh_medewerker'])) {
+            $cookie = sanitize_text_field(wp_unslash($_COOKIE['gbh_medewerker']));
+            if (strpos($cookie, '|') !== false) {
+                list($session_id) = explode('|', $cookie, 2);
+                if (!empty($sessions[$session_id])) {
+                    unset($sessions[$session_id]);
+                    update_option('gbh_medewerker_tokens', $sessions);
+                }
+            }
+        }
+
+        setcookie('gbh_medewerker', '', [
+            'expires'  => time() - 3600,
+            'path'     => COOKIEPATH ? COOKIEPATH : '/',
+            'domain'   => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+            'secure'   => is_ssl(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
         wp_send_json_success('Uitgelogd');
     }
 
