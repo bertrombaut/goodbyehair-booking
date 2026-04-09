@@ -734,32 +734,7 @@ h3.gbh-cat { color:#7d3c98; font-size:15px; margin:0 0 8px; border-bottom:2px so
         echo '<div style="font-size:14px;margin-bottom:4px;">Behandeltijd: <span id="gbh-total-time">0</span> min</div>';
         echo '<div style="font-size:14px;">Totaal: <strong>€<span id="gbh-total-price">0,00</span></strong></div>';
         echo '<button type="button" id="gbh-next-step" class="gbh-next-btn">Kies een datum/tijd →</button>';
-        echo '<script>
-document.addEventListener("DOMContentLoaded", function() {
-    function positionSummary() {
-        const anchor = document.getElementById("gbh-summary-anchor");
-        const box = document.querySelector(".gbh-summary-box");
-        if (!anchor || !box) return;
-        const rect = anchor.getBoundingClientRect();
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        box.style.top = Math.max(20, rect.top + scrollTop - scrollTop + 20) + "px";
-        box.style.left = (rect.left + window.pageXOffset) + "px";
-    }
-    positionSummary();
-   window.addEventListener("scroll", function() {
-        const anchor = document.getElementById("gbh-summary-anchor");
-        const box = document.querySelector(".gbh-summary-box");
-        if (!anchor || !box) return;
-        const rect = anchor.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const boxHeight = box.offsetHeight;
-        const centeredTop = (windowHeight / 2) - (boxHeight / 2);
-        box.style.top = Math.max(20, centeredTop) + "px";
-        box.style.left = (rect.left + window.pageXOffset) + "px";
-    });
-    window.addEventListener("resize", positionSummary);
-});
-</script>';
+        
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1017,6 +992,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         echo '<script>
 document.addEventListener("DOMContentLoaded", function () {
+function positionSummary() {
+        const anchor = document.getElementById("gbh-summary-anchor");
+        const box = document.querySelector(".gbh-summary-box");
+        if (!anchor || !box) return;
+        const rect = anchor.getBoundingClientRect();
+        box.style.top = Math.max(20, rect.top + window.pageYOffset + 20) + "px";
+        box.style.left = (rect.left + window.pageXOffset) + "px";
+    }
+    positionSummary();
+    window.addEventListener("scroll", function() {
+        const anchor = document.getElementById("gbh-summary-anchor");
+        const box = document.querySelector(".gbh-summary-box");
+        if (!anchor || !box) return;
+        const rect = anchor.getBoundingClientRect();
+        const centeredTop = (window.innerHeight / 2) - (box.offsetHeight / 2);
+        box.style.top = Math.max(20, centeredTop) + "px";
+        box.style.left = (rect.left + window.pageXOffset) + "px";
+    });
+    window.addEventListener("resize", positionSummary);
     const checkboxes = document.querySelectorAll(".gbh-treatment");
     const totalTime = document.getElementById("gbh-total-time");
     const totalPrice = document.getElementById("gbh-total-price");
