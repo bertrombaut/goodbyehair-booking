@@ -558,11 +558,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("gbh-chosen-date").textContent = "";
         document.getElementById("gbh-chosen-time").textContent = "";
         document.getElementById("gbh-selected-date").value = "";
-        const datumHeader = document.getElementById("gbh-datum-header");
-        datumHeader.style.background = "#7d3c98";
-        datumHeader.style.color = "#fff";
-        datumHeader.style.fontSize = "18px";
-        datumHeader.style.padding = "12px 20px";
         const tijdHeader = document.getElementById("gbh-times-header");
         tijdHeader.style.background = "#7d3c98";
         tijdHeader.style.color = "#fff";
