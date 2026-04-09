@@ -468,13 +468,12 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("gbh-blok-tijden").style.display = "flex";
             document.getElementById("gbh-blok-datum-tot-wrap").style.display = "none";
 
-            const geenMsg = document.querySelector("#gbh-blokkades-lijst p");
-            if (geenMsg) {
-                document.getElementById("gbh-blokkades-lijst").innerHTML = "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\"><thead><tr style=\"background:#fdecea;\"><th style=\"padding:8px;text-align:left;\">Datum</th><th style=\"padding:8px;text-align:left;\">Tijd</th><th style=\"padding:8px;\"></th></tr></thead><tbody></tbody></table>";
+            // Zorg dat er altijd een tabel is
+            const lijstDiv = document.getElementById("gbh-blokkades-lijst");
+            if (!lijstDiv.querySelector("tbody")) {
+                lijstDiv.innerHTML = "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\"><thead><tr style=\"background:#fdecea;\"><th style=\"padding:8px;text-align:left;\">Datum</th><th style=\"padding:8px;text-align:left;\">Tijd</th><th style=\"padding:8px;\"></th></tr></thead><tbody></tbody></table>";
             }
-            const tbl = document.querySelector("#gbh-blokkades-lijst tbody");
-            if (!tbl) return;
-            let huidigeDatum2 = new Date(datum_van);
+            const tbl = lijstDiv.querySelector("tbody");
             let huidigeDatum2 = new Date(datum_van);
             const stopDatum2 = new Date(eindDatum);
             let i = 0;
@@ -483,11 +482,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 const parts = d.split("-");
                 const datumNl = parts[2] + "-" + parts[1] + "-" + parts[0];
                 const tijdStr = hele_dag ? "Hele dag" : tijd_van + " - " + tijd_tot;
-                const nieuweId = results[i] ? results[i].data.id : null;
+                const nieuweId = results[i] && results[i].data ? results[i].data.id : null;
                 const tr = document.createElement("tr");
                 tr.style.borderBottom = "1px solid #eee";
-                tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" class=\"gbh-blok-del\" data-id=\"" + nieuweId + "\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
-                tr.querySelector(".gbh-blok-del").addEventListener("click", function() {
+                tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
+                tr.querySelector("button").addEventListener("click", function() {
                     if (!confirm("Blokkade verwijderen?")) return;
                     const delData = new FormData();
                     delData.append("action", "gbh_blokkade_verwijderen");
@@ -495,8 +494,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     delData.append("id", nieuweId);
                     fetch(ajaxUrl, { method: "POST", body: delData })
                     .then(r => r.json())
-                    .then(res => {
-                        if (res.success) {
+                    .then(function(delRes) {
+                        if (delRes.success) {
                             tr.remove();
                             msg.style.color = "#2e7d32";
                             msg.textContent = "Blokkade verwijderd.";
