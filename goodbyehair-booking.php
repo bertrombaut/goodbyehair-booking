@@ -94,6 +94,8 @@ class GBH_Booking {
         add_action('wp_ajax_nopriv_gbh_blokkade_opslaan', [$this, 'blokkade_opslaan']);
         add_action('wp_ajax_gbh_blokkade_verwijderen', [$this, 'blokkade_verwijderen']);
         add_action('wp_ajax_nopriv_gbh_blokkade_verwijderen', [$this, 'blokkade_verwijderen']);
+        add_action('wp_ajax_gbh_get_blokkades', [$this, 'get_blokkades']);
+        add_action('wp_ajax_nopriv_gbh_get_blokkades', [$this, 'get_blokkades']);
         add_filter('wp_mail_from', function($email) { return 'info@goodbyehair.nl'; });
         add_filter('wp_mail_from_name', function($name) { return 'Goodbyehair'; });
     }
@@ -139,7 +141,30 @@ class GBH_Booking {
         $wpdb->delete($wpdb->prefix . 'gbh_blokkades', ['id' => $id]);
         wp_send_json_success('Blokkade verwijderd.');
     }
-
+// -------------------------
+    // BLOKKADES OPHALEN
+    // -------------------------
+    public function get_blokkades() {
+        global $wpdb;
+        $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades", ARRAY_A);
+        $geblokkeerde_dagen = [];
+        $geblokkeerde_slots = [];
+        foreach ($blokkades as $bl) {
+            if ($bl['hele_dag']) {
+                $geblokkeerde_dagen[] = $bl['datum'];
+            } else {
+                $van_ts = strtotime('1970-01-01 ' . substr($bl['tijd_van'], 0, 5));
+                $tot_ts = strtotime('1970-01-01 ' . substr($bl['tijd_tot'], 0, 5));
+                for ($t = $van_ts; $t < $tot_ts; $t += 15 * 60) {
+                    $geblokkeerde_slots[] = $bl['datum'] . ' ' . date('H:i', $t);
+                }
+            }
+        }
+        wp_send_json_success([
+            'geblokkeerde_dagen' => $geblokkeerde_dagen,
+            'geblokkeerde_slots' => $geblokkeerde_slots,
+        ]);
+    }
     // -------------------------
     // KLANT ZOEKEN VIA AJAX
     // -------------------------
@@ -776,7 +801,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
     const times = ' . json_encode(get_option('gbh_times', [])) . ';
     const bookings = ' . json_encode($bookings_list) . ';
-    const geblokkeerde_dagen = ' . json_encode($geblokkeerde_dagen) . ';
+    let geblokkeerde_dagen = ' . json_encode($geblokkeerde_dagen) . ';
+    const gbhAjaxUrl = "' . $ajax_url . '";
+    const gbhCalNonce = "' . $nonce . '";
+
+    function herlaadBlokkades(callback) {
+        const data = new FormData();
+        data.append("action", "gbh_get_blokkades");
+        data.append("gbh_nonce", gbhCalNonce);
+        fetch(gbhAjaxUrl, { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                geblokkeerde_dagen = res.data.geblokkeerde_dagen;
+                res.data.geblokkeerde_slots.forEach(function(slot) {
+                    if (!bookings.includes(slot)) bookings.push(slot);
+                });
+            }
+            if (callback) callback();
+        });
+    }
     const monthNames = ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"];
     const dayNames = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const map = ["zo","ma","di","wo","do","vr","za"];
@@ -1040,9 +1084,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const oldError = document.getElementById("gbh-error");
             if (oldError) oldError.remove();
-            step1.style.display = "none";
-            step2.style.display = "block";
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            herlaadBlokkades(function() {
+                step1.style.display = "none";
+                step2.style.display = "block";
+                renderCalendar();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
         });
     }
 
