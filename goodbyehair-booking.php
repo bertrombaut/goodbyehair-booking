@@ -287,9 +287,46 @@ document.addEventListener("DOMContentLoaded", function() {
 
             echo '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">';
             echo '<h2 style="color:#7d3c98;margin:0;">Klantenbeheer</h2>';
-            echo '<div>';
+            echo '<div style="display:flex;gap:10px;align-items:center;">';
+            echo '<button type="button" id="gbh-blok-toggle" style="padding:8px 16px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Tijd blokkeren</button>';
             echo '<span style="margin-right:16px;font-size:14px;color:#666;">Ingelogd als: <strong>' . esc_html($medewerker_naam) . '</strong></span>';
             echo '<button type="button" id="gbh-logout-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Uitloggen</button>';
+            echo '</div>';
+            echo '</div>';
+
+            // Blokkades paneel direct na header
+            $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades ORDER BY datum ASC, tijd_van ASC");
+            echo '<div id="gbh-blok-paneel" style="display:none;margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
+            echo '<h3 style="color:#c62828;margin-top:0;">Tijd blokkeren</h3>';
+            echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">';
+            echo '<div><label style="font-size:13px;">Datum van<br><input type="date" id="gbh-blok-datum" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
+            echo '<div id="gbh-blok-datum-tot-wrap" style="display:none;"><label style="font-size:13px;">Datum tot en met<br><input type="date" id="gbh-blok-datum-tot" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
+            echo '<div><label style="font-size:13px;"><input type="checkbox" id="gbh-blok-heledag" style="margin-right:6px;">Hele dag</label></div>';
+            echo '<div id="gbh-blok-tijden" style="display:flex;gap:10px;">';
+            echo '<label style="font-size:13px;">Van<br><input type="time" id="gbh-blok-van" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Tot<br><input type="time" id="gbh-blok-tot" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
+            echo '</div>';
+            echo '<button type="button" id="gbh-blok-btn" style="padding:10px 18px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Blokkeren</button>';
+            echo '</div>';
+            echo '<div id="gbh-blok-msg" style="font-size:14px;margin-bottom:10px;"></div>';
+            echo '<div id="gbh-blokkades-lijst">';
+            if ($blokkades) {
+                echo '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
+                echo '<thead><tr style="background:#fdecea;"><th style="padding:8px;text-align:left;">Datum</th><th style="padding:8px;text-align:left;">Tijd</th><th style="padding:8px;"></th></tr></thead>';
+                echo '<tbody>';
+                foreach ($blokkades as $bl) {
+                    $datum_nl = date('d-m-Y', strtotime($bl->datum));
+                    $tijd_str = $bl->hele_dag ? 'Hele dag' : substr($bl->tijd_van, 0, 5) . ' - ' . substr($bl->tijd_tot, 0, 5);
+                    echo '<tr style="border-bottom:1px solid #eee;">';
+                    echo '<td style="padding:8px;">' . esc_html($datum_nl) . '</td>';
+                    echo '<td style="padding:8px;">' . esc_html($tijd_str) . '</td>';
+                    echo '<td style="padding:8px;text-align:right;"><button type="button" class="gbh-blok-del" data-id="' . esc_attr($bl->id) . '" style="padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;">Verwijderen</button></td>';
+                    echo '</tr>';
+                }
+                echo '</tbody></table>';
+            } else {
+                echo '<p style="color:#999;font-size:14px;">Geen blokkades.</p>';
+            }
             echo '</div>';
             echo '</div>';
 
@@ -338,48 +375,6 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 echo '<p style="color:#999;">Nog geen klanten gevonden.</p>';
             }
-            echo '</div>';
-
-            // Blokkades ophalen
-            $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades ORDER BY datum ASC, tijd_van ASC");
-            $times_instelling = get_option('gbh_times', []);
-
-            echo '<div style="margin-bottom:20px;"><button type="button" id="gbh-blok-toggle" style="padding:8px 16px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Tijd blokkeren</button></div>';
-
-            echo '<div id="gbh-blok-paneel" style="display:none;margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
-            echo '<h3 style="color:#c62828;margin-top:0;">Tijd blokkeren</h3>';
-            echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">';
-            echo '<div><label style="font-size:13px;">Datum van<br><input type="date" id="gbh-blok-datum" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
-            echo '<div id="gbh-blok-datum-tot-wrap" style="display:none;"><label style="font-size:13px;">Datum tot en met<br><input type="date" id="gbh-blok-datum-tot" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
-            echo '<div><label style="font-size:13px;"><input type="checkbox" id="gbh-blok-heledag" style="margin-right:6px;">Hele dag</label></div>';
-            echo '<div id="gbh-blok-tijden" style="display:flex;gap:10px;">';
-            echo '<label style="font-size:13px;">Van<br><input type="time" id="gbh-blok-van" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
-            echo '<label style="font-size:13px;">Tot<br><input type="time" id="gbh-blok-tot" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label>';
-            echo '</div>';
-            echo '<button type="button" id="gbh-blok-btn" style="padding:10px 18px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Blokkeren</button>';
-            echo '</div>';
-            echo '<div id="gbh-blok-msg" style="font-size:14px;margin-bottom:10px;"></div>';
-
-            // Blokkadelijst
-            echo '<div id="gbh-blokkades-lijst">';
-            if ($blokkades) {
-                echo '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
-                echo '<thead><tr style="background:#fdecea;"><th style="padding:8px;text-align:left;">Datum</th><th style="padding:8px;text-align:left;">Tijd</th><th style="padding:8px;"></th></tr></thead>';
-                echo '<tbody>';
-                foreach ($blokkades as $bl) {
-                    $datum_nl = date('d-m-Y', strtotime($bl->datum));
-                    $tijd_str = $bl->hele_dag ? 'Hele dag' : substr($bl->tijd_van, 0, 5) . ' - ' . substr($bl->tijd_tot, 0, 5);
-                    echo '<tr style="border-bottom:1px solid #eee;">';
-                    echo '<td style="padding:8px;">' . esc_html($datum_nl) . '</td>';
-                    echo '<td style="padding:8px;">' . esc_html($tijd_str) . '</td>';
-                    echo '<td style="padding:8px;text-align:right;"><button type="button" class="gbh-blok-del" data-id="' . esc_attr($bl->id) . '" style="padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;">Verwijderen</button></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-            } else {
-                echo '<p style="color:#999;font-size:14px;">Geen blokkades.</p>';
-            }
-            echo '</div>';
             echo '</div>';
 
             echo '<script>
