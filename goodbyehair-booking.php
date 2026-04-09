@@ -6,6 +6,7 @@
 if (!defined('ABSPATH')) exit;
 
 register_activation_hook(__FILE__, 'gbh_create_tables');
+add_action('plugins_loaded', 'gbh_create_tables');
 
 function gbh_create_tables() {
     global $wpdb;
@@ -131,6 +132,7 @@ class GBH_Booking {
     }
 
     public function handle_logout() {
+        delete_option('gbh_medewerker_token');
         setcookie('gbh_medewerker', '', time() - 3600, '/', '', false, true);
         wp_send_json_success('Uitgelogd');
     }
@@ -223,12 +225,12 @@ document.addEventListener("DOMContentLoaded", function() {
             // Klantenbeheer
             global $wpdb;
             $klanten = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_klanten ORDER BY naam ASC");
-            $current_user = wp_get_current_user();
+            $medewerker_naam = get_option('gbh_medewerker_user', 'medewerker');
 
             echo '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">';
             echo '<h2 style="color:#7d3c98;margin:0;">Klantenbeheer</h2>';
             echo '<div>';
-            echo '<span style="margin-right:16px;font-size:14px;color:#666;">Ingelogd als: <strong>' . esc_html($current_user->display_name) . '</strong></span>';
+            echo '<span style="margin-right:16px;font-size:14px;color:#666;">Ingelogd als: <strong>' . esc_html($medewerker_naam) . '</strong></span>';
             echo '<button type="button" id="gbh-logout-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Uitloggen</button>';
             echo '</div>';
             echo '</div>';
@@ -624,7 +626,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     let startTs = new Date("1970-01-01T" + dayTimes.start + ":00");
                     let endTs = new Date("1970-01-01T" + dayTimes.end + ":00");
                     let allSlots = [];
-                    for (let t = new Date(startTs); t <= endTs; t.setMinutes(t.getMinutes() + 15)) {
+                    for (let t = new Date(startTs); t < endTs; t.setMinutes(t.getMinutes() + 15)) {
                         let h = String(t.getHours()).padStart(2, "0");
                         let m = String(t.getMinutes()).padStart(2, "0");
                         allSlots.push(h + ":" + m);
@@ -890,13 +892,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const telCijfers = telefoon.replace(/[\s\-]/g, "");
             const telInput = document.getElementById("gbh-telefoon");
-           if (telCijfers[0] !== "0") {
-                telInput.setCustomValidity("Een telefoonnummer begint altijd met een 0.");
-                telInput.reportValidity();
-                return;
-            }
-            if (!/^\d{10}$/.test(telCijfers)) {
-                telInput.setCustomValidity("Geef een volledig telefoonnummer van 10 cijfers.");
+          if (telCijfers[0] !== "0" || !/^\d{10}$/.test(telCijfers)) {
+                telInput.setCustomValidity("Geef een Nederlands telefoonnummer van 10 cijfers, beginnend met 0.");
                 telInput.reportValidity();
                 return;
             }
@@ -1167,7 +1164,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Herinnering inplannen
-        $afspraak_timestamp    = strtotime($datum . ' ' . $tijd);
+        $afspraak_timestamp    = get_gmt_from_date($datum . ' ' . $tijd, 'U');
         $herinnering_timestamp = $afspraak_timestamp - (24 * 60 * 60);
         if ($herinnering_timestamp > time()) {
             wp_schedule_single_event($herinnering_timestamp, 'gbh_stuur_herinnering', [$boeking_id, $email, $naam, $datum, $tijd, $behandelingen]);
