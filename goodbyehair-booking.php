@@ -486,22 +486,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const tr = document.createElement("tr");
                 tr.style.borderBottom = "1px solid #eee";
                 tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
-                tr.querySelector("button").addEventListener("click", function() {
-                    if (!confirm("Blokkade verwijderen?")) return;
-                    const delData = new FormData();
-                    delData.append("action", "gbh_blokkade_verwijderen");
-                    delData.append("gbh_nonce", gbhNonce);
-                    delData.append("id", nieuweId);
-                    fetch(ajaxUrl, { method: "POST", body: delData })
-                    .then(r => r.json())
-                    .then(function(delRes) {
-                        if (delRes.success) {
-                            tr.remove();
-                            msg.style.color = "#2e7d32";
-                            msg.textContent = "Blokkade verwijderd.";
-                        }
-                    });
-                });
+                koppelVerwijderKnop(tr.querySelector("button"), tr, nieuweId);
                 tbl.appendChild(tr);
                 huidigeDatum2.setDate(huidigeDatum2.getDate() + 1);
                 i++;
