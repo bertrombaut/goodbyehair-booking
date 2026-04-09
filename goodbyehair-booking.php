@@ -431,7 +431,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (lijst) lijst.innerHTML = "<p style=\"color:#2e7d32;font-size:14px;\">Opgeslagen. Herlaad de pagina om de volledige lijst te zien.</p>";
         });
     });
-    document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
+   document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
         btn.addEventListener("click", function() {
             if (!confirm("Blokkade verwijderen?")) return;
             const data = new FormData();
@@ -440,7 +440,14 @@ document.addEventListener("DOMContentLoaded", function() {
             data.append("id", btn.dataset.id);
             fetch(ajaxUrl, { method: "POST", body: data })
             .then(r => r.json())
-            .then(res => { if (res.success) location.reload(); });
+            .then(res => {
+                if (res.success) {
+                    btn.closest("tr").remove();
+                    const msg = document.getElementById("gbh-blok-msg");
+                    msg.style.color = "#2e7d32";
+                    msg.textContent = "Blokkade verwijderd.";
+                }
+            });
         });
     });
 
