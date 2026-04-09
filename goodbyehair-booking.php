@@ -85,6 +85,9 @@ class GBH_Booking {
     // KLANT ZOEKEN VIA AJAX
     // -------------------------
     public function zoek_klant() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
         global $wpdb;
         $email = sanitize_email($_POST['email'] ?? '');
         if (!$email) wp_send_json_error('Geen email');
@@ -138,7 +141,10 @@ class GBH_Booking {
     // -------------------------
     // KLANT OPSLAAN (medewerker)
     // -------------------------
-    public function klant_opslaan() {
+   public function klant_opslaan() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
         if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
             wp_send_json_error('Geen toegang.');
         }
@@ -160,6 +166,9 @@ class GBH_Booking {
     // KLANT VERWIJDEREN (medewerker)
     // -------------------------
     public function klant_verwijderen() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
         if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
             wp_send_json_error('Geen toegang.');
         }
@@ -174,6 +183,7 @@ class GBH_Booking {
     // -------------------------
     public function render_medewerker() {
         $ajax_url = esc_url(admin_url('admin-ajax.php'));
+        $nonce = wp_create_nonce('gbh_ajax_nonce');
         ob_start();
         echo '<div id="gbh-medewerker-wrap">';
 
@@ -275,10 +285,12 @@ document.addEventListener("DOMContentLoaded", function() {
             echo '<script>
 document.addEventListener("DOMContentLoaded", function() {
     const ajaxUrl = "' . $ajax_url . '";
+    const gbhNonce = "' . $nonce . '";
 
     document.getElementById("gbh-logout-btn").addEventListener("click", function() {
         const data = new FormData();
         data.append("action", "gbh_logout");
+        data.append("gbh_nonce", gbhNonce);
         fetch(ajaxUrl, { method: "POST", body: data })
         .then(() => {
             document.cookie = "gbh_medewerker=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -299,8 +311,9 @@ document.addEventListener("DOMContentLoaded", function() {
         const telefoon = document.getElementById("gbh-nieuw-telefoon").value.trim();
         const msg = document.getElementById("gbh-nieuw-msg");
         if (!naam || !email) { msg.style.color = "#c62828"; msg.textContent = "Vul naam en email in."; return; }
-        const data = new FormData();
+       const data = new FormData();
         data.append("action", "gbh_klant_opslaan");
+        data.append("gbh_nonce", gbhNonce);
         data.append("naam", naam);
         data.append("email", email);
         data.append("telefoon", telefoon);
@@ -329,6 +342,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const telefoon = form.querySelector(".gbh-edit-telefoon").value.trim();
             const data = new FormData();
             data.append("action", "gbh_klant_opslaan");
+            data.append("gbh_nonce", gbhNonce);
             data.append("id", id);
             data.append("naam", naam);
             data.append("email", email);
@@ -1074,6 +1088,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     public function save_booking() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
         global $wpdb;
         $table   = $wpdb->prefix . 'gbh_bookings';
         $klanten = $wpdb->prefix . 'gbh_klanten';
