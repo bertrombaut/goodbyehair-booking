@@ -493,7 +493,8 @@ gbhKoppelLogin();
             echo '</div>';
 
             echo '<script>
-document.addEventListener("DOMContentLoaded", function() {
+function gbhKoppelKlanten() {
+    if (!document.getElementById("gbh-logout-btn")) { setTimeout(gbhKoppelKlanten, 100); return; }
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
 
@@ -695,7 +696,8 @@ document.querySelectorAll(".gbh-annuleer-btn").forEach(function(btn) {
             .then(res => { if (res.success) location.reload(); });
         });
     });
-});
+}
+gbhKoppelKlanten();
 </script>';
         }
 
