@@ -344,7 +344,9 @@ document.addEventListener("DOMContentLoaded", function() {
             $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades ORDER BY datum ASC, tijd_van ASC");
             $times_instelling = get_option('gbh_times', []);
 
-            echo '<div style="margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
+            echo '<div style="margin-bottom:20px;"><button type="button" id="gbh-blok-toggle" style="padding:8px 16px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Tijd blokkeren</button></div>';
+
+            echo '<div id="gbh-blok-paneel" style="display:none;margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
             echo '<h3 style="color:#c62828;margin-top:0;">Tijd blokkeren</h3>';
             echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">';
             echo '<div><label style="font-size:13px;">Datum<br><input type="date" id="gbh-blok-datum" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
@@ -385,6 +387,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const gbhNonce = "' . $nonce . '";
 
     document.getElementById("gbh-blok-heledag").addEventListener("change", function() {
+    document.getElementById("gbh-blok-toggle").addEventListener("click", function() {
+        const paneel = document.getElementById("gbh-blok-paneel");
+        paneel.style.display = paneel.style.display === "none" ? "block" : "none";
+    });
         document.getElementById("gbh-blok-tijden").style.display = this.checked ? "none" : "flex";
     });
 
