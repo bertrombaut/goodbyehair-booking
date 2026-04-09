@@ -216,7 +216,7 @@ class GBH_Booking {
 
     public function handle_logout() {
         delete_option('gbh_medewerker_token');
-        setcookie('gbh_medewerker', '', time() - 3600, '/', '', false, true);
+        setcookie('gbh_medewerker', '', time() - 3600, '/', '', false, false);
         wp_send_json_success('Uitgelogd');
     }
 
