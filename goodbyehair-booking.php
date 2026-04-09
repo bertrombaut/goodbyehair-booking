@@ -472,11 +472,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (geenMsg) {
                 document.getElementById("gbh-blokkades-lijst").innerHTML = "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\"><thead><tr style=\"background:#fdecea;\"><th style=\"padding:8px;text-align:left;\">Datum</th><th style=\"padding:8px;text-align:left;\">Tijd</th><th style=\"padding:8px;\"></th></tr></thead><tbody></tbody></table>";
             }
-            const tbl = document.querySelector("#gbh-blokkades-lijst tbody");
-            results.forEach(function(res) {
-                const id = res.data.id;
-                const d = res.data.id ? res.data : null;
-            });
+           const tbl = document.querySelector("#gbh-blokkades-lijst tbody");
+            let huidigeDatum2 = new Date(datum_van);
             let huidigeDatum2 = new Date(datum_van);
             const stopDatum2 = new Date(eindDatum);
             let i = 0;
