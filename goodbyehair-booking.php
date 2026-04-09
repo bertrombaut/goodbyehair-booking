@@ -1433,6 +1433,11 @@ function positionSummary() {
 
         $wpdb->delete($table, ['id' => $id]);
 
+        $timestamp = wp_next_scheduled('gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, '']);
+        if ($timestamp) {
+            wp_unschedule_event($timestamp, 'gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, '']);
+        }
+
         if ($email) {
             $onderwerp = 'Afspraak geannuleerd - GoodByeHair';
             $bericht  = "Beste " . $naam . ",\n\n";
