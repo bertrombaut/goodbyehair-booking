@@ -221,8 +221,7 @@ class GBH_Booking {
     }
 
         public function handle_login() {
-    error_log('GBH LOGIN POGING: ' . json_encode($_POST));
-    if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
         wp_send_json_error('Ongeldige aanvraag.');
     }
 
@@ -303,7 +302,6 @@ public function handle_logout() {
         setcookie('gbh_medewerker', '', $cookie_opties);
     }
 
-    error_log('GBH LOGIN SUCCESS, cookie gezet');
     wp_send_json_success('Ingelogd');
 }
     // -------------------------
