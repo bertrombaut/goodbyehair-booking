@@ -347,7 +347,12 @@ public function handle_logout() {
         }
         global $wpdb;
         $id = intval($_POST['id'] ?? 0);
-        $wpdb->delete($wpdb->prefix . 'gbh_bookings', ['klant_id' => $id]);
+        $aantal = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}gbh_bookings WHERE klant_id = %d", $id
+        ));
+        if ($aantal > 0) {
+            wp_send_json_error('Deze klant heeft nog ' . $aantal . ' afspraak/afspraken. Verwijder eerst de afspraken.');
+        }
         $wpdb->delete($wpdb->prefix . 'gbh_klanten', ['id' => $id]);
         wp_send_json_success('Verwijderd.');
     }
