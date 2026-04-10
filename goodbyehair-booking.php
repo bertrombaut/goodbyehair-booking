@@ -1448,10 +1448,12 @@ function positionSummary() {
 
         $wpdb->delete($table, ['id' => $id]);
 
-        $timestamp = wp_next_scheduled('gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, '']);
-        if ($timestamp) {
-            wp_unschedule_event($timestamp, 'gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, '']);
-        }
+        $boek = $wpdb->get_row($wpdb->prepare("SELECT behandelingen FROM {$wpdb->prefix}gbh_bookings WHERE id = %d", $id));
+$behandelingen_annuleer = $boek ? $boek->behandelingen : '';
+$timestamp = wp_next_scheduled('gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, $behandelingen_annuleer]);
+if ($timestamp) {
+    wp_unschedule_event($timestamp, 'gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, $behandelingen_annuleer]);
+}
 
         if ($email) {
             $onderwerp = 'Afspraak geannuleerd - GoodByeHair';
