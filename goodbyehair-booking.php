@@ -230,9 +230,16 @@ class GBH_Booking {
     $opgeslagen_user = strtolower(get_option('gbh_medewerker_user', ''));
     $opgeslagen_pass = get_option('gbh_medewerker_pass', '');
 
+    $pogingen_key = 'gbh_login_pogingen_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
+    $pogingen = (int) get_transient($pogingen_key);
+    if ($pogingen >= 5) {
+        wp_send_json_error('Te veel inlogpogingen. Probeer het over 15 minuten opnieuw.');
+    }
     if ($username !== $opgeslagen_user || !password_verify($password, $opgeslagen_pass)) {
+        set_transient($pogingen_key, $pogingen + 1, 15 * 60);
         wp_send_json_error('Gebruikersnaam of wachtwoord onjuist.');
     }
+    delete_transient($pogingen_key);
 
     $session_id = bin2hex(random_bytes(16));
     $token      = bin2hex(random_bytes(32));
