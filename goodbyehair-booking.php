@@ -1500,11 +1500,28 @@ if ($timestamp) {
             wp_send_json_error('Vul alle verplichte velden in.');
         }
 
-        $bezet = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM $table WHERE datum = %s AND tijd = %s",
-            $datum, $tijd
+        $slots_nodig  = ceil($behandeltijd / 15) + 1;
+        $nieuwe_start = strtotime('1970-01-01 ' . $tijd);
+        $nieuwe_eind  = $nieuwe_start + ($slots_nodig * 15 * 60);
+        $bestaande    = $wpdb->get_results($wpdb->prepare(
+            "SELECT tijd, behandeltijd FROM $table WHERE datum = %s", $datum
         ));
-        if ($bezet > 0) {
+        $blokkades    = $wpdb->get_results($wpdb->prepare(
+            "SELECT hele_dag, tijd_van, tijd_tot FROM {$wpdb->prefix}gbh_blokkades WHERE datum = %s", $datum
+        ));
+        $bezet = false;
+        foreach ($bestaande as $b) {
+            $b_start = strtotime('1970-01-01 ' . substr($b->tijd, 0, 5));
+            $b_eind  = $b_start + ((ceil($b->behandeltijd / 15) + 1) * 15 * 60);
+            if ($nieuwe_start < $b_eind && $nieuwe_eind > $b_start) { $bezet = true; break; }
+        }
+        foreach ($blokkades as $bl) {
+            if ($bl->hele_dag) { $bezet = true; break; }
+            $bl_start = strtotime('1970-01-01 ' . substr($bl->tijd_van, 0, 5));
+            $bl_eind  = strtotime('1970-01-01 ' . substr($bl->tijd_tot, 0, 5));
+            if ($nieuwe_start < $bl_eind && $nieuwe_eind > $bl_start) { $bezet = true; break; }
+        }
+        if ($bezet) {
             wp_send_json_error('Dit tijdslot is helaas net bezet geraakt. Kies een ander tijdstip.');
         }
 
