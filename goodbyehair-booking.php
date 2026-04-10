@@ -79,7 +79,6 @@ class GBH_Booking {
         add_action('wp_ajax_gbh_save_booking', [$this, 'save_booking']);
         add_action('wp_ajax_nopriv_gbh_save_booking', [$this, 'save_booking']);
         add_action('wp_ajax_gbh_zoek_klant', [$this, 'zoek_klant']);
-        add_action('wp_ajax_nopriv_gbh_zoek_klant', [$this, 'zoek_klant']);
         add_action('wp_ajax_gbh_login', [$this, 'handle_login']);
         add_action('wp_ajax_nopriv_gbh_login', [$this, 'handle_login']);
         add_action('wp_ajax_gbh_logout', [$this, 'handle_logout']);
@@ -165,28 +164,12 @@ class GBH_Booking {
             'geblokkeerde_slots' => $geblokkeerde_slots,
         ]);
     }
-    // -------------------------
+   // -------------------------
     // KLANT ZOEKEN VIA AJAX
     // -------------------------
     public function zoek_klant() {
-        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
-            wp_send_json_error('Ongeldige aanvraag.');
-        }
-        global $wpdb;
-        $email = sanitize_email($_POST['email'] ?? '');
-        if (!$email) wp_send_json_error('Geen email');
-        $klant = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}gbh_klanten WHERE email = %s",
-            $email
-        ));
-        if ($klant) {
-            wp_send_json_success([
-                'gevonden' => true,
-                'naam'     => $klant->naam,
-                'telefoon' => $klant->telefoon,
-            ]);
-        } else {
-            wp_send_json_success(['gevonden' => false]);
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Geen toegang.');
         }
     }
 
