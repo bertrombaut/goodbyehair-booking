@@ -309,7 +309,7 @@ public function handle_logout() {
         setcookie('gbh_medewerker', '', $cookie_opties);
     }
 
-    wp_send_json_success('Ingelogd');
+    wp_send_json_success('Uitgelogd');
 }
     // -------------------------
     // KLANT OPSLAAN (medewerker)
