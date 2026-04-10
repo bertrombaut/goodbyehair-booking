@@ -1187,7 +1187,7 @@ function positionSummary() {
         });
     }
 
-    // Klantherkenning via email
+    // Klantherkenning via localStorage
     const emailInput = document.getElementById("gbh-email");
     const telefoonInput = document.getElementById("gbh-telefoon");
     if (telefoonInput) {
@@ -1195,43 +1195,16 @@ function positionSummary() {
             telefoonInput.setCustomValidity("");
         });
     }
-    if (emailInput) {
-        emailInput.addEventListener("input", function () {
-            clearTimeout(emailTimer);
-            const email = emailInput.value.trim();
-            const status = document.getElementById("gbh-email-status");
-            const welkom = document.getElementById("gbh-welkom");
-            if (!email || !email.includes("@")) {
-                status.textContent = "";
-                welkom.style.display = "none";
-                return;
-            }
-            status.textContent = "Zoeken...";
-            emailTimer = setTimeout(function () {
-                const data = new FormData();
-                data.append("action", "gbh_zoek_klant");
-                data.append("gbh_nonce", gbhNonce);
-                data.append("email", email);
-                fetch(ajaxUrl, { method: "POST", body: data })
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success && res.data.gevonden) {
-                        document.getElementById("gbh-naam").value = res.data.naam;
-                        document.getElementById("gbh-telefoon").value = res.data.telefoon;
-                        status.style.color = "#2e7d32";
-                        status.textContent = "✓ Bekend";
-                        welkom.style.display = "block";
-                        welkom.textContent = "Welkom terug, " + res.data.naam + "! Je gegevens zijn ingevuld.";
-                    } else {
-                        document.getElementById("gbh-naam").value = "";
-                        document.getElementById("gbh-telefoon").value = "";
-                        status.style.color = "#999";
-                        status.textContent = "Nieuw";
-                        welkom.style.display = "none";
-                    }
-                });
-            }, 600);
-        });
+    const gbhOpgeslaanNaam     = localStorage.getItem('gbh_naam');
+    const gbhOpgeslaanEmail    = localStorage.getItem('gbh_email');
+    const gbhOpgeslaanTelefoon = localStorage.getItem('gbh_telefoon');
+    if (gbhOpgeslaanNaam && gbhOpgeslaanEmail) {
+        document.getElementById("gbh-naam").value     = gbhOpgeslaanNaam;
+        document.getElementById("gbh-email").value    = gbhOpgeslaanEmail;
+        document.getElementById("gbh-telefoon").value = gbhOpgeslaanTelefoon;
+        const welkom = document.getElementById("gbh-welkom");
+        welkom.style.display = "block";
+        welkom.textContent = "Welkom terug, " + gbhOpgeslaanNaam + "! Je gegevens zijn ingevuld.";
     }
 
     const backStep3Button = document.getElementById("gbh-back-step3");
@@ -1283,6 +1256,9 @@ function positionSummary() {
             .then(function (r) { return r.json(); })
             .then(function (response) {
               if (response.success) {
+                    localStorage.setItem('gbh_naam', naam);
+                    localStorage.setItem('gbh_email', email);
+                    localStorage.setItem('gbh_telefoon', telefoon);
                     step3.innerHTML = "<div style=\"padding:20px;border:1px solid #ccc;border-radius:10px;max-width:400px;\"><h2>Afspraak bevestigd!</h2><p>Bedankt " + naam + ", je afspraak op " + formatDatum(datum) + " om " + tijd + " is vastgelegd.</p></div>";
                 } else {
                     alert("Er ging iets mis: " + response.data);
