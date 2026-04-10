@@ -1457,6 +1457,10 @@ function positionSummary() {
        if (!$naam || !$email || !$datum || !$tijd) {
             wp_send_json_error('Vul alle verplichte velden in.');
         }
+        $tel_cijfers = preg_replace('/[\s\-]/', '', $telefoon);
+        if (!preg_match('/^0\d{9}$/', $tel_cijfers)) {
+            wp_send_json_error('Geef een geldig Nederlands telefoonnummer van 10 cijfers, beginnend met 0.');
+        }
 
         $slots_nodig  = ceil($behandeltijd / 15) + 1;
         $nieuwe_start = strtotime('1970-01-01 ' . $tijd);
