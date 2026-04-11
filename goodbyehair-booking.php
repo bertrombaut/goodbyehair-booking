@@ -696,7 +696,7 @@ document.querySelectorAll(".gbh-annuleer-btn").forEach(function(btn) {
             .then(res => { if (res.success) location.reload(); });
         });
     });
-}, 500);
+});
 </script>';
         }
 
