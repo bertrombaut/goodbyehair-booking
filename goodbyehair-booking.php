@@ -494,7 +494,7 @@ gbhKoppelLogin();
             echo '</div>';
 
             echo '<script>
-setTimeout(function() {
+document.addEventListener("DOMContentLoaded", function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
 
