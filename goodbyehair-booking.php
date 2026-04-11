@@ -116,6 +116,24 @@ class GBH_Booking {
         $tijd_tot  = sanitize_text_field($_POST['tijd_tot'] ?? '');
         if (!$datum) wp_send_json_error('Kies een datum.');
         if (!$hele_dag && (!$tijd_van || !$tijd_tot)) wp_send_json_error('Vul een tijd van en tot in.');
+        $bestaande = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}gbh_blokkades WHERE datum = %s", $datum
+        ));
+        foreach ($bestaande as $bl) {
+            if ($bl->hele_dag) {
+                wp_send_json_error('Deze dag is al volledig geblokkeerd.');
+            }
+            if ($hele_dag) {
+                wp_send_json_error('Er bestaan al tijdblokken op deze dag. Verwijder die eerst.');
+            }
+            $bestaand_van = strtotime('1970-01-01 ' . substr($bl->tijd_van, 0, 5));
+            $bestaand_tot = strtotime('1970-01-01 ' . substr($bl->tijd_tot, 0, 5));
+            $nieuw_van    = strtotime('1970-01-01 ' . $tijd_van);
+            $nieuw_tot    = strtotime('1970-01-01 ' . $tijd_tot);
+            if ($nieuw_van < $bestaand_tot && $nieuw_tot > $bestaand_van) {
+                wp_send_json_error('Dit tijdblok overlapt met een bestaande blokkade.');
+            }
+        }
         $wpdb->insert($wpdb->prefix . 'gbh_blokkades', [
             'datum'    => $datum,
             'hele_dag' => $hele_dag,
