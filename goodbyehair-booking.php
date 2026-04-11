@@ -1199,9 +1199,9 @@ function positionSummary() {
             telefoonInput.setCustomValidity("");
         });
     }
-    const gbhOpgeslaanNaam     = localStorage.getItem('gbh_naam');
-    const gbhOpgeslaanEmail    = localStorage.getItem('gbh_email');
-    const gbhOpgeslaanTelefoon = localStorage.getItem('gbh_telefoon');
+    const gbhOpgeslaanNaam     = localStorage.getItem("gbh_naam");
+    const gbhOpgeslaanEmail    = localStorage.getItem("gbh_email");
+    const gbhOpgeslaanTelefoon = localStorage.getItem("gbh_telefoon");
     if (gbhOpgeslaanNaam && gbhOpgeslaanEmail) {
         document.getElementById("gbh-naam").value     = gbhOpgeslaanNaam;
         document.getElementById("gbh-email").value    = gbhOpgeslaanEmail;
