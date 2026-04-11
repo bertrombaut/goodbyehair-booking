@@ -1260,9 +1260,9 @@ function positionSummary() {
             .then(function (r) { return r.json(); })
             .then(function (response) {
               if (response.success) {
-                    localStorage.setItem('gbh_naam', naam);
-                    localStorage.setItem('gbh_email', email);
-                    localStorage.setItem('gbh_telefoon', telefoon);
+                    localStorage.setItem("gbh_naam", naam);
+                    localStorage.setItem("gbh_email", email);
+                    localStorage.setItem("gbh_telefoon", telefoon);
                     step3.innerHTML = "<div style=\"padding:20px;border:1px solid #ccc;border-radius:10px;max-width:400px;\"><h2>Afspraak bevestigd!</h2><p>Bedankt " + naam + ", je afspraak op " + formatDatum(datum) + " om " + tijd + " is vastgelegd.</p></div>";
                 } else {
                     alert("Er ging iets mis: " + response.data);
