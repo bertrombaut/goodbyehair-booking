@@ -78,7 +78,6 @@ class GBH_Booking {
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_ajax_gbh_save_booking', [$this, 'save_booking']);
         add_action('wp_ajax_nopriv_gbh_save_booking', [$this, 'save_booking']);
-        add_action('wp_ajax_gbh_zoek_klant', [$this, 'zoek_klant']);
         add_action('wp_ajax_gbh_login', [$this, 'handle_login']);
         add_action('wp_ajax_nopriv_gbh_login', [$this, 'handle_login']);
         add_action('wp_ajax_gbh_logout', [$this, 'handle_logout']);
@@ -182,16 +181,7 @@ class GBH_Booking {
             'geblokkeerde_slots' => $geblokkeerde_slots,
         ]);
     }
-   // -------------------------
-    // KLANT ZOEKEN VIA AJAX
-    // -------------------------
-    public function zoek_klant() {
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Geen toegang.');
-        }
-    }
-
-    // -------------------------
+     // -------------------------
     // LOGIN / LOGOUT (eigen systeem)
     // -------------------------
         private function gbh_is_ingelogd() {
