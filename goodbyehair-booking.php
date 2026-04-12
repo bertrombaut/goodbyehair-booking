@@ -1149,17 +1149,20 @@ document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
         });
     });
 
-    document.getElementById("gbh-nieuw-afspraak-sluiten").addEventListener("click", function() {
+    var sluitBtn = document.getElementById("gbh-nieuw-afspraak-sluiten");
+    if (sluitBtn) sluitBtn.addEventListener("click", function() {
         document.getElementById("gbh-nieuw-afspraak-popup").style.display = "none";
         document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "none";
     });
 
-    document.getElementById("gbh-nieuw-afspraak-overlay").addEventListener("click", function() {
+    var overlayNieuw = document.getElementById("gbh-nieuw-afspraak-overlay");
+    if (overlayNieuw) overlayNieuw.addEventListener("click", function() {
         document.getElementById("gbh-nieuw-afspraak-popup").style.display = "none";
         document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "none";
     });
 
-    document.getElementById("gbh-nieuw-afspraak-opslaan").addEventListener("click", function() {
+    var opslaanBtn = document.getElementById("gbh-nieuw-afspraak-opslaan");
+    if (opslaanBtn) opslaanBtn.addEventListener("click", function() {
         const naam = document.getElementById("gbh-nieuw-afspraak-naam").value.trim();
         const email = document.getElementById("gbh-nieuw-afspraak-email").value.trim();
         const telefoon = document.getElementById("gbh-nieuw-afspraak-telefoon").value.trim();
