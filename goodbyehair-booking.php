@@ -90,6 +90,9 @@ class GBH_Booking {
         add_action('wp_ajax_gbh_blokkade_verwijderen', [$this, 'blokkade_verwijderen']);
         add_action('wp_ajax_gbh_get_blokkades', [$this, 'get_blokkades']);
         add_action('wp_ajax_nopriv_gbh_get_blokkades', [$this, 'get_blokkades']);
+        add_action('wp_ajax_gbh_get_week_data', [$this, 'get_week_data']);
+        add_action('wp_ajax_gbh_wijzig_afspraak', [$this, 'wijzig_afspraak']);
+        add_action('wp_ajax_gbh_verwijder_afspraak', [$this, 'verwijder_afspraak']);
         add_filter('wp_mail_from', function($email) { return 'info@goodbyehair.nl'; });
         add_filter('wp_mail_from_name', function($name) { return 'Goodbyehair'; });
     }
@@ -97,6 +100,116 @@ class GBH_Booking {
    // -------------------------
     // BLOKKADE OPSLAAN
     // -------------------------
+
+     // -------------------------
+    // WEEK DATA OPHALEN
+    // -------------------------
+    public function get_week_data() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
+        if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
+            wp_send_json_error('Geen toegang.');
+        }
+        global $wpdb;
+        $week_start = sanitize_text_field($_POST['week_start'] ?? '');
+        if (!$week_start) wp_send_json_error('Geen datum.');
+
+        $week_end = date('Y-m-d', strtotime($week_start . ' +6 days'));
+
+        $afspraken = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}gbh_bookings WHERE datum >= %s AND datum <= %s ORDER BY datum ASC, tijd ASC",
+            $week_start, $week_end
+        ));
+
+        $blokkades = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}gbh_blokkades WHERE datum >= %s AND datum <= %s ORDER BY datum ASC, tijd_van ASC",
+            $week_start, $week_end
+        ));
+
+        wp_send_json_success([
+            'afspraken' => $afspraken,
+            'blokkades' => $blokkades,
+        ]);
+    }
+
+    // -------------------------
+    // AFSPRAAK WIJZIGEN
+    // -------------------------
+    public function wijzig_afspraak() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
+        if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
+            wp_send_json_error('Geen toegang.');
+        }
+        global $wpdb;
+        $id            = intval($_POST['id'] ?? 0);
+        $naam          = sanitize_text_field($_POST['naam'] ?? '');
+        $email         = sanitize_email($_POST['email'] ?? '');
+        $telefoon      = sanitize_text_field($_POST['telefoon'] ?? '');
+        $datum         = sanitize_text_field($_POST['datum'] ?? '');
+        $tijd          = sanitize_text_field($_POST['tijd'] ?? '');
+        $behandelingen = sanitize_text_field($_POST['behandelingen'] ?? '');
+        $behandeltijd  = intval($_POST['behandeltijd'] ?? 0);
+        $prijs         = floatval($_POST['prijs'] ?? 0);
+
+        if (!$id || !$naam || !$email || !$datum || !$tijd) {
+            wp_send_json_error('Vul alle velden in.');
+        }
+
+        $wpdb->update(
+            $wpdb->prefix . 'gbh_bookings',
+            compact('naam', 'email', 'telefoon', 'datum', 'tijd', 'behandelingen', 'behandeltijd', 'prijs'),
+            ['id' => $id],
+            ['%s', '%s', '%s', '%s', '%s', '%s', '%d', '%f'],
+            ['%d']
+        );
+
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+        $bericht  = '<img src="https://goodbyehair.nl/wp-content/uploads/2023/10/goodbyehair-2.png" alt="Goodbyehair" style="max-width:200px;margin-bottom:20px;"><br><br>';
+        $bericht .= "Beste " . $naam . ",<br><br>";
+        $bericht .= "Je afspraak is gewijzigd.<br><br>";
+        $bericht .= "Datum: " . date('d-m-Y', strtotime($datum)) . "<br>";
+        $bericht .= "Tijd: " . $tijd . "<br>";
+        $bericht .= "Behandelingen: " . $behandelingen . "<br>";
+        $bericht .= "Behandeltijd: " . $behandeltijd . " minuten<br><br>";
+        $bericht .= "Met vriendelijke groet,<br>Goodbyehair<br>Bergerhof 16<br>6871ZJ Renkum<br>06 22 438 738<br>info@goodbyehair.nl";
+        wp_mail($email, 'Wijziging afspraak GoodByeHair', $bericht, $headers);
+
+        wp_send_json_success('Afspraak gewijzigd.');
+    }
+
+    // -------------------------
+    // AFSPRAAK VERWIJDEREN
+    // -------------------------
+    public function verwijder_afspraak() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
+        if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
+            wp_send_json_error('Geen toegang.');
+        }
+        global $wpdb;
+        $id = intval($_POST['id'] ?? 0);
+        if (!$id) wp_send_json_error('Geen ID.');
+
+        $boek = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}gbh_bookings WHERE id = %d", $id
+        ));
+        if (!$boek) wp_send_json_error('Afspraak niet gevonden.');
+
+        $wpdb->delete($wpdb->prefix . 'gbh_bookings', ['id' => $id], ['%d']);
+
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+        $bericht  = "Beste " . $boek->naam . ",<br><br>";
+        $bericht .= "Je afspraak op " . date('d-m-Y', strtotime($boek->datum)) . " om " . substr($boek->tijd, 0, 5) . " is geannuleerd.<br><br>";
+        $bericht .= "Neem contact met ons op om een nieuwe afspraak te maken.<br><br>";
+        $bericht .= "Met vriendelijke groet,<br>Goodbyehair";
+        wp_mail($boek->email, 'Afspraak geannuleerd - GoodByeHair', $bericht, $headers);
+
+        wp_send_json_success('Afspraak verwijderd.');
+    }   
     public function blokkade_opslaan() {
         if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
             wp_send_json_error('Ongeldige aanvraag.');
@@ -503,10 +616,216 @@ gbhKoppelLogin();
             echo '</div>';
             echo '</div>'; // einde gbh-sectie-klanten
 
-            echo '<div id="gbh-sectie-agenda" style="display:none;">';
+           echo '<div id="gbh-sectie-agenda" style="display:none;">';
             echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
             echo '<h3 style="color:#1565c0;margin-top:0;">Agendaoverzicht</h3>';
-            echo '<p style="color:#999;">Weekkalender volgt in stap 2.</p>';
+
+            echo '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap;">';
+            echo '<div style="display:flex;gap:8px;">';
+            echo '<button type="button" id="gbh-week-prev" style="padding:8px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Vorige week</button>';
+            echo '<button type="button" id="gbh-week-next" style="padding:8px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Volgende week →</button>';
+            echo '</div>';
+            echo '<span id="gbh-week-label" style="font-weight:600;font-size:16px;"></span>';
+            echo '</div>';
+
+            echo '<div id="gbh-week-kalender" style="overflow-x:auto;"></div>';
+
+            echo '<div id="gbh-afspraak-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:2px solid #1565c0;border-radius:14px;padding:24px;z-index:9999;min-width:320px;max-width:500px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">';
+            echo '<h3 style="color:#1565c0;margin-top:0;" id="gbh-popup-titel">Afspraak bewerken</h3>';
+            echo '<input type="hidden" id="gbh-popup-id">';
+            echo '<div style="display:flex;flex-direction:column;gap:10px;">';
+            echo '<label style="font-size:13px;">Naam<br><input type="text" id="gbh-popup-naam" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Email<br><input type="email" id="gbh-popup-email" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Telefoon<br><input type="tel" id="gbh-popup-telefoon" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Datum<br><input type="date" id="gbh-popup-datum" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Tijd<br><input type="time" id="gbh-popup-tijd" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Behandelingen<br><input type="text" id="gbh-popup-behandelingen" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Behandeltijd (min)<br><input type="number" id="gbh-popup-behandeltijd" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Prijs (€)<br><input type="number" step="0.01" id="gbh-popup-prijs" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '</div>';
+            echo '<div id="gbh-popup-msg" style="margin-top:10px;font-size:13px;"></div>';
+            echo '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">';
+            echo '<button type="button" id="gbh-popup-opslaan" style="padding:10px 18px;border:0;border-radius:8px;background:#1565c0;color:#fff;cursor:pointer;font-weight:600;">Opslaan</button>';
+            echo '<button type="button" id="gbh-popup-verwijderen" style="padding:10px 18px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Verwijderen</button>';
+            echo '<button type="button" id="gbh-popup-sluiten" style="padding:10px 18px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Annuleren</button>';
+            echo '</div>';
+            echo '</div>';
+
+            echo '<div id="gbh-popup-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9998;"></div>';
+
+            echo '<script>
+(function() {
+    const ajaxUrl = "' . $ajax_url . '";
+    const gbhNonce = "' . $nonce . '";
+    const dagNamen = ["zo","ma","di","wo","do","vr","za"];
+    const dagLabels = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    function getMaandag(d) {
+        const dag = new Date(d);
+        const diff = dag.getDay() === 0 ? -6 : 1 - dag.getDay();
+        dag.setDate(dag.getDate() + diff);
+        dag.setHours(0,0,0,0);
+        return dag;
+    }
+
+    let huidigeMaandag = getMaandag(new Date());
+
+    function formatDatum(d) {
+        return String(d.getDate()).padStart(2,"0") + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + d.getFullYear();
+    }
+
+    function isoDate(d) {
+        return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    }
+
+    function laadWeek() {
+        const weekStart = isoDate(huidigeMaandag);
+        const zondag = new Date(huidigeMaandag);
+        zondag.setDate(zondag.getDate() + 6);
+        document.getElementById("gbh-week-label").textContent = formatDatum(huidigeMaandag) + " t/m " + formatDatum(zondag);
+
+        const data = new FormData();
+        data.append("action", "gbh_get_week_data");
+        data.append("gbh_nonce", gbhNonce);
+        data.append("week_start", weekStart);
+
+        fetch(ajaxUrl, { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (!res.success) return;
+            renderWeek(res.data.afspraken, res.data.blokkades);
+        });
+    }
+
+    function renderWeek(afspraken, blokkades) {
+        const wrap = document.getElementById("gbh-week-kalender");
+        let html = "<div style=\"display:grid;grid-template-columns:repeat(7,1fr);gap:6px;min-width:560px;\">";
+
+        for (let i = 0; i < 7; i++) {
+            const dag = new Date(huidigeMaandag);
+            dag.setDate(dag.getDate() + i);
+            const dagIso = isoDate(dag);
+            const isVandaag = dagIso === isoDate(today);
+
+            html += "<div style=\"border:1px solid " + (isVandaag ? "#1565c0" : "#ddd") + ";border-radius:10px;padding:8px;background:" + (isVandaag ? "#e3f0ff" : "#fff") + ";min-height:120px;\">";
+            html += "<div style=\"font-weight:600;font-size:13px;margin-bottom:6px;color:" + (isVandaag ? "#1565c0" : "#333") + ";\">" + dagLabels[i] + " " + formatDatum(dag) + "</div>";
+
+            afspraken.forEach(function(a) {
+                if (a.datum === dagIso) {
+                    html += "<div class=\"gbh-agenda-afspraak\" data-id=\"" + a.id + "\" data-naam=\"" + a.naam.replace(/"/g,"&quot;") + "\" data-email=\"" + a.email.replace(/"/g,"&quot;") + "\" data-telefoon=\"" + a.telefoon.replace(/"/g,"&quot;") + "\" data-datum=\"" + a.datum + "\" data-tijd=\"" + a.tijd.substring(0,5) + "\" data-behandelingen=\"" + a.behandelingen.replace(/"/g,"&quot;") + "\" data-behandeltijd=\"" + a.behandeltijd + "\" data-prijs=\"" + a.prijs + "\" style=\"background:#7d3c98;color:#fff;border-radius:6px;padding:6px 8px;margin-bottom:4px;font-size:12px;cursor:pointer;\">";
+                    html += "<strong>" + a.tijd.substring(0,5) + "</strong> " + a.naam + "<br><span style=\"font-size:11px;opacity:0.85;\">" + a.behandelingen + "</span>";
+                    html += "</div>";
+                }
+            });
+
+            blokkades.forEach(function(b) {
+                if (b.datum === dagIso) {
+                    const tijdStr = b.hele_dag == 1 ? "Hele dag" : b.tijd_van.substring(0,5) + " - " + b.tijd_tot.substring(0,5);
+                    html += "<div style=\"background:#fdecea;color:#c62828;border-radius:6px;padding:6px 8px;margin-bottom:4px;font-size:12px;\">🚫 " + tijdStr + "</div>";
+                }
+            });
+
+            html += "</div>";
+        }
+
+        html += "</div>";
+        wrap.innerHTML = html;
+
+        document.querySelectorAll(".gbh-agenda-afspraak").forEach(function(el) {
+            el.addEventListener("click", function() {
+                document.getElementById("gbh-popup-id").value = el.dataset.id;
+                document.getElementById("gbh-popup-naam").value = el.dataset.naam;
+                document.getElementById("gbh-popup-email").value = el.dataset.email;
+                document.getElementById("gbh-popup-telefoon").value = el.dataset.telefoon;
+                document.getElementById("gbh-popup-datum").value = el.dataset.datum;
+                document.getElementById("gbh-popup-tijd").value = el.dataset.tijd;
+                document.getElementById("gbh-popup-behandelingen").value = el.dataset.behandelingen;
+                document.getElementById("gbh-popup-behandeltijd").value = el.dataset.behandeltijd;
+                document.getElementById("gbh-popup-prijs").value = el.dataset.prijs;
+                document.getElementById("gbh-popup-msg").textContent = "";
+                document.getElementById("gbh-afspraak-popup").style.display = "block";
+                document.getElementById("gbh-popup-overlay").style.display = "block";
+            });
+        });
+    }
+
+    document.getElementById("gbh-week-prev").addEventListener("click", function() {
+        huidigeMaandag.setDate(huidigeMaandag.getDate() - 7);
+        laadWeek();
+    });
+
+    document.getElementById("gbh-week-next").addEventListener("click", function() {
+        huidigeMaandag.setDate(huidigeMaandag.getDate() + 7);
+        laadWeek();
+    });
+
+    document.getElementById("gbh-popup-sluiten").addEventListener("click", function() {
+        document.getElementById("gbh-afspraak-popup").style.display = "none";
+        document.getElementById("gbh-popup-overlay").style.display = "none";
+    });
+
+    document.getElementById("gbh-popup-overlay").addEventListener("click", function() {
+        document.getElementById("gbh-afspraak-popup").style.display = "none";
+        document.getElementById("gbh-popup-overlay").style.display = "none";
+    });
+
+    document.getElementById("gbh-popup-opslaan").addEventListener("click", function() {
+        const data = new FormData();
+        data.append("action", "gbh_wijzig_afspraak");
+        data.append("gbh_nonce", gbhNonce);
+        data.append("id", document.getElementById("gbh-popup-id").value);
+        data.append("naam", document.getElementById("gbh-popup-naam").value);
+        data.append("email", document.getElementById("gbh-popup-email").value);
+        data.append("telefoon", document.getElementById("gbh-popup-telefoon").value);
+        data.append("datum", document.getElementById("gbh-popup-datum").value);
+        data.append("tijd", document.getElementById("gbh-popup-tijd").value);
+        data.append("behandelingen", document.getElementById("gbh-popup-behandelingen").value);
+        data.append("behandeltijd", document.getElementById("gbh-popup-behandeltijd").value);
+        data.append("prijs", document.getElementById("gbh-popup-prijs").value);
+        fetch(ajaxUrl, { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            const msg = document.getElementById("gbh-popup-msg");
+            if (res.success) {
+                msg.style.color = "#2e7d32";
+                msg.textContent = "Opgeslagen!";
+                setTimeout(function() {
+                    document.getElementById("gbh-afspraak-popup").style.display = "none";
+                    document.getElementById("gbh-popup-overlay").style.display = "none";
+                    laadWeek();
+                }, 800);
+            } else {
+                msg.style.color = "#c62828";
+                msg.textContent = res.data;
+            }
+        });
+    });
+
+    document.getElementById("gbh-popup-verwijderen").addEventListener("click", function() {
+        if (!confirm("Weet je zeker dat je deze afspraak wilt verwijderen?")) return;
+        const data = new FormData();
+        data.append("action", "gbh_verwijder_afspraak");
+        data.append("gbh_nonce", gbhNonce);
+        data.append("id", document.getElementById("gbh-popup-id").value);
+        fetch(ajaxUrl, { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                document.getElementById("gbh-afspraak-popup").style.display = "none";
+                document.getElementById("gbh-popup-overlay").style.display = "none";
+                laadWeek();
+            }
+        });
+    });
+
+    document.getElementById("gbh-dash-agenda").addEventListener("click", function() {
+        laadWeek();
+    });
+})();
+</script>';
+
             echo '</div>';
 
             echo '<script>
