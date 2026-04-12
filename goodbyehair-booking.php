@@ -656,7 +656,7 @@ gbhKoppelLogin();
             echo '<script>
 (function() {
     const ajaxUrl = "' . $ajax_url . '";
-    const gbhNonce = "' . $nonce . '";
+    const gbhNonce = "' . wp_create_nonce('gbh_ajax_nonce') . '";
     const dagNamen = ["zo","ma","di","wo","do","vr","za"];
 
     window.gbhLaadWeek = function() { laadWeek(); };
