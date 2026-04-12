@@ -1128,18 +1128,18 @@ document.querySelectorAll(".gbh-annuleer-btn").forEach(function(btn) {
 
 document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
         btn.addEventListener("click", function() {
-            console.log("popup", document.getElementById("gbh-nieuw-afspraak-popup"));
-            console.log("overlay", document.getElementById("gbh-nieuw-afspraak-overlay"));
-            console.log("klantId", document.getElementById("gbh-nieuw-afspraak-klant-id"));
-            console.log("naam", document.getElementById("gbh-nieuw-afspraak-naam"));
-            console.log("email", document.getElementById("gbh-nieuw-afspraak-email"));
-            console.log("telefoon", document.getElementById("gbh-nieuw-afspraak-telefoon"));
-            console.log("datum", document.getElementById("gbh-nieuw-afspraak-datum"));
-            console.log("tijd", document.getElementById("gbh-nieuw-afspraak-tijd"));
-            console.log("msg", document.getElementById("gbh-nieuw-afspraak-msg"));
+            document.getElementById("gbh-nieuw-afspraak-klant-id").value = btn.dataset.id;
+            document.getElementById("gbh-nieuw-afspraak-naam").value = btn.dataset.naam;
+            document.getElementById("gbh-nieuw-afspraak-email").value = btn.dataset.email;
+            document.getElementById("gbh-nieuw-afspraak-telefoon").value = btn.dataset.telefoon;
+            document.getElementById("gbh-nieuw-afspraak-datum").value = "";
+            document.getElementById("gbh-nieuw-afspraak-tijd").value = "";
+            document.getElementById("gbh-nieuw-afspraak-msg").textContent = "";
+            document.querySelectorAll(".gbh-nieuw-behandeling").forEach(function(cb) { cb.checked = false; });
+            document.getElementById("gbh-nieuw-afspraak-popup").style.display = "block";
+            document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "block";
         });
     });
-
     var sluitBtn = document.getElementById("gbh-nieuw-afspraak-sluiten");
     if (sluitBtn) sluitBtn.addEventListener("click", function() {
         document.getElementById("gbh-nieuw-afspraak-popup").style.display = "none";
