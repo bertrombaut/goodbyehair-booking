@@ -392,23 +392,31 @@ function gbhKoppelLogin() {
 gbhKoppelLogin();
 </script>';
         } else {
-            // Klantenbeheer
+            // Dashboard
             global $wpdb;
             $klanten = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_klanten ORDER BY naam ASC");
             $medewerker_naam = get_option('gbh_medewerker_user', 'medewerker');
 
             echo '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">';
-            echo '<h2 style="color:#7d3c98;margin:0;">Klantenbeheer</h2>';
+            echo '<h2 style="color:#7d3c98;margin:0;">Dashboard</h2>';
             echo '<div style="display:flex;gap:10px;align-items:center;">';
-            echo '<button type="button" id="gbh-blok-toggle" style="padding:8px 16px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;font-weight:600;">Tijd blokkeren</button>';
-            echo '<span style="margin-right:16px;font-size:14px;color:#666;">Ingelogd als: <strong>' . esc_html($medewerker_naam) . '</strong></span>';
+            echo '<span style="font-size:14px;color:#666;">Ingelogd als: <strong>' . esc_html($medewerker_naam) . '</strong></span>';
             echo '<button type="button" id="gbh-logout-btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Uitloggen</button>';
             echo '</div>';
             echo '</div>';
 
+            echo '<div id="gbh-dashboard" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:30px;">';
+            echo '<button type="button" id="gbh-dash-blokkeren" style="padding:20px 30px;border:0;border-radius:12px;background:#c62828;color:#fff;cursor:pointer;font-size:16px;font-weight:600;">📅 Tijd blokkeren</button>';
+            echo '<button type="button" id="gbh-dash-klanten" style="padding:20px 30px;border:0;border-radius:12px;background:#7d3c98;color:#fff;cursor:pointer;font-size:16px;font-weight:600;">👥 Klantenbestand</button>';
+            echo '<button type="button" id="gbh-dash-agenda" style="padding:20px 30px;border:0;border-radius:12px;background:#1565c0;color:#fff;cursor:pointer;font-size:16px;font-weight:600;">🗓 Agendaoverzicht</button>';
+            echo '</div>';
+
+            echo '<div id="gbh-sectie-blokkeren" style="display:none;">';
+            echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
+
             // Blokkades paneel direct na header
             $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades ORDER BY datum ASC, tijd_van ASC");
-            echo '<div id="gbh-blok-paneel" style="display:none;margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
+            echo '<div id="gbh-blok-paneel" style="margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
             echo '<h3 style="color:#c62828;margin-top:0;">Tijd blokkeren</h3>';
             echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">';
             echo '<div><label style="font-size:13px;">Datum van<br><input type="date" id="gbh-blok-datum" style="padding:8px;border:1px solid #ccc;border-radius:8px;margin-top:4px;"></label></div>';
@@ -440,8 +448,12 @@ gbhKoppelLogin();
             } else {
                 echo '<p style="color:#999;font-size:14px;">Geen blokkades.</p>';
             }
+           echo '</div>';
             echo '</div>';
-            echo '</div>';
+            echo '</div>'; // einde gbh-sectie-blokkeren
+
+            echo '<div id="gbh-sectie-klanten" style="display:none;">';
+            echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
 
             // Nieuw klant formulier
             echo '<div style="margin-bottom:24px;padding:16px;border:2px solid #7d3c98;border-radius:12px;background:#faf5ff;">';
@@ -489,13 +501,41 @@ gbhKoppelLogin();
                 echo '<p style="color:#999;">Nog geen klanten gevonden.</p>';
             }
             echo '</div>';
+            echo '</div>'; // einde gbh-sectie-klanten
+
+            echo '<div id="gbh-sectie-agenda" style="display:none;">';
+            echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
+            echo '<h3 style="color:#1565c0;margin-top:0;">Agendaoverzicht</h3>';
+            echo '<p style="color:#999;">Weekkalender volgt in stap 2.</p>';
+            echo '</div>';
 
             echo '<script>
 document.addEventListener("DOMContentLoaded", function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
 
-   document.getElementById("gbh-blok-toggle").addEventListener("click", function() {
+    function toonSectie(id) {
+        document.getElementById("gbh-dashboard").style.display = "none";
+        document.getElementById("gbh-sectie-blokkeren").style.display = "none";
+        document.getElementById("gbh-sectie-klanten").style.display = "none";
+        document.getElementById("gbh-sectie-agenda").style.display = "none";
+        document.getElementById(id).style.display = "block";
+    }
+
+    document.getElementById("gbh-dash-blokkeren").addEventListener("click", function() { toonSectie("gbh-sectie-blokkeren"); });
+    document.getElementById("gbh-dash-klanten").addEventListener("click", function() { toonSectie("gbh-sectie-klanten"); });
+    document.getElementById("gbh-dash-agenda").addEventListener("click", function() { toonSectie("gbh-sectie-agenda"); });
+
+    document.querySelectorAll(".gbh-terug-dashboard").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            document.getElementById("gbh-sectie-blokkeren").style.display = "none";
+            document.getElementById("gbh-sectie-klanten").style.display = "none";
+            document.getElementById("gbh-sectie-agenda").style.display = "none";
+            document.getElementById("gbh-dashboard").style.display = "flex";
+        });
+    });
+
+   document.getElementById("gbh-blok-toggle") && document.getElementById("gbh-blok-toggle").addEventListener("click", function() {
         const paneel = document.getElementById("gbh-blok-paneel");
         paneel.style.display = paneel.style.display === "none" ? "block" : "none";
     });
