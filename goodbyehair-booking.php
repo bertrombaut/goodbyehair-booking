@@ -740,8 +740,7 @@ gbhKoppelLogin();
 (function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . wp_create_nonce('gbh_ajax_nonce') . '";
-    const dagNamen = ["zo","ma","di","wo","do","vr","za"];
-
+    
     window.gbhLaadWeek = function() { laadWeek(); };
 
     function toonSectie(id) {
@@ -937,9 +936,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById("gbh-dash-blokkeren").addEventListener("click", function() { toonSectie("gbh-sectie-blokkeren"); });
     document.getElementById("gbh-dash-klanten").addEventListener("click", function() { toonSectie("gbh-sectie-klanten"); });
-   document.getElementById("gbh-dash-agenda").addEventListener("click", function() { toonSectie("gbh-sectie-agenda"); });
-
-    document.querySelectorAll(".gbh-terug-dashboard").forEach(function(btn) {
+        document.querySelectorAll(".gbh-terug-dashboard").forEach(function(btn) {
         btn.addEventListener("click", function() {
             document.getElementById("gbh-sectie-blokkeren").style.display = "none";
             document.getElementById("gbh-sectie-klanten").style.display = "none";
@@ -948,12 +945,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-   document.getElementById("gbh-blok-toggle") && document.getElementById("gbh-blok-toggle").addEventListener("click", function() {
-        const paneel = document.getElementById("gbh-blok-paneel");
-        paneel.style.display = paneel.style.display === "none" ? "block" : "none";
-    });
-
-    document.getElementById("gbh-blok-sluiten").addEventListener("click", function() {
+       document.getElementById("gbh-blok-sluiten").addEventListener("click", function() {
         document.getElementById("gbh-blok-paneel").style.display = "none";
     });
 
@@ -1380,7 +1372,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const days = ' . json_encode(get_option('gbh_days', [])) . ';
     const times = ' . json_encode(get_option('gbh_times', [])) . ';
     const boekingenVastgesteld = ' . json_encode($bookings_list) . ';
-   let blokkadeSlots = [];
     let bookings = boekingenVastgesteld.slice();
     let geblokkeerde_dagen = ' . json_encode($geblokkeerde_dagen) . ';
     const gbhAjaxUrl = "' . $ajax_url . '";
