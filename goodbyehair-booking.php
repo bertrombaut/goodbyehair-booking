@@ -659,6 +659,8 @@ gbhKoppelLogin();
     const gbhNonce = "' . $nonce . '";
     const dagNamen = ["zo","ma","di","wo","do","vr","za"];
 
+    window.gbhLaadWeek = function() { laadWeek(); };
+
     function toonSectie(id) {
         document.getElementById("gbh-dashboard").style.display = "none";
         document.getElementById("gbh-sectie-blokkeren").style.display = "none";
@@ -852,7 +854,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById("gbh-dash-blokkeren").addEventListener("click", function() { toonSectie("gbh-sectie-blokkeren"); });
     document.getElementById("gbh-dash-klanten").addEventListener("click", function() { toonSectie("gbh-sectie-klanten"); });
-    document.getElementById("gbh-dash-agenda").addEventListener("click", function() { toonSectie("gbh-sectie-agenda"); });
+    document.getElementById("gbh-dash-agenda").addEventListener("click", function() { toonSectie("gbh-sectie-agenda"); if (window.gbhLaadWeek) window.gbhLaadWeek(); });
 
     document.querySelectorAll(".gbh-terug-dashboard").forEach(function(btn) {
         btn.addEventListener("click", function() {
