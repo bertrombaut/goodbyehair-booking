@@ -830,9 +830,9 @@ gbhKoppelLogin();
         });
     });
 
-   document.getElementById("gbh-dash-agenda").addEventListener("click", function() {
+  document.getElementById("gbh-dash-agenda").addEventListener("click", function() {
         toonSectie("gbh-sectie-agenda");
-        laadWeek();
+        window.gbhLaadWeek();
     });
 })();
 </script>';
@@ -854,7 +854,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById("gbh-dash-blokkeren").addEventListener("click", function() { toonSectie("gbh-sectie-blokkeren"); });
     document.getElementById("gbh-dash-klanten").addEventListener("click", function() { toonSectie("gbh-sectie-klanten"); });
-    document.getElementById("gbh-dash-agenda").addEventListener("click", function() { toonSectie("gbh-sectie-agenda"); if (window.gbhLaadWeek) window.gbhLaadWeek(); });
+   document.getElementById("gbh-dash-agenda").addEventListener("click", function() { toonSectie("gbh-sectie-agenda"); });
 
     document.querySelectorAll(".gbh-terug-dashboard").forEach(function(btn) {
         btn.addEventListener("click", function() {
