@@ -71,7 +71,7 @@ function gbh_create_tables() {
 
 class GBH_Booking {
 
-    public function __construct() {
+   public function __construct() {
         add_shortcode('gbh_booking', [$this, 'render']);
         add_shortcode('gbh_medewerker', [$this, 'render_medewerker']);
         add_action('admin_menu', [$this, 'admin_menu']);
@@ -83,16 +83,23 @@ class GBH_Booking {
         add_action('wp_ajax_gbh_logout', [$this, 'handle_logout']);
         add_action('wp_ajax_nopriv_gbh_logout', [$this, 'handle_logout']);
         add_action('wp_ajax_gbh_klant_opslaan', [$this, 'klant_opslaan']);
+        add_action('wp_ajax_nopriv_gbh_klant_opslaan', [$this, 'klant_opslaan']);
         add_action('wp_ajax_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
+        add_action('wp_ajax_nopriv_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
         add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 6);
         add_action('admin_post_gbh_annuleer', [$this, 'annuleer_boeking']);
         add_action('wp_ajax_gbh_blokkade_opslaan', [$this, 'blokkade_opslaan']);
+        add_action('wp_ajax_nopriv_gbh_blokkade_opslaan', [$this, 'blokkade_opslaan']);
         add_action('wp_ajax_gbh_blokkade_verwijderen', [$this, 'blokkade_verwijderen']);
+        add_action('wp_ajax_nopriv_gbh_blokkade_verwijderen', [$this, 'blokkade_verwijderen']);
         add_action('wp_ajax_gbh_get_blokkades', [$this, 'get_blokkades']);
         add_action('wp_ajax_nopriv_gbh_get_blokkades', [$this, 'get_blokkades']);
         add_action('wp_ajax_gbh_get_week_data', [$this, 'get_week_data']);
+        add_action('wp_ajax_nopriv_gbh_get_week_data', [$this, 'get_week_data']);
         add_action('wp_ajax_gbh_wijzig_afspraak', [$this, 'wijzig_afspraak']);
+        add_action('wp_ajax_nopriv_gbh_wijzig_afspraak', [$this, 'wijzig_afspraak']);
         add_action('wp_ajax_gbh_verwijder_afspraak', [$this, 'verwijder_afspraak']);
+        add_action('wp_ajax_nopriv_gbh_verwijder_afspraak', [$this, 'verwijder_afspraak']);
         add_filter('wp_mail_from', function($email) { return 'info@goodbyehair.nl'; });
         add_filter('wp_mail_from_name', function($name) { return 'Goodbyehair'; });
     }
