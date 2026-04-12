@@ -633,6 +633,7 @@ gbhKoppelLogin();
                     echo '</div>';
                     echo '<div style="display:flex;gap:8px;">';
                     echo '<button type="button" class="gbh-edit-btn" data-id="' . esc_attr($k->id) . '" style="padding:6px 14px;border:1px solid #7d3c98;border-radius:8px;background:#fff;color:#7d3c98;cursor:pointer;">Bewerken</button>';
+                    echo '<button type="button" class="gbh-afspraak-btn" data-id="' . esc_attr($k->id) . '" data-naam="' . esc_attr($k->naam) . '" data-email="' . esc_attr($k->email) . '" data-telefoon="' . esc_attr($k->telefoon) . '" style="padding:6px 14px;border:0;border-radius:8px;background:#1565c0;color:#fff;cursor:pointer;">Afspraak</button>';
                     echo '<button type="button" class="gbh-del-btn" data-id="' . esc_attr($k->id) . '" style="padding:6px 14px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;">Verwijderen</button>';
                     echo '</div>';
                     echo '</div>';
@@ -653,6 +654,50 @@ gbhKoppelLogin();
             }
             echo '</div>';
             echo '</div>'; // einde gbh-sectie-klanten
+
+        echo '<div id="gbh-afspraak-nieuw-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:2px solid #1565c0;border-radius:14px;padding:24px;z-index:9999;min-width:340px;max-width:560px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18);">';
+            echo '<h3 style="color:#1565c0;margin-top:0;">Nieuwe afspraak</h3>';
+            echo '<input type="hidden" id="gbh-nieuw-afspraak-klant-id">';
+            echo '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">';
+            echo '<label style="font-size:13px;">Naam<br><input type="text" id="gbh-nieuw-afspraak-naam" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Email<br><input type="email" id="gbh-nieuw-afspraak-email" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Telefoon<br><input type="tel" id="gbh-nieuw-afspraak-telefoon" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Datum<br><input type="date" id="gbh-nieuw-afspraak-datum" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '<label style="font-size:13px;">Tijd<br><input type="time" id="gbh-nieuw-afspraak-tijd" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
+            echo '</div>';
+            echo '<strong style="font-size:13px;">Behandelingen</strong>';
+            echo '<div style="display:flex;flex-direction:column;gap:4px;margin:8px 0 12px 0;">';
+            $behandelingen_lijst = [
+                'Gezicht' => [
+                    'Bovenlip' => [15, 19], 'Kin' => [15, 19], 'Kaaklijn' => [15, 35],
+                    'Nek' => [15, 25], 'Hals' => [15, 25], 'Wangen' => [15, 19], 'Gehele gezicht' => [20, 75],
+                ],
+                'Lichaam' => [
+                    'Oksels' => [20, 39], 'Onderarm' => [15, 49], 'Bovenarm' => [15, 49],
+                    'Armen geheel' => [30, 89], 'Borst' => [30, 35], 'Tepels rondom' => [15, 19],
+                    'Buik' => [20, 49], 'Navelstrook' => [20, 19], 'Onderrug' => [20, 49],
+                    'Bovenrug' => [20, 49], 'Rug geheel' => [30, 89], 'Bikinilijn klein' => [15, 25],
+                    'Bikinilijn groot' => [20, 55], 'Onderbenen' => [20, 65], 'Bovenbenen' => [20, 65],
+                    'Benen geheel' => [30, 119],
+                ],
+            ];
+            foreach ($behandelingen_lijst as $cat => $items) {
+                echo '<strong style="font-size:12px;color:#666;margin-top:6px;">' . esc_html($cat) . '</strong>';
+                foreach ($items as $naam => $info) {
+                    echo '<label style="font-size:13px;display:flex;align-items:center;gap:8px;">';
+                    echo '<input type="checkbox" class="gbh-nieuw-behandeling" data-naam="' . esc_attr($naam) . '" data-tijd="' . esc_attr($info[0]) . '" data-prijs="' . esc_attr($info[1]) . '"> ';
+                    echo esc_html($naam) . ' (' . esc_html($info[0]) . ' min) — €' . esc_html($info[1]);
+                    echo '</label>';
+                }
+            }
+            echo '</div>';
+            echo '<div id="gbh-nieuw-afspraak-msg" style="font-size:13px;margin-bottom:8px;"></div>';
+            echo '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+            echo '<button type="button" id="gbh-nieuw-afspraak-opslaan" style="padding:10px 18px;border:0;border-radius:8px;background:#1565c0;color:#fff;cursor:pointer;font-weight:600;">Afspraak maken</button>';
+            echo '<button type="button" id="gbh-nieuw-afspraak-sluiten" style="padding:10px 18px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Annuleren</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div id="gbh-nieuw-afspraak-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9998;"></div>';
 
            echo '<div id="gbh-sectie-agenda" style="display:none;">';
             echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
@@ -1086,6 +1131,78 @@ document.querySelectorAll(".gbh-annuleer-btn").forEach(function(btn) {
             fetch(ajaxUrl, { method: "POST", body: data })
             .then(r => r.json())
             .then(res => { if (res.success) location.reload(); });
+        });
+    });
+
+document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            document.getElementById("gbh-nieuw-afspraak-klant-id").value = btn.dataset.id;
+            document.getElementById("gbh-nieuw-afspraak-naam").value = btn.dataset.naam;
+            document.getElementById("gbh-nieuw-afspraak-email").value = btn.dataset.email;
+            document.getElementById("gbh-nieuw-afspraak-telefoon").value = btn.dataset.telefoon;
+            document.getElementById("gbh-nieuw-afspraak-datum").value = "";
+            document.getElementById("gbh-nieuw-afspraak-tijd").value = "";
+            document.getElementById("gbh-nieuw-afspraak-msg").textContent = "";
+            document.querySelectorAll(".gbh-nieuw-behandeling").forEach(function(cb) { cb.checked = false; });
+            document.getElementById("gbh-nieuw-afspraak-popup").style.display = "block";
+            document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "block";
+        });
+    });
+
+    document.getElementById("gbh-nieuw-afspraak-sluiten").addEventListener("click", function() {
+        document.getElementById("gbh-nieuw-afspraak-popup").style.display = "none";
+        document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "none";
+    });
+
+    document.getElementById("gbh-nieuw-afspraak-overlay").addEventListener("click", function() {
+        document.getElementById("gbh-nieuw-afspraak-popup").style.display = "none";
+        document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "none";
+    });
+
+    document.getElementById("gbh-nieuw-afspraak-opslaan").addEventListener("click", function() {
+        const naam = document.getElementById("gbh-nieuw-afspraak-naam").value.trim();
+        const email = document.getElementById("gbh-nieuw-afspraak-email").value.trim();
+        const telefoon = document.getElementById("gbh-nieuw-afspraak-telefoon").value.trim();
+        const datum = document.getElementById("gbh-nieuw-afspraak-datum").value;
+        const tijd = document.getElementById("gbh-nieuw-afspraak-tijd").value;
+        const msg = document.getElementById("gbh-nieuw-afspraak-msg");
+        const gekozen = [];
+        let behandeltijd = 0;
+        let prijs = 0;
+        document.querySelectorAll(".gbh-nieuw-behandeling").forEach(function(cb) {
+            if (cb.checked) {
+                gekozen.push(cb.dataset.naam);
+                behandeltijd += parseInt(cb.dataset.tijd);
+                prijs += parseFloat(cb.dataset.prijs);
+            }
+        });
+        if (!datum || !tijd) { msg.style.color = "#c62828"; msg.textContent = "Vul datum en tijd in."; return; }
+        if (gekozen.length === 0) { msg.style.color = "#c62828"; msg.textContent = "Kies minimaal één behandeling."; return; }
+        const data = new FormData();
+        data.append("action", "gbh_save_booking");
+        data.append("gbh_nonce", gbhNonce);
+        data.append("naam", naam);
+        data.append("email", email);
+        data.append("telefoon", telefoon);
+        data.append("datum", datum);
+        data.append("tijd", tijd);
+        data.append("behandelingen", gekozen.join(", "));
+        data.append("behandeltijd", behandeltijd);
+        data.append("prijs", prijs);
+        fetch(ajaxUrl, { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                msg.style.color = "#2e7d32";
+                msg.textContent = "Afspraak gemaakt!";
+                setTimeout(function() {
+                    document.getElementById("gbh-nieuw-afspraak-popup").style.display = "none";
+                    document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "none";
+                }, 1000);
+            } else {
+                msg.style.color = "#c62828";
+                msg.textContent = res.data;
+            }
         });
     });
 
