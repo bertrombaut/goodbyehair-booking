@@ -658,6 +658,14 @@ gbhKoppelLogin();
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
     const dagNamen = ["zo","ma","di","wo","do","vr","za"];
+
+    function toonSectie(id) {
+        document.getElementById("gbh-dashboard").style.display = "none";
+        document.getElementById("gbh-sectie-blokkeren").style.display = "none";
+        document.getElementById("gbh-sectie-klanten").style.display = "none";
+        document.getElementById("gbh-sectie-agenda").style.display = "none";
+        document.getElementById(id).style.display = "block";
+    }
     const dagLabels = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -820,7 +828,7 @@ gbhKoppelLogin();
         });
     });
 
-    document.getElementById("gbh-dash-agenda").addEventListener("click", function() {
+   document.getElementById("gbh-dash-agenda").addEventListener("click", function() {
         toonSectie("gbh-sectie-agenda");
         laadWeek();
     });
