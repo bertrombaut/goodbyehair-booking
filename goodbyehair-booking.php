@@ -637,10 +637,10 @@ gbhKoppelLogin();
 
             echo '<div id="gbh-week-kalender" style="overflow-x:auto;"></div>';
 
-            echo '<div id="gbh-afspraak-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:2px solid #1565c0;border-radius:14px;padding:24px;z-index:9999;min-width:320px;max-width:500px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">';
+           echo '<div id="gbh-afspraak-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:2px solid #1565c0;border-radius:14px;padding:24px;z-index:9999;min-width:320px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18);">';
             echo '<h3 style="color:#1565c0;margin-top:0;" id="gbh-popup-titel">Afspraak bewerken</h3>';
             echo '<input type="hidden" id="gbh-popup-id">';
-            echo '<div style="display:flex;flex-direction:column;gap:10px;">';
+            echo '<div style="display:flex;flex-direction:column;gap:6px;">';
             echo '<label style="font-size:13px;">Naam<br><input type="text" id="gbh-popup-naam" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
             echo '<label style="font-size:13px;">Email<br><input type="email" id="gbh-popup-email" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
             echo '<label style="font-size:13px;">Telefoon<br><input type="tel" id="gbh-popup-telefoon" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;margin-top:4px;"></label>';
