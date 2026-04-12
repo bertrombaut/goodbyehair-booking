@@ -1128,16 +1128,31 @@ document.querySelectorAll(".gbh-annuleer-btn").forEach(function(btn) {
 
 document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
         btn.addEventListener("click", function() {
-            document.getElementById("gbh-nieuw-afspraak-klant-id").value = btn.dataset.id;
-            document.getElementById("gbh-nieuw-afspraak-naam").value = btn.dataset.naam;
-            document.getElementById("gbh-nieuw-afspraak-email").value = btn.dataset.email;
-            document.getElementById("gbh-nieuw-afspraak-telefoon").value = btn.dataset.telefoon;
-            document.getElementById("gbh-nieuw-afspraak-datum").value = "";
-            document.getElementById("gbh-nieuw-afspraak-tijd").value = "";
-            document.getElementById("gbh-nieuw-afspraak-msg").textContent = "";
+            const popup = document.getElementById("gbh-nieuw-afspraak-popup");
+            const overlay = document.getElementById("gbh-nieuw-afspraak-overlay");
+            const klantId = document.getElementById("gbh-nieuw-afspraak-klant-id");
+            const naam = document.getElementById("gbh-nieuw-afspraak-naam");
+            const email = document.getElementById("gbh-nieuw-afspraak-email");
+            const telefoon = document.getElementById("gbh-nieuw-afspraak-telefoon");
+            const datum = document.getElementById("gbh-nieuw-afspraak-datum");
+            const tijd = document.getElementById("gbh-nieuw-afspraak-tijd");
+            const msg = document.getElementById("gbh-nieuw-afspraak-msg");
+
+            if (!popup || !overlay || !klantId || !naam || !email || !telefoon || !datum || !tijd || !msg) {
+                console.log("Popup elementen ontbreken");
+                return;
+            }
+
+            klantId.value = btn.dataset.id;
+            naam.value = btn.dataset.naam;
+            email.value = btn.dataset.email;
+            telefoon.value = btn.dataset.telefoon;
+            datum.value = "";
+            tijd.value = "";
+            msg.textContent = "";
             document.querySelectorAll(".gbh-nieuw-behandeling").forEach(function(cb) { cb.checked = false; });
-            document.getElementById("gbh-nieuw-afspraak-popup").style.display = "block";
-            document.getElementById("gbh-nieuw-afspraak-overlay").style.display = "block";
+            popup.style.display = "block";
+            overlay.style.display = "block";
         });
     });
 
