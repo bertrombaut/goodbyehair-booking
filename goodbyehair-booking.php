@@ -821,6 +821,7 @@ gbhKoppelLogin();
     });
 
     document.getElementById("gbh-dash-agenda").addEventListener("click", function() {
+        toonSectie("gbh-sectie-agenda");
         laadWeek();
     });
 })();
