@@ -744,12 +744,18 @@ gbhKoppelLogin();
     window.gbhLaadWeek = function() { laadWeek(); };
 
     function toonSectie(id) {
-        document.getElementById("gbh-dashboard").style.display = "none";
-        document.getElementById("gbh-sectie-blokkeren").style.display = "none";
-        document.getElementById("gbh-sectie-klanten").style.display = "none";
-        document.getElementById("gbh-sectie-agenda").style.display = "none";
-        document.getElementById(id).style.display = "block";
-    }
+    const dashboard = document.getElementById("gbh-dashboard");
+    const blokkeren = document.getElementById("gbh-sectie-blokkeren");
+    const klanten = document.getElementById("gbh-sectie-klanten");
+    const agenda = document.getElementById("gbh-sectie-agenda");
+    const doel = document.getElementById(id);
+
+    if (dashboard) dashboard.style.display = "none";
+    if (blokkeren) blokkeren.style.display = "none";
+    if (klanten) klanten.style.display = "none";
+    if (agenda) agenda.style.display = "none";
+    if (doel) doel.style.display = "block";
+}
     const dagLabels = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -927,22 +933,34 @@ gbhKoppelLogin();
     const gbhNonce = "' . $nonce . '";
 
     function toonSectie(id) {
-        document.getElementById("gbh-dashboard").style.display = "none";
-        document.getElementById("gbh-sectie-blokkeren").style.display = "none";
-        document.getElementById("gbh-sectie-klanten").style.display = "none";
-        document.getElementById("gbh-sectie-agenda").style.display = "none";
-        document.getElementById(id).style.display = "block";
-    }
+    const dashboard = document.getElementById("gbh-dashboard");
+    const blokkeren = document.getElementById("gbh-sectie-blokkeren");
+    const klanten = document.getElementById("gbh-sectie-klanten");
+    const agenda = document.getElementById("gbh-sectie-agenda");
+    const doel = document.getElementById(id);
+
+    if (dashboard) dashboard.style.display = "none";
+    if (blokkeren) blokkeren.style.display = "none";
+    if (klanten) klanten.style.display = "none";
+    if (agenda) agenda.style.display = "none";
+    if (doel) doel.style.display = "block";
+}
 
     document.getElementById("gbh-dash-blokkeren").addEventListener("click", function() { toonSectie("gbh-sectie-blokkeren"); });
     document.getElementById("gbh-dash-klanten").addEventListener("click", function() { toonSectie("gbh-sectie-klanten"); });
         document.querySelectorAll(".gbh-terug-dashboard").forEach(function(btn) {
-        btn.addEventListener("click", function() {
-            document.getElementById("gbh-sectie-blokkeren").style.display = "none";
-            document.getElementById("gbh-sectie-klanten").style.display = "none";
-            document.getElementById("gbh-sectie-agenda").style.display = "none";
-            document.getElementById("gbh-dashboard").style.display = "flex";
-        });
+    btn.addEventListener("click", function() {
+        const blokkeren = document.getElementById("gbh-sectie-blokkeren");
+        const klanten = document.getElementById("gbh-sectie-klanten");
+        const agenda = document.getElementById("gbh-sectie-agenda");
+        const dashboard = document.getElementById("gbh-dashboard");
+
+        if (blokkeren) blokkeren.style.display = "none";
+        if (klanten) klanten.style.display = "none";
+        if (agenda) agenda.style.display = "none";
+        if (dashboard) dashboard.style.display = "flex";
+    });
+});
     });
 
        document.getElementById("gbh-blok-sluiten").addEventListener("click", function() {
