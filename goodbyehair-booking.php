@@ -1073,7 +1073,8 @@ gbhKoppelLogin();
         koppelVerwijderKnop(btn, btn.closest("tr"), null);
     });
 
-    document.getElementById("gbh-logout-btn").addEventListener("click", function() {
+    const logoutBtn = document.getElementById("gbh-logout-btn");
+    if (logoutBtn) logoutBtn.addEventListener("click", function() {
         const data = new FormData();
         data.append("action", "gbh_logout");
         data.append("gbh_nonce", gbhNonce);
@@ -1084,14 +1085,16 @@ gbhKoppelLogin();
         });
     });
 
-    document.getElementById("gbh-zoek").addEventListener("input", function() {
+    const zoekVeld = document.getElementById("gbh-zoek");
+    if (zoekVeld) zoekVeld.addEventListener("input", function() {
         const q = this.value.toLowerCase();
         document.querySelectorAll(".gbh-klant-rij").forEach(function(rij) {
             rij.style.display = rij.dataset.zoek.includes(q) ? "block" : "none";
         });
     });
 
-    document.getElementById("gbh-nieuw-btn").addEventListener("click", function() {
+    const nieuwBtn = document.getElementById("gbh-nieuw-btn");
+    if (nieuwBtn) nieuwBtn.addEventListener("click", function() {
         const naam = document.getElementById("gbh-nieuw-naam").value.trim();
         const email = document.getElementById("gbh-nieuw-email").value.trim();
         const telefoon = document.getElementById("gbh-nieuw-telefoon").value.trim();
