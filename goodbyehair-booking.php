@@ -962,11 +962,14 @@ gbhKoppelLogin();
     });
 });
 
-       document.getElementById("gbh-blok-sluiten").addEventListener("click", function() {
-        document.getElementById("gbh-blok-paneel").style.display = "none";
+       const blokSluiten = document.getElementById("gbh-blok-sluiten");
+    if (blokSluiten) blokSluiten.addEventListener("click", function() {
+        const blokPaneel = document.getElementById("gbh-blok-paneel");
+        if (blokPaneel) blokPaneel.style.display = "none";
     });
 
-    document.getElementById("gbh-blok-heledag").addEventListener("change", function() {
+    const blokHeledag = document.getElementById("gbh-blok-heledag");
+    if (blokHeledag) blokHeledag.addEventListener("change", function() {
         document.getElementById("gbh-blok-tijden").style.display = this.checked ? "none" : "flex";
         document.getElementById("gbh-blok-datum-tot-wrap").style.display = this.checked ? "block" : "none";
         if (this.checked) {
@@ -975,7 +978,8 @@ gbhKoppelLogin();
         }
     });
 
-    document.getElementById("gbh-blok-btn").addEventListener("click", function() {
+    const blokBtn = document.getElementById("gbh-blok-btn");
+    if (blokBtn) blokBtn.addEventListener("click", function() {
         const datum_van = document.getElementById("gbh-blok-datum").value;
         const hele_dag = document.getElementById("gbh-blok-heledag").checked ? 1 : 0;
         const datum_tot = hele_dag ? document.getElementById("gbh-blok-datum-tot").value : datum_van;
