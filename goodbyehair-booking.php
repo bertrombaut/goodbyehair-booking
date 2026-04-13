@@ -921,8 +921,8 @@ gbhKoppelLogin();
 
             echo '</div>';
 
-            echo '<script>
-document.addEventListener("DOMContentLoaded", function() {
+           echo '<script>
+(function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
 
@@ -1212,7 +1212,7 @@ document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
             .then(res => { if (res.success) location.reload(); });
         });
     });
-});
+})();
 </script>';
         }
 
