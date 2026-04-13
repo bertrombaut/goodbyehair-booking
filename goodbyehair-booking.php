@@ -744,18 +744,12 @@ gbhKoppelLogin();
     window.gbhLaadWeek = function() { laadWeek(); };
 
     function toonSectie(id) {
-    const dashboard = document.getElementById("gbh-dashboard");
-    const blokkeren = document.getElementById("gbh-sectie-blokkeren");
-    const klanten = document.getElementById("gbh-sectie-klanten");
-    const agenda = document.getElementById("gbh-sectie-agenda");
-    const doel = document.getElementById(id);
-
-    if (dashboard) dashboard.style.display = "none";
-    if (blokkeren) blokkeren.style.display = "none";
-    if (klanten) klanten.style.display = "none";
-    if (agenda) agenda.style.display = "none";
-    if (doel) doel.style.display = "block";
-}
+        document.getElementById("gbh-dashboard").style.display = "none";
+        document.getElementById("gbh-sectie-blokkeren").style.display = "none";
+        document.getElementById("gbh-sectie-klanten").style.display = "none";
+        document.getElementById("gbh-sectie-agenda").style.display = "none";
+        document.getElementById(id).style.display = "block";
+    }
     const dagLabels = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -927,49 +921,35 @@ gbhKoppelLogin();
 
             echo '</div>';
 
-           echo '<script>
-(function() {
+            echo '<script>
+document.addEventListener("DOMContentLoaded", function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . $nonce . '";
 
     function toonSectie(id) {
-    const dashboard = document.getElementById("gbh-dashboard");
-    const blokkeren = document.getElementById("gbh-sectie-blokkeren");
-    const klanten = document.getElementById("gbh-sectie-klanten");
-    const agenda = document.getElementById("gbh-sectie-agenda");
-    const doel = document.getElementById(id);
-
-    if (dashboard) dashboard.style.display = "none";
-    if (blokkeren) blokkeren.style.display = "none";
-    if (klanten) klanten.style.display = "none";
-    if (agenda) agenda.style.display = "none";
-    if (doel) doel.style.display = "block";
-}
+        document.getElementById("gbh-dashboard").style.display = "none";
+        document.getElementById("gbh-sectie-blokkeren").style.display = "none";
+        document.getElementById("gbh-sectie-klanten").style.display = "none";
+        document.getElementById("gbh-sectie-agenda").style.display = "none";
+        document.getElementById(id).style.display = "block";
+    }
 
     document.getElementById("gbh-dash-blokkeren").addEventListener("click", function() { toonSectie("gbh-sectie-blokkeren"); });
     document.getElementById("gbh-dash-klanten").addEventListener("click", function() { toonSectie("gbh-sectie-klanten"); });
         document.querySelectorAll(".gbh-terug-dashboard").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-        const blokkeren = document.getElementById("gbh-sectie-blokkeren");
-        const klanten = document.getElementById("gbh-sectie-klanten");
-        const agenda = document.getElementById("gbh-sectie-agenda");
-        const dashboard = document.getElementById("gbh-dashboard");
-
-        if (blokkeren) blokkeren.style.display = "none";
-        if (klanten) klanten.style.display = "none";
-        if (agenda) agenda.style.display = "none";
-        if (dashboard) dashboard.style.display = "flex";
-    });
-});
-
-       const blokSluiten = document.getElementById("gbh-blok-sluiten");
-    if (blokSluiten) blokSluiten.addEventListener("click", function() {
-        const blokPaneel = document.getElementById("gbh-blok-paneel");
-        if (blokPaneel) blokPaneel.style.display = "none";
+        btn.addEventListener("click", function() {
+            document.getElementById("gbh-sectie-blokkeren").style.display = "none";
+            document.getElementById("gbh-sectie-klanten").style.display = "none";
+            document.getElementById("gbh-sectie-agenda").style.display = "none";
+            document.getElementById("gbh-dashboard").style.display = "flex";
+        });
     });
 
-    const blokHeledag = document.getElementById("gbh-blok-heledag");
-    if (blokHeledag) blokHeledag.addEventListener("change", function() {
+       document.getElementById("gbh-blok-sluiten").addEventListener("click", function() {
+        document.getElementById("gbh-blok-paneel").style.display = "none";
+    });
+
+    document.getElementById("gbh-blok-heledag").addEventListener("change", function() {
         document.getElementById("gbh-blok-tijden").style.display = this.checked ? "none" : "flex";
         document.getElementById("gbh-blok-datum-tot-wrap").style.display = this.checked ? "block" : "none";
         if (this.checked) {
@@ -978,8 +958,7 @@ gbhKoppelLogin();
         }
     });
 
-    const blokBtn = document.getElementById("gbh-blok-btn");
-    if (blokBtn) blokBtn.addEventListener("click", function() {
+    document.getElementById("gbh-blok-btn").addEventListener("click", function() {
         const datum_van = document.getElementById("gbh-blok-datum").value;
         const hele_dag = document.getElementById("gbh-blok-heledag").checked ? 1 : 0;
         const datum_tot = hele_dag ? document.getElementById("gbh-blok-datum-tot").value : datum_van;
@@ -1073,8 +1052,7 @@ gbhKoppelLogin();
         koppelVerwijderKnop(btn, btn.closest("tr"), null);
     });
 
-    const logoutBtn = document.getElementById("gbh-logout-btn");
-    if (logoutBtn) logoutBtn.addEventListener("click", function() {
+    document.getElementById("gbh-logout-btn").addEventListener("click", function() {
         const data = new FormData();
         data.append("action", "gbh_logout");
         data.append("gbh_nonce", gbhNonce);
@@ -1085,16 +1063,14 @@ gbhKoppelLogin();
         });
     });
 
-    const zoekVeld = document.getElementById("gbh-zoek");
-    if (zoekVeld) zoekVeld.addEventListener("input", function() {
+    document.getElementById("gbh-zoek").addEventListener("input", function() {
         const q = this.value.toLowerCase();
         document.querySelectorAll(".gbh-klant-rij").forEach(function(rij) {
             rij.style.display = rij.dataset.zoek.includes(q) ? "block" : "none";
         });
     });
 
-    const nieuwBtn = document.getElementById("gbh-nieuw-btn");
-    if (nieuwBtn) nieuwBtn.addEventListener("click", function() {
+    document.getElementById("gbh-nieuw-btn").addEventListener("click", function() {
         const naam = document.getElementById("gbh-nieuw-naam").value.trim();
         const email = document.getElementById("gbh-nieuw-email").value.trim();
         const telefoon = document.getElementById("gbh-nieuw-telefoon").value.trim();
@@ -1236,7 +1212,7 @@ document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
             .then(res => { if (res.success) location.reload(); });
         });
     });
-})();
+});
 </script>';
         }
 
