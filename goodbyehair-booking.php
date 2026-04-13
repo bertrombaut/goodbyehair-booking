@@ -697,7 +697,11 @@ gbhKoppelLogin();
             echo '<button type="button" id="gbh-nieuw-afspraak-sluiten" style="padding:10px 18px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">Annuleren</button>';
             echo '</div>';
             echo '</div>';
-            echo '<div id="gbh-nieuw-afspraak-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9998;"></div>';
+            echo '</div>'; // sluit gbh-sectie-klanten
+
+        echo '<div id="gbh-afspraak-nieuw-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:2px solid #1565c0;border-radius:14px;padding:24px;z-index:9999;min-width:340px;max-width:560px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18);">';
+
+           echo '<div id="gbh-nieuw-afspraak-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9998;"></div>';
 
            echo '<div id="gbh-sectie-agenda" style="display:none;">';
             echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
@@ -736,7 +740,9 @@ gbhKoppelLogin();
 
             echo '<div id="gbh-popup-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9998;"></div>';
 
-            echo '<script>
+            echo '</div>'; // sluit gbh-sectie-agenda
+
+            echo '<script>';
 (function() {
     const ajaxUrl = "' . $ajax_url . '";
     const gbhNonce = "' . wp_create_nonce('gbh_ajax_nonce') . '";
