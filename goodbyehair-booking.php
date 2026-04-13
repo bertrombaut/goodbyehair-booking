@@ -961,7 +961,6 @@ gbhKoppelLogin();
         if (dashboard) dashboard.style.display = "flex";
     });
 });
-    });
 
        document.getElementById("gbh-blok-sluiten").addEventListener("click", function() {
         document.getElementById("gbh-blok-paneel").style.display = "none";
