@@ -633,7 +633,8 @@ gbhKoppelLogin();
                     echo '</div>';
                     echo '<div style="display:flex;gap:8px;">';
                     echo '<button type="button" class="gbh-edit-btn" data-id="' . esc_attr($k->id) . '" style="padding:6px 14px;border:1px solid #7d3c98;border-radius:8px;background:#fff;color:#7d3c98;cursor:pointer;">Bewerken</button>';
-                    echo '<button type="button" class="gbh-afspraak-btn" data-id="' . esc_attr($k->id) . '" data-naam="' . esc_attr($k->naam) . '" data-email="' . esc_attr($k->email) . '" data-telefoon="' . esc_attr($k->telefoon) . '" style="padding:6px 14px;border:0;border-radius:8px;background:#1565c0;color:#fff;cursor:pointer;">Afspraak</button>';
+                   $booking_url = add_query_arg(['gbh_naam' => urlencode($k->naam), 'gbh_email' => urlencode($k->email), 'gbh_tel' => urlencode($k->telefoon)], get_permalink(get_page_by_path('online-afspraak')));
+                    echo '<a href="' . esc_url($booking_url) . '" style="padding:6px 14px;border:0;border-radius:8px;background:#1565c0;color:#fff;cursor:pointer;text-decoration:none;display:inline-block;">Afspraak</a>';
                     echo '<button type="button" class="gbh-del-btn" data-id="' . esc_attr($k->id) . '" style="padding:6px 14px;border:0;border-radius:8px;background:#c62828;color:#fff;cursor:pointer;">Verwijderen</button>';
                     echo '</div>';
                     echo '</div>';
@@ -1717,9 +1718,10 @@ function positionSummary() {
             telefoonInput.setCustomValidity("");
         });
     }
-    const gbhOpgeslaanNaam     = localStorage.getItem("gbh_naam");
-    const gbhOpgeslaanEmail    = localStorage.getItem("gbh_email");
-    const gbhOpgeslaanTelefoon = localStorage.getItem("gbh_telefoon");
+    const urlParams = new URLSearchParams(window.location.search);
+    const gbhOpgeslaanNaam     = urlParams.get("gbh_naam") || localStorage.getItem("gbh_naam");
+    const gbhOpgeslaanEmail    = urlParams.get("gbh_email") || localStorage.getItem("gbh_email");
+    const gbhOpgeslaanTelefoon = urlParams.get("gbh_tel") || localStorage.getItem("gbh_telefoon");
     if (gbhOpgeslaanNaam && gbhOpgeslaanEmail) {
         document.getElementById("gbh-naam").value     = gbhOpgeslaanNaam;
         document.getElementById("gbh-email").value    = gbhOpgeslaanEmail;
