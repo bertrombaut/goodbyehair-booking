@@ -1423,46 +1423,6 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedDate = "";
     }
 
-        function dagHeeftBeschikbaarTijdslot(fullDate, dayKey) {
-        const dayTimes = times[dayKey];
-        const behandeltijd = parseInt(document.getElementById("gbh-total-time").textContent) || 15;
-        const slotsNeeded = Math.ceil(behandeltijd / 15) + 1;
-
-        if (!dayTimes || !dayTimes.start || !dayTimes.end) {
-            return false;
-        }
-
-        let startTs = new Date("1970-01-01T" + dayTimes.start + ":00");
-        let endTs = new Date("1970-01-01T" + dayTimes.end + ":00");
-        let allSlots = [];
-
-        for (let t = new Date(startTs); t < endTs; t.setMinutes(t.getMinutes() + 15)) {
-            let h = String(t.getHours()).padStart(2, "0");
-            let m = String(t.getMinutes()).padStart(2, "0");
-            allSlots.push(h + ":" + m);
-        }
-
-        for (let index = 0; index < allSlots.length; index++) {
-            let fitsInDay = (index + slotsNeeded) <= allSlots.length;
-            if (!fitsInDay) continue;
-
-            let isBlocked = false;
-
-            for (let s = 0; s < slotsNeeded; s++) {
-                if (bookings.includes(fullDate + " " + allSlots[index + s])) {
-                    isBlocked = true;
-                    break;
-                }
-            }
-
-            if (!isBlocked) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     function renderCalendar() {
         const firstDate = new Date(year, month, 1);
         let firstDay = firstDate.getDay();
@@ -1486,14 +1446,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const dayKey = map[date.getDay()];
             const enabled = days.includes(dayKey);
             const isPast = date <= today;
-            const monthValue = String(month + 1).padStart(2, "0");
+           const monthValue = String(month + 1).padStart(2, "0");
             const dayValue = String(d).padStart(2, "0");
             const fullDate = year + "-" + monthValue + "-" + dayValue;
             const isGeblokkeerd = geblokkeerde_dagen.includes(fullDate);
-            const heeftBeschikbaarTijdslot = enabled && !isPast && !isGeblokkeerd && dagHeeftBeschikbaarTijdslot(fullDate, dayKey);
-            const isEnabled = heeftBeschikbaarTijdslot;
+            const isEnabled = enabled && !isPast && !isGeblokkeerd;
             const isSelected = selectedDate === fullDate;
-
             html += "<button type=\"button\" class=\"gbh-calendar-day\" data-date=\"" + fullDate + "\" " + (isEnabled ? "" : "disabled") + " style=\"padding:10px;border:1px solid " + (isSelected ? "#7d3c98" : "#ccc") + ";border-radius:6px;text-align:center;cursor:" + (isEnabled ? "pointer" : "not-allowed") + ";background:" + (isEnabled ? (isSelected ? "#7d3c98" : "#fff") : "#eee") + ";color:" + (isSelected ? "#fff" : "#000") + ";\">" + d + "</button>";
         }
         html += "</div>";
