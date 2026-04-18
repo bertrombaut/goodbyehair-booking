@@ -1450,7 +1450,32 @@ document.addEventListener("DOMContentLoaded", function () {
             const dayValue = String(d).padStart(2, "0");
             const fullDate = year + "-" + monthValue + "-" + dayValue;
             const isGeblokkeerd = geblokkeerde_dagen.includes(fullDate);
-            const isEnabled = enabled && !isPast && !isGeblokkeerd;
+            let heeftVrijSlot = false;
+            if (enabled && !isPast && !isGeblokkeerd) {
+                const dayKey2 = map[date.getDay()];
+                const dayTimes2 = times[dayKey2];
+                const behandeltijd2 = parseInt(document.getElementById("gbh-total-time").textContent) || 15;
+                const slotsNeeded2 = Math.ceil(behandeltijd2 / 15) + 1;
+                if (dayTimes2 && dayTimes2.start && dayTimes2.end) {
+                    let startTs2 = new Date("1970-01-01T" + dayTimes2.start + ":00");
+                    let endTs2   = new Date("1970-01-01T" + dayTimes2.end + ":00");
+                    let allSlots2 = [];
+                    for (let t2 = new Date(startTs2); t2 < endTs2; t2.setMinutes(t2.getMinutes() + 15)) {
+                        allSlots2.push(String(t2.getHours()).padStart(2,"0") + ":" + String(t2.getMinutes()).padStart(2,"0"));
+                    }
+                    for (let si = 0; si <= allSlots2.length - slotsNeeded2; si++) {
+                        let slotVrij = true;
+                        for (let s = 0; s < slotsNeeded2; s++) {
+                            if (bookings.includes(fullDate + " " + allSlots2[si + s])) {
+                                slotVrij = false;
+                                break;
+                            }
+                        }
+                        if (slotVrij) { heeftVrijSlot = true; break; }
+                    }
+                }
+            }
+            const isEnabled = enabled && !isPast && !isGeblokkeerd && heeftVrijSlot;
             const isSelected = selectedDate === fullDate;
             html += "<button type=\"button\" class=\"gbh-calendar-day\" data-date=\"" + fullDate + "\" " + (isEnabled ? "" : "disabled") + " style=\"padding:10px;border:1px solid " + (isSelected ? "#7d3c98" : "#ccc") + ";border-radius:6px;text-align:center;cursor:" + (isEnabled ? "pointer" : "not-allowed") + ";background:" + (isEnabled ? (isSelected ? "#7d3c98" : "#fff") : "#eee") + ";color:" + (isSelected ? "#fff" : "#000") + ";\">" + d + "</button>";
         }
