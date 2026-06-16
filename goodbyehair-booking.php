@@ -669,6 +669,9 @@ gbhKoppelLogin();
             echo '<strong style="font-size:13px;">Behandelingen</strong>';
             echo '<div style="display:flex;flex-direction:column;gap:4px;margin:8px 0 12px 0;">';
             $behandelingen_lijst = [
+                'Kennismaking' => [
+                    'IntakeGesprek' => [15, 0],
+                ],
                 'Gezicht' => [
                     'Bovenlip' => [15, 19], 'Kin' => [15, 19], 'Kaaklijn' => [15, 35],
                     'Nek' => [15, 25], 'Hals' => [15, 25], 'Wangen' => [15, 19], 'Gehele gezicht' => [20, 75],
@@ -1258,6 +1261,9 @@ document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
         }
 
         $treatments = [
+            'Kennismaking' => [
+                ['name' => 'IntakeGesprek', 'time' => 15, 'price' => 0],
+            ],
             'Gezicht' => [
                 ['name' => 'Bovenlip', 'time' => 15, 'price' => 19],
                 ['name' => 'Kin', 'time' => 15, 'price' => 19],
