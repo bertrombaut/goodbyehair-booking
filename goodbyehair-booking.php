@@ -5,6 +5,46 @@
 
 if (!defined('ABSPATH')) exit;
 
+/**
+ * Centrale behandelingenlijst — de ENIGE plek waar behandelingen worden gedefinieerd.
+ * Zowel de klant-boekingspagina als de medewerker-popup lezen hieruit.
+ * Toevoegen / wijzigen / prijs aanpassen doe je dus alleen hier.
+ */
+function gbh_get_behandelingen() {
+    return [
+        'Kennismaking' => [
+            ['name' => 'IntakeGesprek', 'time' => 15, 'price' => 0],
+        ],
+        'Gezicht' => [
+            ['name' => 'Bovenlip', 'time' => 15, 'price' => 19],
+            ['name' => 'Kin', 'time' => 15, 'price' => 19],
+            ['name' => 'Kaaklijn', 'time' => 15, 'price' => 35],
+            ['name' => 'Nek', 'time' => 15, 'price' => 25],
+            ['name' => 'Hals', 'time' => 15, 'price' => 25],
+            ['name' => 'Wangen', 'time' => 15, 'price' => 19],
+            ['name' => 'Gehele gezicht', 'time' => 20, 'price' => 75],
+        ],
+        'Lichaam' => [
+            ['name' => 'Oksels', 'time' => 20, 'price' => 39],
+            ['name' => 'Onderarm', 'time' => 15, 'price' => 49],
+            ['name' => 'Bovenarm', 'time' => 15, 'price' => 49],
+            ['name' => 'Armen geheel', 'time' => 30, 'price' => 89],
+            ['name' => 'Borst', 'time' => 30, 'price' => 35],
+            ['name' => 'Tepels rondom', 'time' => 15, 'price' => 19],
+            ['name' => 'Buik', 'time' => 20, 'price' => 49],
+            ['name' => 'Navelstrook', 'time' => 20, 'price' => 19],
+            ['name' => 'Onderrug', 'time' => 20, 'price' => 49],
+            ['name' => 'Bovenrug', 'time' => 20, 'price' => 49],
+            ['name' => 'Rug geheel', 'time' => 30, 'price' => 89],
+            ['name' => 'Bikinilijn klein', 'time' => 15, 'price' => 25],
+            ['name' => 'Bikinilijn groot', 'time' => 20, 'price' => 55],
+            ['name' => 'Onderbenen', 'time' => 20, 'price' => 65],
+            ['name' => 'Bovenbenen', 'time' => 20, 'price' => 65],
+            ['name' => 'Benen geheel', 'time' => 30, 'price' => 119],
+        ],
+    ];
+}
+
 register_activation_hook(__FILE__, 'gbh_create_tables');
 
 function gbh_create_tables() {
@@ -668,29 +708,13 @@ gbhKoppelLogin();
             echo '</div>';
             echo '<strong style="font-size:13px;">Behandelingen</strong>';
             echo '<div style="display:flex;flex-direction:column;gap:4px;margin:8px 0 12px 0;">';
-            $behandelingen_lijst = [
-                'Kennismaking' => [
-                    'IntakeGesprek' => [15, 0],
-                ],
-                'Gezicht' => [
-                    'Bovenlip' => [15, 19], 'Kin' => [15, 19], 'Kaaklijn' => [15, 35],
-                    'Nek' => [15, 25], 'Hals' => [15, 25], 'Wangen' => [15, 19], 'Gehele gezicht' => [20, 75],
-                ],
-                'Lichaam' => [
-                    'Oksels' => [20, 39], 'Onderarm' => [15, 49], 'Bovenarm' => [15, 49],
-                    'Armen geheel' => [30, 89], 'Borst' => [30, 35], 'Tepels rondom' => [15, 19],
-                    'Buik' => [20, 49], 'Navelstrook' => [20, 19], 'Onderrug' => [20, 49],
-                    'Bovenrug' => [20, 49], 'Rug geheel' => [30, 89], 'Bikinilijn klein' => [15, 25],
-                    'Bikinilijn groot' => [20, 55], 'Onderbenen' => [20, 65], 'Bovenbenen' => [20, 65],
-                    'Benen geheel' => [30, 119],
-                ],
-            ];
+            $behandelingen_lijst = gbh_get_behandelingen();
             foreach ($behandelingen_lijst as $cat => $items) {
                 echo '<strong style="font-size:12px;color:#666;margin-top:6px;">' . esc_html($cat) . '</strong>';
-                foreach ($items as $naam => $info) {
+                foreach ($items as $t) {
                     echo '<label style="font-size:13px;display:flex;align-items:center;gap:8px;">';
-                    echo '<input type="checkbox" class="gbh-nieuw-behandeling" data-naam="' . esc_attr($naam) . '" data-tijd="' . esc_attr($info[0]) . '" data-prijs="' . esc_attr($info[1]) . '"> ';
-                    echo esc_html($naam) . ' (' . esc_html($info[0]) . ' min) — €' . esc_html($info[1]);
+                    echo '<input type="checkbox" class="gbh-nieuw-behandeling" data-naam="' . esc_attr($t['name']) . '" data-tijd="' . esc_attr($t['time']) . '" data-prijs="' . esc_attr($t['price']) . '"> ';
+                    echo esc_html($t['name']) . ' (' . esc_html($t['time']) . ' min) — €' . esc_html($t['price']);
                     echo '</label>';
                 }
             }
@@ -1260,38 +1284,7 @@ document.querySelectorAll(".gbh-afspraak-btn").forEach(function(btn) {
             }
         }
 
-        $treatments = [
-            'Kennismaking' => [
-                ['name' => 'IntakeGesprek', 'time' => 15, 'price' => 0],
-            ],
-            'Gezicht' => [
-                ['name' => 'Bovenlip', 'time' => 15, 'price' => 19],
-                ['name' => 'Kin', 'time' => 15, 'price' => 19],
-                ['name' => 'Kaaklijn', 'time' => 15, 'price' => 35],
-                ['name' => 'Nek', 'time' => 15, 'price' => 25],
-                ['name' => 'Hals', 'time' => 15, 'price' => 25],
-                ['name' => 'Wangen', 'time' => 15, 'price' => 19],
-                ['name' => 'Gehele gezicht', 'time' => 20, 'price' => 75],
-            ],
-            'Lichaam' => [
-                ['name' => 'Oksels', 'time' => 20, 'price' => 39],
-                ['name' => 'Onderarm', 'time' => 15, 'price' => 49],
-                ['name' => 'Bovenarm', 'time' => 15, 'price' => 49],
-                ['name' => 'Armen geheel', 'time' => 30, 'price' => 89],
-                ['name' => 'Borst', 'time' => 30, 'price' => 35],
-                ['name' => 'Tepels rondom', 'time' => 15, 'price' => 19],
-                ['name' => 'Buik', 'time' => 20, 'price' => 49],
-                ['name' => 'Navelstrook', 'time' => 20, 'price' => 19],
-                ['name' => 'Onderrug', 'time' => 20, 'price' => 49],
-                ['name' => 'Bovenrug', 'time' => 20, 'price' => 49],
-                ['name' => 'Rug geheel', 'time' => 30, 'price' => 89],
-                ['name' => 'Bikinilijn klein', 'time' => 15, 'price' => 25],
-                ['name' => 'Bikinilijn groot', 'time' => 20, 'price' => 55],
-                ['name' => 'Onderbenen', 'time' => 20, 'price' => 65],
-                ['name' => 'Bovenbenen', 'time' => 20, 'price' => 65],
-                ['name' => 'Benen geheel', 'time' => 30, 'price' => 119],
-            ]
-        ];
+        $treatments = gbh_get_behandelingen();
 
         $ajax_url = esc_url(admin_url('admin-ajax.php'));
         $nonce = wp_create_nonce('gbh_ajax_nonce');
