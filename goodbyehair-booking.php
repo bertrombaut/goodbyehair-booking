@@ -127,6 +127,7 @@ class GBH_Booking {
         add_action('wp_ajax_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
         add_action('wp_ajax_nopriv_gbh_klant_verwijderen', [$this, 'klant_verwijderen']);
         add_action('gbh_stuur_herinnering', [$this, 'stuur_herinnering'], 10, 6);
+        add_action('gbh_salon_herinnering', [$this, 'stuur_salon_herinnering'], 10, 6);
         add_action('admin_post_gbh_annuleer', [$this, 'annuleer_boeking']);
         add_action('wp_ajax_gbh_blokkade_opslaan', [$this, 'blokkade_opslaan']);
         add_action('wp_ajax_nopriv_gbh_blokkade_opslaan', [$this, 'blokkade_opslaan']);
@@ -1945,6 +1946,12 @@ function positionSummary() {
         if ($timestamp) {
             wp_unschedule_event($timestamp, 'gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, $behandelingen_annuleer]);
         }
+        foreach (['24u', '1u'] as $gbh_type) {
+            $salon_ts = wp_next_scheduled('gbh_salon_herinnering', [$id, $naam, $datum, $tijd, $behandelingen_annuleer, $gbh_type]);
+            if ($salon_ts) {
+                wp_unschedule_event($salon_ts, 'gbh_salon_herinnering', [$id, $naam, $datum, $tijd, $behandelingen_annuleer, $gbh_type]);
+            }
+        }
         $wpdb->delete($table, ['id' => $id]);
 
         if ($email) {
@@ -2074,6 +2081,16 @@ function positionSummary() {
             wp_schedule_single_event($herinnering_timestamp, 'gbh_stuur_herinnering', [$boeking_id, $email, $naam, $datum, $tijd, $behandelingen]);
         }
 
+        // Salon-herinneringen inplannen (naar info@goodbyehair.nl)
+        $salon_24u = $afspraak_timestamp - (24 * 60 * 60);
+        $salon_1u  = $afspraak_timestamp - (60 * 60);
+        if ($salon_24u > time()) {
+            wp_schedule_single_event($salon_24u, 'gbh_salon_herinnering', [$boeking_id, $naam, $datum, $tijd, $behandelingen, '24u']);
+        }
+        if ($salon_1u > time()) {
+            wp_schedule_single_event($salon_1u, 'gbh_salon_herinnering', [$boeking_id, $naam, $datum, $tijd, $behandelingen, '1u']);
+        }
+
         wp_send_json_success('Afspraak opgeslagen.');
     }
 
@@ -2098,6 +2115,19 @@ public function test_herinnering() {
         $bericht .= "Tot morgen!<br><br>";
         $bericht .= "Met vriendelijke groet,<br>Goodbyehair<br>Bergerhof 16<br>6871ZJ Renkum<br>06 22 438 738<br>info@goodbyehair.nl";
         wp_mail($email, $onderwerp, $bericht, $headers);
+    }
+
+    public function stuur_salon_herinnering($booking_id, $naam, $datum, $tijd, $behandelingen, $type) {
+        $salon_email = get_option('gbh_salon_email', 'info@goodbyehair.nl');
+        if (!$salon_email) $salon_email = 'info@goodbyehair.nl';
+        $wanneer   = ($type === '1u') ? 'over 1 uur' : 'morgen';
+        $onderwerp = 'Herinnering: afspraak ' . $wanneer . ' — ' . $naam;
+        $bericht   = "Herinnering: er is " . $wanneer . " een afspraak.\n\n";
+        $bericht  .= "Naam: " . $naam . "\n";
+        $bericht  .= "Datum: " . date('d-m-Y', strtotime($datum)) . "\n";
+        $bericht  .= "Tijd: " . substr($tijd, 0, 5) . "\n";
+        $bericht  .= "Behandelingen: " . $behandelingen . "\n";
+        wp_mail($salon_email, $onderwerp, $bericht);
     }
 
 public function register_settings() {
