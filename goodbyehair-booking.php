@@ -1376,6 +1376,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let geblokkeerde_dagen = ' . json_encode($geblokkeerde_dagen) . ';
     const gbhAjaxUrl = "' . $ajax_url . '";
     const gbhCalNonce = "' . $nonce . '";
+    const gbhIsMedewerker = ' . ($this->gbh_is_ingelogd() ? 'true' : 'false') . ';
 
     window.gbhSetBlokkades = function(dagen, slots) {
         geblokkeerde_dagen = dagen;
@@ -1445,7 +1446,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const date = new Date(year, month, d);
             const dayKey = map[date.getDay()];
             const enabled = days.includes(dayKey);
-            const isPast = date <= today;
+            const isPast = gbhIsMedewerker ? (date < today) : (date <= today);
            const monthValue = String(month + 1).padStart(2, "0");
             const dayValue = String(d).padStart(2, "0");
             const fullDate = year + "-" + monthValue + "-" + dayValue;
