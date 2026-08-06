@@ -202,9 +202,15 @@ class GBH_Booking {
         $behandeltijd  = intval($_POST['behandeltijd'] ?? 0);
         $prijs         = floatval($_POST['prijs'] ?? 0);
 
-        if (!$id || !$naam || !$email || !$datum || !$tijd) {
+       if (!$id || !$naam || !$email || !$datum || !$tijd) {
             wp_send_json_error('Vul alle velden in.');
         }
+
+        // Oude gegevens ophalen, nodig om de bestaande herinneringen te kunnen unschedulen
+        $oud = $wpdb->get_row($wpdb->prepare(
+            "SELECT naam, email, datum, tijd, behandelingen FROM {$wpdb->prefix}gbh_bookings WHERE id = %d",
+            $id
+        ));
 
         // Controleer of het nieuwe tijdslot bezet is (exclusief de huidige afspraak zelf)
         $slots_nodig  = ceil($behandeltijd / 15) + 1;
@@ -244,6 +250,35 @@ class GBH_Booking {
             ['%s', '%s', '%s', '%s', '%s', '%s', '%d', '%f'],
             ['%d']
         );
+
+        // Oude herinneringen (klant + salon) unschedulen, ongeacht of ze nog inplanbaar zijn
+        if ($oud) {
+            $oud_ts = wp_next_scheduled('gbh_stuur_herinnering', [$id, $oud->email, $oud->naam, $oud->datum, $oud->tijd, $oud->behandelingen]);
+            if ($oud_ts) {
+                wp_unschedule_event($oud_ts, 'gbh_stuur_herinnering', [$id, $oud->email, $oud->naam, $oud->datum, $oud->tijd, $oud->behandelingen]);
+            }
+            foreach (['24u', '1u'] as $gbh_type) {
+                $oud_salon_ts = wp_next_scheduled('gbh_salon_herinnering', [$id, $oud->naam, $oud->datum, $oud->tijd, $oud->behandelingen, $gbh_type]);
+                if ($oud_salon_ts) {
+                    wp_unschedule_event($oud_salon_ts, 'gbh_salon_herinnering', [$id, $oud->naam, $oud->datum, $oud->tijd, $oud->behandelingen, $gbh_type]);
+                }
+            }
+        }
+
+        // Nieuwe herinneringen inplannen op basis van de gewijzigde datum/tijd
+        $afspraak_timestamp = get_gmt_from_date($datum . ' ' . $tijd, 'U');
+        $herinnering_timestamp = $afspraak_timestamp - (24 * 60 * 60);
+        if ($herinnering_timestamp > time()) {
+            wp_schedule_single_event($herinnering_timestamp, 'gbh_stuur_herinnering', [$id, $email, $naam, $datum, $tijd, $behandelingen]);
+        }
+        $salon_24u = $afspraak_timestamp - (24 * 60 * 60);
+        $salon_1u  = $afspraak_timestamp - (60 * 60);
+        if ($salon_24u > time()) {
+            wp_schedule_single_event($salon_24u, 'gbh_salon_herinnering', [$id, $naam, $datum, $tijd, $behandelingen, '24u']);
+        }
+        if ($salon_1u > time()) {
+            wp_schedule_single_event($salon_1u, 'gbh_salon_herinnering', [$id, $naam, $datum, $tijd, $behandelingen, '1u']);
+        }
 
         $headers = ['Content-Type: text/html; charset=UTF-8'];
         $bericht  = '<img src="https://goodbyehair.nl/wp-content/uploads/2023/10/goodbyehair-2.png" alt="Goodbyehair" style="max-width:200px;margin-bottom:20px;"><br><br>';
