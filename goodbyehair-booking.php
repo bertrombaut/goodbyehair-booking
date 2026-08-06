@@ -607,7 +607,7 @@ gbhKoppelLogin();
             echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
 
             // Blokkades paneel direct na header
-            $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades ORDER BY datum ASC, tijd_van ASC");
+           $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades ORDER BY id DESC");
             echo '<div id="gbh-blok-paneel" style="margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
             echo '<h3 style="color:#c62828;margin-top:0;">Tijd blokkeren</h3>';
             echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">';
@@ -1050,7 +1050,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 tr.style.borderBottom = "1px solid #eee";
                 tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
                 koppelVerwijderKnop(tr.querySelector("button"), tr, nieuweId);
-                tbl.appendChild(tr);
+                tbl.insertBefore(tr, tbl.firstChild);
                 huidigeDatum2.setDate(huidigeDatum2.getDate() + 1);
                 i++;
             }
