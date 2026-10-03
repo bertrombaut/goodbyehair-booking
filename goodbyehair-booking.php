@@ -137,6 +137,8 @@ class GBH_Booking {
         add_action('wp_ajax_nopriv_gbh_get_blokkades', [$this, 'get_blokkades']);
         add_action('wp_ajax_gbh_get_week_data', [$this, 'get_week_data']);
         add_action('wp_ajax_nopriv_gbh_get_week_data', [$this, 'get_week_data']);
+        add_action('wp_ajax_gbh_ververs_blokkades_lijst', [$this, 'ververs_blokkades_lijst']);
+        add_action('wp_ajax_nopriv_gbh_ververs_blokkades_lijst', [$this, 'ververs_blokkades_lijst']);
         add_action('wp_ajax_gbh_wijzig_afspraak', [$this, 'wijzig_afspraak']);
         add_action('wp_ajax_nopriv_gbh_wijzig_afspraak', [$this, 'wijzig_afspraak']);
         add_action('wp_ajax_gbh_verwijder_afspraak', [$this, 'verwijder_afspraak']);
@@ -383,6 +385,42 @@ class GBH_Booking {
 // -------------------------
     // BLOKKADES OPHALEN
     // -------------------------
+    private function render_blokkades_lijst_html() {
+        global $wpdb;
+        $zeven_dagen_terug = date('Y-m-d', strtotime('-7 days'));
+        $blokkades = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}gbh_blokkades WHERE datum >= %s ORDER BY datum DESC, tijd_van DESC",
+            $zeven_dagen_terug
+        ));
+        if (!$blokkades) {
+            return '<p style="color:#999;font-size:14px;">Geen blokkades.</p>';
+        }
+        $html = '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
+        $html .= '<thead><tr style="background:#fdecea;"><th style="padding:8px;text-align:left;">Datum</th><th style="padding:8px;text-align:left;">Tijd</th><th style="padding:8px;"></th></tr></thead>';
+        $html .= '<tbody>';
+        foreach ($blokkades as $bl) {
+            $datum_nl = date('d-m-Y', strtotime($bl->datum));
+            $tijd_str = $bl->hele_dag ? 'Hele dag' : substr($bl->tijd_van, 0, 5) . ' - ' . substr($bl->tijd_tot, 0, 5);
+            $html .= '<tr style="border-bottom:1px solid #eee;">';
+            $html .= '<td style="padding:8px;">' . esc_html($datum_nl) . '</td>';
+            $html .= '<td style="padding:8px;">' . esc_html($tijd_str) . '</td>';
+            $html .= '<td style="padding:8px;text-align:right;"><button type="button" class="gbh-blok-del" data-id="' . esc_attr($bl->id) . '" style="padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;">Verwijderen</button></td>';
+            $html .= '</tr>';
+        }
+        $html .= '</tbody></table>';
+        return $html;
+    }
+
+    public function ververs_blokkades_lijst() {
+        if (!check_ajax_referer('gbh_ajax_nonce', 'gbh_nonce', false)) {
+            wp_send_json_error('Ongeldige aanvraag.');
+        }
+        if (!$this->gbh_is_ingelogd() && !current_user_can('manage_options')) {
+            wp_send_json_error('Geen toegang.');
+        }
+        wp_send_json_success(['html' => $this->render_blokkades_lijst_html()]);
+    }
+
     public function get_blokkades() {
         global $wpdb;
         $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades", ARRAY_A);
@@ -642,7 +680,6 @@ gbhKoppelLogin();
             echo '<button type="button" class="gbh-terug-dashboard" style="margin-bottom:16px;padding:8px 16px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;">← Terug naar dashboard</button>';
 
             // Blokkades paneel direct na header
-           $blokkades = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gbh_blokkades ORDER BY id DESC");
             echo '<div id="gbh-blok-paneel" style="margin-bottom:24px;padding:16px;border:2px solid #c62828;border-radius:12px;background:#fff8f8;">';
             echo '<h3 style="color:#c62828;margin-top:0;">Tijd blokkeren</h3>';
             echo '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">';
@@ -658,24 +695,8 @@ gbhKoppelLogin();
             echo '</div>';
             echo '<div id="gbh-blok-msg" style="font-size:14px;margin-bottom:10px;"></div>';
             echo '<div id="gbh-blokkades-lijst">';
-            if ($blokkades) {
-                echo '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
-                echo '<thead><tr style="background:#fdecea;"><th style="padding:8px;text-align:left;">Datum</th><th style="padding:8px;text-align:left;">Tijd</th><th style="padding:8px;"></th></tr></thead>';
-                echo '<tbody>';
-                foreach ($blokkades as $bl) {
-                    $datum_nl = date('d-m-Y', strtotime($bl->datum));
-                    $tijd_str = $bl->hele_dag ? 'Hele dag' : substr($bl->tijd_van, 0, 5) . ' - ' . substr($bl->tijd_tot, 0, 5);
-                    echo '<tr style="border-bottom:1px solid #eee;">';
-                    echo '<td style="padding:8px;">' . esc_html($datum_nl) . '</td>';
-                    echo '<td style="padding:8px;">' . esc_html($tijd_str) . '</td>';
-                    echo '<td style="padding:8px;text-align:right;"><button type="button" class="gbh-blok-del" data-id="' . esc_attr($bl->id) . '" style="padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;">Verwijderen</button></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-            } else {
-                echo '<p style="color:#999;font-size:14px;">Geen blokkades.</p>';
-            }
-           echo '</div>';
+            echo $this->render_blokkades_lijst_html();
+            echo '</div>';
             echo '</div>';
             echo '</div>'; // einde gbh-sectie-blokkeren
 
@@ -1066,29 +1087,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("gbh-blok-tijden").style.display = "flex";
             document.getElementById("gbh-blok-datum-tot-wrap").style.display = "none";
 
-            // Zorg dat er altijd een tabel is
-            const lijstDiv = document.getElementById("gbh-blokkades-lijst");
-            if (!lijstDiv.querySelector("tbody")) {
-                lijstDiv.innerHTML = "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\"><thead><tr style=\"background:#fdecea;\"><th style=\"padding:8px;text-align:left;\">Datum</th><th style=\"padding:8px;text-align:left;\">Tijd</th><th style=\"padding:8px;\"></th></tr></thead><tbody></tbody></table>";
-            }
-            const tbl = lijstDiv.querySelector("tbody");
-            let huidigeDatum2 = new Date(datum_van);
-            const stopDatum2 = new Date(eindDatum);
-            let i = 0;
-            while (huidigeDatum2 <= stopDatum2) {
-                const d = huidigeDatum2.toISOString().split("T")[0];
-                const parts = d.split("-");
-                const datumNl = parts[2] + "-" + parts[1] + "-" + parts[0];
-                const tijdStr = hele_dag ? "Hele dag" : tijd_van + " - " + tijd_tot;
-                const nieuweId = results[i] && results[i].data ? results[i].data.id : null;
-                const tr = document.createElement("tr");
-                tr.style.borderBottom = "1px solid #eee";
-                tr.innerHTML = "<td style=\"padding:8px;\">" + datumNl + "</td><td style=\"padding:8px;\">" + tijdStr + "</td><td style=\"padding:8px;text-align:right;\"><button type=\"button\" style=\"padding:4px 12px;border:0;border-radius:6px;background:#c62828;color:#fff;cursor:pointer;font-size:13px;\">Verwijderen</button></td>";
-                koppelVerwijderKnop(tr.querySelector("button"), tr, nieuweId);
-                tbl.insertBefore(tr, tbl.firstChild);
-                huidigeDatum2.setDate(huidigeDatum2.getDate() + 1);
-                i++;
-            }
+            ververBlokkadesLijst();
         });
     });
    function koppelVerwijderKnop(btn, tr, nieuweId) {
@@ -1115,6 +1114,22 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".gbh-blok-del").forEach(function(btn) {
         koppelVerwijderKnop(btn, btn.closest("tr"), null);
     });
+
+    function ververBlokkadesLijst() {
+        const data = new FormData();
+        data.append("action", "gbh_ververs_blokkades_lijst");
+        data.append("gbh_nonce", gbhNonce);
+        fetch(ajaxUrl, { method: "POST", body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                document.getElementById("gbh-blokkades-lijst").innerHTML = res.data.html;
+                document.querySelectorAll("#gbh-blokkades-lijst .gbh-blok-del").forEach(function(btn) {
+                    koppelVerwijderKnop(btn, btn.closest("tr"), null);
+                });
+            }
+        });
+    }
 
     document.getElementById("gbh-logout-btn").addEventListener("click", function() {
         const data = new FormData();
